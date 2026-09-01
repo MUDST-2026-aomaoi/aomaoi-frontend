@@ -19,10 +19,10 @@ export default function WorkerBalance() {
   }));
 
   return (
-    <div className="bg-[#4A4238] rounded-2xl p-6 flex flex-col gap-4 shadow-md">
+    <div className="bg-[#4A4238] rounded-2xl p-6 flex flex-col gap-5 min-h-[calc(100vh-120px)] shadow-md">
       
       {/* 1. ส่วนบน (การ์ดยอดเงิน & การ์ดสถานะ) */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-5 shrink-0">
         
         {/* ซ้าย: My Balance */}
         <div className="bg-farm-primary rounded-xl p-6 pb-4 text-white flex flex-col justify-between shadow-sm relative overflow-hidden">
@@ -86,7 +86,7 @@ export default function WorkerBalance() {
       </div>
 
       {/* 3. ส่วนล่าง (ตารางรายการทั้งหมด) */}
-      <div className="bg-white rounded-xl p-6 shadow-sm">
+      <div className="bg-white rounded-xl p-6 flex-1 flex flex-col min-h-[350px] shadow-sm">
         
         {/* Header ตาราง + ตัวกรอง */}
         <div className="flex justify-between items-center mb-4 shrink-0">
@@ -114,8 +114,8 @@ export default function WorkerBalance() {
           </div>
         </div>
 
-        {/* ตาราง */}
-        <div className="rounded-t-xl border border-gray-200">
+        {/* ตารางแบบ Scroll ได้ */}
+        <div className="flex-1 overflow-y-auto rounded-t-xl border border-gray-200">
           <table className="w-full text-left border-collapse">
             <thead className="bg-[#E5E7EB] sticky top-0 z-10">
               <tr>
