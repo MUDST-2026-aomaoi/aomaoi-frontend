@@ -1,6 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=TASA+Orbiter:wght@400..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+@theme {
+  --font-sans: "TASA Orbiter", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
+}
+
+@font-face {
+  font-family: 'TASA Orbiter';
+  src: url('/TASAOrbiter-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TASA Orbiter';
+  src: url('/TASAOrbiter-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TASA Orbiter';
+  src: url('/TASAOrbiter-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TASA Orbiter';
+  src: url('/TASAOrbiter-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TASA Orbiter';
+  src: url('/TASAOrbiter-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 body {
+  font-family: 'TASA Orbiter', 'Noto Sans Thai', sans-serif !important;
   @apply bg-farm-bg text-farm-text antialiased;
 }

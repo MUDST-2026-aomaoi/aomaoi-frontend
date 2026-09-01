@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"TASA Orbiter"', 'sans-serif'],
+      },
       colors: {
         farm: {
           primary: '#435834',
