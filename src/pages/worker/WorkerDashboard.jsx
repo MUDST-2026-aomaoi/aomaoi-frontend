@@ -40,9 +40,9 @@ export default function WorkerDashboard() {
               <item.icon size={24} />
             </div>
             <div>
-              <p className="text-base font-bold text-farm-text mb-1">{item.title}</p>
-              <p className="text-sm font-medium text-gray-500 mb-2">{item.value}</p>
-              <p className="text-lg font-bold text-farm-text">{item.amount}</p>
+              <p className="text-base font-extrabold text-farm-text mb-1">{item.title}</p>
+              <p className="text-sm font-bold text-gray-500 mb-2">{item.value}</p>
+              <p className="text-xl font-extrabold text-farm-text">{item.amount}</p>
             </div>
           </div>
         ))}
