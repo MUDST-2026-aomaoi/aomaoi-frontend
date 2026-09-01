@@ -4,7 +4,7 @@
 @config "../tailwind.config.js";
 
 @theme {
-  --font-sans: "TASA Orbiter", "Sarabun", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "TASA Orbiter", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
 }
 
 @font-face {
@@ -48,6 +48,6 @@
 }
 
 body {
-  font-family: 'TASA Orbiter', 'Sarabun', sans-serif !important;
+  font-family: 'TASA Orbiter', 'Noto Sans Thai', sans-serif !important;
   @apply bg-farm-bg text-farm-text antialiased;
 }
