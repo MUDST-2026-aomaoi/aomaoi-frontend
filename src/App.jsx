@@ -7,6 +7,8 @@ import WorkerLayout from './components/layout/WorkerLayout';
 import WorkerDashboard from './pages/worker/WorkerDashboard';
 import WorkerHistory from './pages/worker/WorkerHistory';
 
+import WorkerBalance from './pages/worker/WorkerBalance';
+
 function App() {
   return (
     <BrowserRouter>
@@ -19,7 +21,7 @@ function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<WorkerDashboard />} />
           <Route path="history" element={<WorkerHistory />} />
-          <Route path="balance" element={<div className="p-4 bg-white rounded-lg">หน้า Balance (เดี๋ยวมาทำต่อ)</div>} />
+          <Route path="balance" element={<WorkerBalance />} />
         </Route>
 
         {/* เส้นทางของ Admin (หน้าเพื่อน) */}
