@@ -1,17 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=TASA+Orbiter:wght@400..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
 @theme {
-  --font-sans: "TASA Orbiter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "TASA Orbiter", "Sarabun", ui-sans-serif, system-ui, sans-serif;
 }
-
-/* =========================================
-   TASA Orbiter Font Definitions
-   ========================================= */
 
 @font-face {
   font-family: 'TASA Orbiter';
-  src: url('./assets/fonts/TASAOrbiter-Regular.ttf') format('truetype');
+  src: url('/TASAOrbiter-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -19,7 +17,7 @@
 
 @font-face {
   font-family: 'TASA Orbiter';
-  src: url('./assets/fonts/TASAOrbiter-Medium.ttf') format('truetype');
+  src: url('/TASAOrbiter-Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -27,7 +25,7 @@
 
 @font-face {
   font-family: 'TASA Orbiter';
-  src: url('./assets/fonts/TASAOrbiter-SemiBold.ttf') format('truetype');
+  src: url('/TASAOrbiter-SemiBold.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -35,7 +33,7 @@
 
 @font-face {
   font-family: 'TASA Orbiter';
-  src: url('./assets/fonts/TASAOrbiter-Bold.ttf') format('truetype');
+  src: url('/TASAOrbiter-Bold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -43,13 +41,13 @@
 
 @font-face {
   font-family: 'TASA Orbiter';
-  src: url('./assets/fonts/TASAOrbiter-ExtraBold.ttf') format('truetype');
+  src: url('/TASAOrbiter-ExtraBold.ttf') format('truetype');
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 
 body {
-  font-family: 'TASA Orbiter', sans-serif !important;
+  font-family: 'TASA Orbiter', 'Sarabun', sans-serif !important;
   @apply bg-farm-bg text-farm-text antialiased;
 }
