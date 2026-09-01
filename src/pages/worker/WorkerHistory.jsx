@@ -1,13 +1,40 @@
-import { Search, Calendar } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Search } from 'lucide-react';
+
+// สร้างข้อมูลจำลองแบบหลากหลายเพื่อเทสการกรอง
+const mockData = [
+  { id: 1, date: '2026-01-20', displayDate: '20/01/2569', type: 'ตัดอ้อย', quantity: '20 ท่อน' },
+  { id: 2, date: '2026-01-21', displayDate: '21/01/2569', type: 'ปลูกอ้อย', quantity: '15 แถว' },
+  { id: 3, date: '2026-01-25', displayDate: '25/01/2569', type: 'ตัดอ้อย', quantity: '30 ท่อน' },
+  { id: 4, date: '2026-02-05', displayDate: '05/02/2569', type: 'รดน้ำ', quantity: '1 วัน' },
+  { id: 5, date: '2026-02-10', displayDate: '10/02/2569', type: 'พ่นยา', quantity: '5 ถัง' },
+  { id: 6, date: '2026-02-12', displayDate: '12/02/2569', type: 'ตัดอ้อย', quantity: '10 ท่อน' },
+  { id: 7, date: '2026-02-15', displayDate: '15/02/2569', type: 'ปลูกอ้อย', quantity: '20 แถว' },
+  { id: 8, date: '2026-02-18', displayDate: '18/02/2569', type: 'รดน้ำ', quantity: '1 วัน' },
+  { id: 9, date: '2026-02-20', displayDate: '20/02/2569', type: 'ตัดอ้อย', quantity: '45 ท่อน' },
+  { id: 10, date: '2026-02-25', displayDate: '25/02/2569', type: 'พ่นยา', quantity: '2 ถัง' },
+];
 
 export default function WorkerHistory() {
-  // สร้างข้อมูลจำลอง (Mock Data) สำหรับตาราง
-  const dummyHistory = Array.from({ length: 15 }).map((_, idx) => ({
-    id: idx,
-    date: '20/01/2569',
-    type: 'ตัดอ้อย',
-    quantity: '20 ท่อน'
-  }));
+  const [searchTerm, setSearchTerm] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  // ฟังก์ชันคำนวณการกรองข้อมูล
+  const filteredData = useMemo(() => {
+    return mockData.filter(item => {
+      // 1. กรองคำค้นหา (หาจากชื่องาน)
+      const matchSearch = item.type.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // 2. กรองวันที่เริ่มต้น
+      const matchStartDate = startDate ? item.date >= startDate : true;
+      
+      // 3. กรองวันที่สิ้นสุด
+      const matchEndDate = endDate ? item.date <= endDate : true;
+
+      return matchSearch && matchStartDate && matchEndDate;
+    });
+  }, [searchTerm, startDate, endDate]);
 
   return (
     <div className="bg-[#4A4238] rounded-2xl p-6 flex flex-col h-[calc(100vh-120px)] shadow-md">
@@ -18,32 +45,34 @@ export default function WorkerHistory() {
         <div className="relative flex-1 max-w-[500px]">
           <input 
             type="text" 
-            placeholder="search your activity" 
+            placeholder="search your activity (เช่น ตัดอ้อย)" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-5 pr-10 py-3 bg-white rounded-xl text-farm-text outline-none text-sm placeholder:text-gray-400 shadow-sm"
           />
           <Search size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
 
-        {/* ช่องวันที่เริ่มต้น */}
-        <div className="relative w-[220px]">
+        {/* ช่องวันที่เริ่มต้น (ใช้ type="date" เพื่อเรียกปฏิทินของระบบขึ้นมา) */}
+        <div className="relative w-[200px]">
           <input 
-            type="text" 
-            placeholder="search your date" 
-            className="w-full pl-4 pr-10 py-3 bg-white rounded-xl text-farm-text outline-none text-sm placeholder:text-gray-400 shadow-sm"
+            type="date" 
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="w-full px-4 py-3 bg-white rounded-xl text-farm-text outline-none text-sm text-gray-600 shadow-sm"
           />
-          <Calendar size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
 
         <span className="text-white font-medium text-lg px-1">ถึง</span>
 
         {/* ช่องวันที่สิ้นสุด */}
-        <div className="relative w-[220px]">
+        <div className="relative w-[200px]">
           <input 
-            type="text" 
-            placeholder="search your date" 
-            className="w-full pl-4 pr-10 py-3 bg-white rounded-xl text-farm-text outline-none text-sm placeholder:text-gray-400 shadow-sm"
+            type="date" 
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="w-full px-4 py-3 bg-white rounded-xl text-farm-text outline-none text-sm text-gray-600 shadow-sm"
           />
-          <Calendar size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
       </div>
 
@@ -60,13 +89,21 @@ export default function WorkerHistory() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {dummyHistory.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                <td className="py-3 px-6 text-farm-text font-medium">{item.date}</td>
-                <td className="py-3 px-6 text-farm-text font-medium">{item.type}</td>
-                <td className="py-3 px-6 text-farm-text font-medium">{item.quantity}</td>
+            {filteredData.length > 0 ? (
+              filteredData.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="py-3 px-6 text-farm-text font-medium">{item.displayDate}</td>
+                  <td className="py-3 px-6 text-farm-text font-medium">{item.type}</td>
+                  <td className="py-3 px-6 text-farm-text font-medium">{item.quantity}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="3" className="py-8 text-center text-gray-500 font-medium">
+                  ไม่พบประวัติการทำงานที่คุณค้นหา
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
