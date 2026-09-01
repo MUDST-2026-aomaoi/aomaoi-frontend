@@ -15,35 +15,35 @@ export default function WorkerHistory() {
       {/* ส่วนค้นหาและกรองวันที่ */}
       <div className="flex items-center gap-4 mb-6">
         {/* ช่อง Search */}
-        <div className="relative w-[400px]">
+        <div className="relative flex-1 max-w-[500px]">
           <input 
             type="text" 
             placeholder="search your activity" 
-            className="w-full pl-5 pr-10 py-2.5 rounded-lg text-farm-text outline-none text-sm placeholder:text-gray-400"
+            className="w-full pl-5 pr-10 py-3 bg-white rounded-xl text-farm-text outline-none text-sm placeholder:text-gray-400 shadow-sm"
           />
-          <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
 
         {/* ช่องวันที่เริ่มต้น */}
-        <div className="relative w-[200px]">
+        <div className="relative w-[220px]">
           <input 
             type="text" 
             placeholder="search your date" 
-            className="w-full pl-4 pr-10 py-2.5 rounded-lg text-farm-text outline-none text-sm placeholder:text-gray-400"
+            className="w-full pl-4 pr-10 py-3 bg-white rounded-xl text-farm-text outline-none text-sm placeholder:text-gray-400 shadow-sm"
           />
-          <Calendar size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Calendar size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
 
-        <span className="text-white font-medium">ถึง</span>
+        <span className="text-white font-medium text-lg px-1">ถึง</span>
 
         {/* ช่องวันที่สิ้นสุด */}
-        <div className="relative w-[200px]">
+        <div className="relative w-[220px]">
           <input 
             type="text" 
             placeholder="search your date" 
-            className="w-full pl-4 pr-10 py-2.5 rounded-lg text-farm-text outline-none text-sm placeholder:text-gray-400"
+            className="w-full pl-4 pr-10 py-3 bg-white rounded-xl text-farm-text outline-none text-sm placeholder:text-gray-400 shadow-sm"
           />
-          <Calendar size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Calendar size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
       </div>
 
