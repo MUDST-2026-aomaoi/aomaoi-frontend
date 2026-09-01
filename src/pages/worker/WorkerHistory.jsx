@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Calendar } from 'lucide-react';
 
 // สร้างข้อมูลจำลองแบบหลากหลายเพื่อเทสการกรอง
 const mockData = [
@@ -53,26 +53,28 @@ export default function WorkerHistory() {
           <Search size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
 
-        {/* ช่องวันที่เริ่มต้น (ใช้ type="date" เพื่อเรียกปฏิทินของระบบขึ้นมา) */}
-        <div className="relative w-[200px]">
+        {/* ช่องวันที่เริ่มต้น */}
+        <div className="relative w-[200px] bg-white rounded-xl shadow-sm">
           <input 
             type="date" 
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full px-4 py-3 bg-white rounded-xl text-farm-text outline-none text-sm text-gray-600 shadow-sm"
+            className="w-full pl-4 pr-10 py-3 bg-transparent text-farm-text outline-none text-sm text-gray-600 relative z-20 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
           />
+          <Calendar size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
         </div>
 
         <span className="text-white font-medium text-lg px-1">ถึง</span>
 
         {/* ช่องวันที่สิ้นสุด */}
-        <div className="relative w-[200px]">
+        <div className="relative w-[200px] bg-white rounded-xl shadow-sm">
           <input 
             type="date" 
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="w-full px-4 py-3 bg-white rounded-xl text-farm-text outline-none text-sm text-gray-600 shadow-sm"
+            className="w-full pl-4 pr-10 py-3 bg-transparent text-farm-text outline-none text-sm text-gray-600 relative z-20 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
           />
+          <Calendar size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
         </div>
       </div>
 
