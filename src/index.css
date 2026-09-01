@@ -50,5 +50,6 @@
 }
 
 body {
+  font-family: 'TASA Orbiter', sans-serif !important;
   @apply bg-farm-bg text-farm-text antialiased;
 }
