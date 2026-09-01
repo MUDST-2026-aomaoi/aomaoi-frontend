@@ -5,6 +5,7 @@ import WorkerLayout from './components/layout/WorkerLayout';
 
 // Pages
 import WorkerDashboard from './pages/worker/WorkerDashboard';
+import WorkerHistory from './pages/worker/WorkerHistory';
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
         <Route path="/worker" element={<WorkerLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<WorkerDashboard />} />
-          <Route path="history" element={<div className="p-4 bg-white rounded-lg">หน้า History (เดี๋ยวมาทำต่อ)</div>} />
+          <Route path="history" element={<WorkerHistory />} />
           <Route path="balance" element={<div className="p-4 bg-white rounded-lg">หน้า Balance (เดี๋ยวมาทำต่อ)</div>} />
         </Route>
 
