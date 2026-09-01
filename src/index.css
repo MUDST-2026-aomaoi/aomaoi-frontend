@@ -11,7 +11,7 @@
 
 @font-face {
   font-family: 'TASA Orbiter';
-  src: url('/fonts/TASAOrbiter-Regular.ttf') format('truetype');
+  src: url('./assets/fonts/TASAOrbiter-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -19,7 +19,7 @@
 
 @font-face {
   font-family: 'TASA Orbiter';
-  src: url('/fonts/TASAOrbiter-Medium.ttf') format('truetype');
+  src: url('./assets/fonts/TASAOrbiter-Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -27,7 +27,7 @@
 
 @font-face {
   font-family: 'TASA Orbiter';
-  src: url('/fonts/TASAOrbiter-SemiBold.ttf') format('truetype');
+  src: url('./assets/fonts/TASAOrbiter-SemiBold.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -35,7 +35,7 @@
 
 @font-face {
   font-family: 'TASA Orbiter';
-  src: url('/fonts/TASAOrbiter-Bold.ttf') format('truetype');
+  src: url('./assets/fonts/TASAOrbiter-Bold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -43,7 +43,7 @@
 
 @font-face {
   font-family: 'TASA Orbiter';
-  src: url('/fonts/TASAOrbiter-ExtraBold.ttf') format('truetype');
+  src: url('./assets/fonts/TASAOrbiter-ExtraBold.ttf') format('truetype');
   font-weight: 800;
   font-style: normal;
   font-display: swap;
