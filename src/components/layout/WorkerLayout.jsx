@@ -14,10 +14,9 @@ export default function WorkerLayout() {
     }`;
   };
 
-  // ดึงชื่อหน้าจาก URL เพื่อมาแสดงที่ Header
   const getPageInfo = () => {
     if (location.pathname.includes('/history')) return { title: 'History', sub: 'Here is the history of overall data' };
-    if (location.pathname.includes('/balance')) return { title: 'Balance', sub: 'Overview of your earnings' };
+    if (location.pathname.includes('/balance')) return { title: 'Balance', sub: 'Here is the balance of overall data' };
     return { title: 'Dashboard', sub: 'Here is the summary of overall data' };
   };
   const pageInfo = getPageInfo();
