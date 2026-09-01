@@ -19,10 +19,10 @@ export default function WorkerBalance() {
   }));
 
   return (
-    <div className="bg-[#4A4238] rounded-2xl p-6 flex flex-col h-[calc(100vh-120px)] shadow-md overflow-hidden">
+    <div className="bg-[#4A4238] rounded-2xl p-6 flex flex-col gap-4 shadow-md">
       
       {/* 1. ส่วนบน (การ์ดยอดเงิน & การ์ดสถานะ) */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-2 gap-4">
         
         {/* ซ้าย: My Balance */}
         <div className="bg-farm-primary rounded-xl p-6 pb-4 text-white flex flex-col justify-between shadow-sm relative overflow-hidden">
@@ -65,7 +65,7 @@ export default function WorkerBalance() {
       </div>
 
       {/* 2. ส่วนกลาง (แยกยอดตามประเภทงาน) */}
-      <div className="bg-white rounded-xl p-6 mb-4 shadow-sm shrink-0">
+      <div className="bg-white rounded-xl p-6 shadow-sm shrink-0">
         <h3 className="text-farm-text font-extrabold text-lg mb-5">แยกยอดตามประเภทงาน</h3>
         <div className="flex flex-col gap-4">
           {workStats.map((stat, i) => (
@@ -86,7 +86,7 @@ export default function WorkerBalance() {
       </div>
 
       {/* 3. ส่วนล่าง (ตารางรายการทั้งหมด) */}
-      <div className="bg-white rounded-xl p-6 flex-1 flex flex-col shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl p-6 shadow-sm">
         
         {/* Header ตาราง + ตัวกรอง */}
         <div className="flex justify-between items-center mb-4 shrink-0">
@@ -115,7 +115,7 @@ export default function WorkerBalance() {
         </div>
 
         {/* ตาราง */}
-        <div className="overflow-y-auto flex-1 rounded-t-xl border border-gray-200">
+        <div className="rounded-t-xl border border-gray-200">
           <table className="w-full text-left border-collapse">
             <thead className="bg-[#E5E7EB] sticky top-0 z-10">
               <tr>
