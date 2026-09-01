@@ -94,6 +94,7 @@ jobs:
               if (segments.includes('worker')) labelsToAdd.add('worker');
               if (segments.includes('components')) labelsToAdd.add('component');
               if (segments.includes('public') || segments.includes('assets')) labelsToAdd.add('assets');
+              if (segments.includes('workflows')) labelsToAdd.add('workflows');
             }
 
             // 5. Handle .env warning and critical label
