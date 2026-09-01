@@ -49,14 +49,14 @@ jobs:
             });
 
             // 2. Auto-request review based on author
-            if (prAuthor.toLowerCase() === 'PuthoPutho') {
+            if (prAuthor.toLowerCase() === 'puthoputho') {
               await github.rest.pulls.requestReviewers({
                 owner,
                 repo,
                 pull_number,
                 reviewers: ['Bankkie16149']
               });
-            } else if (prAuthor.toLowerCase() === 'Bankkie16149') {
+            } else if (prAuthor.toLowerCase() === 'bankkie16149') {
               await github.rest.pulls.requestReviewers({
                 owner,
                 repo,
