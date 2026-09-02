@@ -6,7 +6,7 @@ import WorkLog from './pages/admin/WorkLog';
 import Overview from './pages/admin/Overview';
 
 // Layouts
-import WorkerLayout from './components/layout/WorkerLayout';
+import WorkerLayout from './layouts/worker/WorkerLayout';
 
 // Pages
 import WorkerDashboard from './pages/worker/WorkerDashboard';

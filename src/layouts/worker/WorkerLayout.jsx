@@ -1,10 +1,15 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, History, Wallet, LogOut, CircleUserRound } from 'lucide-react';
+import { useWorkerStore } from '../../store/useWorkerStore';
 
 export default function WorkerLayout() {
   const location = useLocation();
+  const getWorkerName = useWorkerStore((s) => s.getWorkerName);
+  
+  // สมมติว่าตอนนี้ล็อกอินด้วย ID '1'
+  const myWorkerId = '1';
+  const myName = getWorkerName(myWorkerId);
 
-  // ฟังก์ชันช่วยเช็คว่า URL ปัจจุบันตรงกับเมนูไหน เพื่อเปลี่ยนสีเมนูให้สว่างขึ้น
   const getNavClass = (path) => {
     const isActive = location.pathname.includes(path);
     return `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
@@ -23,8 +28,6 @@ export default function WorkerLayout() {
 
   return (
     <div className="flex h-screen bg-farm-bg text-farm-text font-sans">
-      
-      {/* 1. Sidebar (แถบเมนูด้านซ้ายสีเขียวเข้ม) */}
       <aside className="w-64 bg-farm-primary text-white flex flex-col justify-between shrink-0 shadow-lg z-10">
         <div>
           <div className="px-6 pt-8 pb-4">
@@ -45,8 +48,6 @@ export default function WorkerLayout() {
             </nav>
           </div>
         </div>
-
-        {/* ปุ่ม Logout ด้านล่างสุด */}
         <div className="p-4 border-t border-white/10">
           <button className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors w-full">
             <LogOut size={20} />
@@ -55,32 +56,24 @@ export default function WorkerLayout() {
         </div>
       </aside>
 
-      {/* 2. Main Content Area (พื้นที่เนื้อหาด้านขวา) */}
       <div className="flex-1 flex flex-col overflow-y-auto">
-        
-        {/* Top Header (มีชื่อหน้า และ Profile) */}
         <header className="px-8 pt-8 pb-4 flex justify-between items-start shrink-0">
           <div>
             <h1 className="text-2xl font-bold text-farm-text">{pageInfo.title}</h1>
             <p className="text-farm-primary font-medium text-sm mt-1">{pageInfo.sub}</p>
           </div>
-          
-          {/* ข้อมูลโปรไฟล์มุมขวาบน */}
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-sm font-bold text-farm-primary leading-none">Natnicha J.</p>
-              <p className="text-xs text-gray-500 mt-1">worker</p>
+              <p className="text-sm font-bold text-farm-primary leading-none">{myName}</p>
+              <p className="text-xs text-gray-500 mt-1">Worker</p>
             </div>
             <CircleUserRound size={36} className="text-gray-400" strokeWidth={1.5} />
           </div>
         </header>
 
-        {/* 3. Outlet (ช่องเสียบเนื้อหาของแต่ละหน้า) */}
         <main className="px-8 pb-8 flex-1">
-          {/* ตัว <Outlet /> คือจุดที่ React Router จะเอาหน้า Dashboard หรือ History มาเสียบแทนที่ตรงนี้ครับ */}
-          <Outlet />
+          <Outlet context={{ myWorkerId }} />
         </main>
-
       </div>
     </div>
   );

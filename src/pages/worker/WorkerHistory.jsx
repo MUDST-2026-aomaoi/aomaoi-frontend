@@ -1,47 +1,49 @@
 import { useState, useMemo } from 'react';
 import { Search, Calendar } from 'lucide-react';
-
-// สร้างข้อมูลจำลองแบบหลากหลายเพื่อเทสการกรอง
-const mockData = [
-  { id: 1, date: '2026-01-20', displayDate: '20/01/2569', type: 'ตัดอ้อย', quantity: '20 ท่อน' },
-  { id: 2, date: '2026-01-21', displayDate: '21/01/2569', type: 'ปลูกอ้อย', quantity: '15 แถว' },
-  { id: 3, date: '2026-01-25', displayDate: '25/01/2569', type: 'ตัดอ้อย', quantity: '30 ท่อน' },
-  { id: 4, date: '2026-02-05', displayDate: '05/02/2569', type: 'รดน้ำ', quantity: '1 วัน' },
-  { id: 5, date: '2026-02-10', displayDate: '10/02/2569', type: 'พ่นยา', quantity: '5 ถัง' },
-  { id: 6, date: '2026-02-12', displayDate: '12/02/2569', type: 'ตัดอ้อย', quantity: '10 ท่อน' },
-  { id: 7, date: '2026-02-15', displayDate: '15/02/2569', type: 'ปลูกอ้อย', quantity: '20 แถว' },
-  { id: 8, date: '2026-02-18', displayDate: '18/02/2569', type: 'รดน้ำ', quantity: '1 วัน' },
-  { id: 9, date: '2026-02-20', displayDate: '20/02/2569', type: 'ตัดอ้อย', quantity: '45 ท่อน' },
-  { id: 10, date: '2026-02-25', displayDate: '25/02/2569', type: 'พ่นยา', quantity: '2 ถัง' },
-];
+import { useOutletContext } from 'react-router-dom';
+import { useWorkLogStore } from '../../store/useWorkLogStore';
+import { WORK_LOG_TYPES } from '../../config/workLogTypes';
+import { formatDate } from '../../lib/format';
 
 export default function WorkerHistory() {
+  const { myWorkerId } = useOutletContext();
+  
+  // 1. ดึงข้อมูลจริงจาก Store ของเพื่อน
+  const allEntries = useWorkLogStore((s) => s.entries);
+  
+  // 2. กรองเฉพาะงานของ Worker คนนี้ (สมชาย) และประยุกต์โครงสร้างให้พร้อมแสดงผล
+  const myData = useMemo(() => {
+    return allEntries
+      .filter(e => e.workerId === myWorkerId)
+      .map(e => ({
+        id: e.id,
+        rawDate: e.date,
+        displayDate: formatDate(e.date),
+        typeLabel: WORK_LOG_TYPES[e.type].labelTh,
+        quantity: WORK_LOG_TYPES[e.type].summaryText(e)
+      }))
+      .sort((a, b) => b.rawDate.localeCompare(a.rawDate)); // เรียงจากล่าสุดไปเก่าสุด
+  }, [allEntries, myWorkerId]);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // ฟังก์ชันคำนวณการกรองข้อมูล
+  // 3. กรองตาม Search และ Date Filter
   const filteredData = useMemo(() => {
-    return mockData.filter(item => {
-      // 1. กรองคำค้นหา (หาจากชื่องาน)
-      const matchSearch = item.type.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      // 2. กรองวันที่เริ่มต้น
-      const matchStartDate = startDate ? item.date >= startDate : true;
-      
-      // 3. กรองวันที่สิ้นสุด
-      const matchEndDate = endDate ? item.date <= endDate : true;
-
+    return myData.filter(item => {
+      const matchSearch = item.typeLabel.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchStartDate = startDate ? item.rawDate >= startDate : true;
+      const matchEndDate = endDate ? item.rawDate <= endDate : true;
       return matchSearch && matchStartDate && matchEndDate;
     });
-  }, [searchTerm, startDate, endDate]);
+  }, [myData, searchTerm, startDate, endDate]);
 
   return (
     <div className="bg-[#4A4238] rounded-2xl p-6 flex flex-col h-[calc(100vh-120px)] shadow-md">
       
       {/* ส่วนค้นหาและกรองวันที่ */}
       <div className="flex items-center gap-4 mb-6">
-        {/* ช่อง Search */}
         <div className="relative flex-1 max-w-[500px]">
           <input 
             type="text" 
@@ -53,7 +55,6 @@ export default function WorkerHistory() {
           <Search size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
 
-        {/* ช่องวันที่เริ่มต้น */}
         <div className="relative w-[200px] bg-white rounded-xl shadow-sm">
           <input 
             type="date" 
@@ -66,7 +67,6 @@ export default function WorkerHistory() {
 
         <span className="text-white font-medium text-lg px-1">ถึง</span>
 
-        {/* ช่องวันที่สิ้นสุด */}
         <div className="relative w-[200px] bg-white rounded-xl shadow-sm">
           <input 
             type="date" 
@@ -95,7 +95,7 @@ export default function WorkerHistory() {
               filteredData.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                   <td className="py-3 px-6 text-farm-text font-medium">{item.displayDate}</td>
-                  <td className="py-3 px-6 text-farm-text font-medium">{item.type}</td>
+                  <td className="py-3 px-6 text-farm-text font-medium">{item.typeLabel}</td>
                   <td className="py-3 px-6 text-farm-text font-medium">{item.quantity}</td>
                 </tr>
               ))
