@@ -1,14 +1,89 @@
-import { Clock, Wallet, Sprout, Droplets, SprayCan, Axe } from 'lucide-react';
+import { useMemo } from 'react';
+import { Clock, Wallet, Sprout, Droplets, SprayCan, Scissors } from 'lucide-react';
+import { useOutletContext } from 'react-router-dom';
+import { useWorkLogStore } from '../../store/useWorkLogStore';
+import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
+import { formatDate, formatBaht } from '../../lib/format';
+
+function isThisMonth(dateStr) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+}
 
 export default function WorkerDashboard() {
+  const { myWorkerId } = useOutletContext();
+  const allEntries = useWorkLogStore((s) => s.entries);
+  
+  // กรองงานเฉพาะของคนนี้
+  const myEntries = useMemo(() => allEntries.filter(e => e.workerId === myWorkerId), [allEntries, myWorkerId]);
+  
+  // กรองเฉพาะเดือนนี้
+  const myEntriesThisMonth = useMemo(() => myEntries.filter(e => isThisMonth(e.date)), [myEntries]);
+  
+  // คำนวณยอดเงินรวมเดือนนี้
+  const totalBalanceThisMonth = useMemo(() => myEntriesThisMonth.reduce((sum, e) => sum + e.total, 0), [myEntriesThisMonth]);
+
+  // คำนวณประวัติล่าสุด 3 อันดับ (เอาไว้โชว์แถบการแจ้งเตือนและรายการล่าสุด)
+  const recentActivities = useMemo(() => {
+    return [...myEntries].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4);
+  }, [myEntries]);
+
+  // สรุปยอด 4 กล่อง (ตัดอ้อย ปลูกอ้อย รดน้ำ พ่นยา) ประจำเดือนนี้
+  const statsBoxes = useMemo(() => {
+    return WORK_LOG_ORDER.map(type => {
+      const typeEntries = myEntriesThisMonth.filter(e => e.type === type);
+      const totalThb = typeEntries.reduce((sum, e) => sum + e.total, 0);
+      
+      let summaryStr = '';
+      if (type === 'cutting') {
+        const rows = typeEntries.reduce((sum, e) => sum + e.rows, 0);
+        summaryStr = `${rows} แถว`;
+      } else if (type === 'planting') {
+        const furrows = typeEntries.reduce((sum, e) => sum + e.furrows, 0);
+        summaryStr = `${furrows} ร่อง`;
+      } else if (type === 'watering') {
+        const days = typeEntries.reduce((sum, e) => sum + e.days, 0);
+        summaryStr = `${days} วัน`;
+      } else if (type === 'spraying') {
+        const tanks = typeEntries.reduce((sum, e) => sum + e.tanks, 0);
+        summaryStr = `${tanks} ถัง`;
+      }
+
+      return {
+        title: WORK_LOG_TYPES[type].labelTh,
+        value: summaryStr,
+        amount: formatBaht(totalThb),
+        icon: WORK_LOG_TYPES[type].icon
+      };
+    });
+  }, [myEntriesThisMonth]);
+
+  // สำหรับ Chart แท่ง 5 อันล่าสุด (สมมติว่าเป็น 5 รายการล่าสุดละกันเพื่อความง่าย)
+  const chartBars = useMemo(() => {
+    const bars = [];
+    const maxBarValue = Math.max(...recentActivities.map(a => a.total), 1);
+    for (let i = 0; i < 5; i++) {
+      const act = recentActivities[4 - i]; // เรียงจากเก่าไปใหม่ใน 5 อันดับ
+      if (act) {
+        bars.push({ label: act.date.slice(5, 10), height: `${(act.total / maxBarValue) * 100}%` });
+      } else {
+        bars.push({ label: '-', height: '0%' });
+      }
+    }
+    return bars;
+  }, [recentActivities]);
+
   return (
-    // จำกัดความสูงทั้งหมดให้อยู่แค่ใน 1 หน้าจอ (h-[calc...])
     <div className="flex flex-col gap-3 h-[calc(100vh-115px)]">
       
       {/* 1. แถบแจ้งเตือนด้านบนสุด */}
       <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-2.5 text-xs font-medium text-farm-text shadow-sm shrink-0">
         <Clock size={16} className="text-farm-accent" />
-        <span>บันทึกงานล่าสุด: วันนี้ 08:40 น. • ทำงานแล้ว 18 วันในเดือนนี้</span>
+        <span>
+          บันทึกงานล่าสุด: {recentActivities[0] ? formatDate(recentActivities[0].date) : 'ไม่มีข้อมูล'} 
+          • ทำงานแล้ว {new Set(myEntriesThisMonth.map(e => e.date)).size} วันในเดือนนี้
+        </span>
       </div>
 
       {/* 2. การ์ดสีเขียวแสดงยอดเงิน (My Balance) */}
@@ -22,86 +97,92 @@ export default function WorkerDashboard() {
             <p className="text-xs text-white/80 mt-0.5">Overview This month</p>
           </div>
         </div>
-        <div className="text-3xl font-bold relative z-10">50,000 THB</div>
+        <div className="text-3xl font-bold relative z-10">{formatBaht(totalBalanceThisMonth)}</div>
         
-        {/* ลวดลายวงกลมจางๆ พื้นหลังการ์ด */}
         <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/5 rounded-full blur-2xl"></div>
         <div className="absolute top-20 right-20 w-32 h-32 bg-white/5 rounded-full blur-xl"></div>
       </div>
 
       {/* 3. การ์ดสรุปงาน 4 กล่อง */}
       <div className="grid grid-cols-4 gap-3 shrink-0">
-        {[
-          { title: 'ตัดอ้อย', value: '86 แถว', amount: '12,900 THB.', icon: Axe },
-          { title: 'ปลูกอ้อย', value: '54 แถว', amount: '8,100 THB.', icon: Sprout },
-          { title: 'รดน้ำ', value: '18 วัน', amount: '9,000 THB.', icon: Droplets },
-          { title: 'พ่นยา', value: '10 ถัง', amount: '5,000 THB.', icon: SprayCan },
-        ].map((item, idx) => (
-          <div key={idx} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="bg-[#D1A344] w-10 h-10 rounded-lg flex items-center justify-center text-white mb-2">
-              <item.icon size={20} />
+        {statsBoxes.map((item, idx) => {
+          const Icon = item.icon;
+          return (
+            <div key={idx} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start mb-3">
+                <div className="bg-[#F3EFE6] text-[#91712A] p-2 rounded-lg">
+                  <Icon size={16} strokeWidth={2.5} />
+                </div>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 font-bold mb-0.5">{item.title}</p>
+                <div className="flex items-baseline gap-1.5 mb-1">
+                  <span className="text-sm font-extrabold text-farm-text">{item.value}</span>
+                </div>
+                <p className="text-xs font-bold text-farm-accent">{item.amount}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-extrabold text-farm-text mb-0.5">{item.title}</p>
-              <p className="text-xs font-bold text-gray-500 mb-1">{item.value}</p>
-              <p className="text-lg font-extrabold text-farm-text">{item.amount}</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* 4. พื้นที่ด้านล่าง (กราฟ + ประวัติล่าสุด) - ใช้ flex-1 เพื่อให้พอดีกับพื้นที่จอที่เหลือ */}
-      <div className="grid grid-cols-12 gap-3 flex-1 min-h-0">
+      {/* 4. ส่วนครึ่งล่าง (กราฟแท่ง + ประวัติล่าสุด) */}
+      <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
         
-        {/* กล่องซ้าย: กราฟแท่ง */}
-        <div className="col-span-6 bg-[#4A4238] rounded-2xl p-5 flex flex-col justify-end text-white shadow-md">
-          <div className="flex justify-around items-end h-[85%] w-full">
-            {[
-              { month: 'มี.ค.', val: 34, height: 'h-[90%]' },
-              { month: 'เม.ย.', val: 27, height: 'h-[60%]' },
-              { month: 'พ.ค.', val: 32, height: 'h-[85%]' },
-              { month: 'ก.ค.', val: 20, height: 'h-[40%]' },
-              { month: 'ส.ค.', val: 24, height: 'h-[55%]' },
-            ].map((bar, i) => (
-              <div key={i} className="flex flex-col items-center gap-2 w-12 h-full justify-end">
-                <div className={`w-8 ${bar.height} bg-[#E5D4A4] rounded-t-lg rounded-b-sm shadow-inner`}></div>
-                <div className="text-center mt-1">
-                  <p className="text-xs font-bold text-white/90">{bar.val}</p>
-                  <p className="text-[10px] text-white/60">{bar.month}</p>
+        {/* กราฟจำลอง */}
+        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex flex-col min-h-0">
+          <div className="flex justify-between items-center mb-4 shrink-0">
+            <h3 className="text-farm-text font-extrabold text-sm">การทำงานล่าสุด</h3>
+            <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-md">5 รายการล่าสุด</span>
+          </div>
+          
+          <div className="flex-1 flex items-end justify-between gap-4 relative pt-4 min-h-0">
+            {chartBars.map((bar, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                <div className="w-full bg-[#F3EFE6] rounded-t-sm rounded-b-sm relative flex-1">
+                  <div 
+                    className="absolute bottom-0 left-0 w-full bg-[#91712A] rounded-t-sm rounded-b-sm transition-all duration-500 group-hover:bg-[#C29D45]"
+                    style={{ height: bar.height }}
+                  ></div>
                 </div>
+                <span className="text-[10px] font-bold text-gray-400">{bar.label}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* กล่องขวา: ประวัติงานล่าสุด */}
-        <div className="col-span-6 bg-[#4A4238] rounded-2xl p-5 text-white shadow-md flex flex-col min-h-0">
-          <h3 className="text-lg font-bold mb-3 shrink-0">ประวัติงานล่าสุด</h3>
-          <div className="flex flex-col gap-0 flex-1 overflow-y-auto pr-2">
-            {[
-              { title: 'ตัดอ้อย · 14 แถว', date: '13 ส.ค. 2569', amount: '+ 2,100', icon: Axe },
-              { title: 'พ่นยา · 3 ถัง', date: '12 ส.ค. 2569', amount: '+ 1,500', icon: SprayCan },
-              { title: 'ปลูกอ้อย · 9 แถว', date: '12 ส.ค. 2569', amount: '+ 500', icon: Sprout },
-              { title: 'รดน้ำ · 1 วัน', date: '12 ส.ค. 2569', amount: '+ 1,350', icon: Droplets },
-              { title: 'ตัดอ้อย · 10 แถว', date: '10 ส.ค. 2569', amount: '+ 1,500', icon: Axe },
-            ].map((activity, i) => (
-              <div key={i} className="flex items-center justify-between border-b border-white/10 py-3 first:pt-0 last:border-0 last:pb-0 hover:bg-white/5 px-2 -mx-2 rounded-lg transition-colors">
-                <div className="flex items-center gap-3">
-                  <activity.icon size={20} className="text-[#E5D4A4]" />
-                  <div>
-                    <p className="font-bold text-xs tracking-wide">{activity.title}</p>
-                    <p className="text-[10px] text-white/60 mt-0.5">{activity.date}</p>
+        {/* รายการล่าสุด */}
+        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex flex-col min-h-0">
+          <div className="flex justify-between items-center mb-3 shrink-0">
+            <h3 className="text-farm-text font-extrabold text-sm">ประวัติล่าสุด</h3>
+            <a href="/worker/history" className="text-xs font-bold text-farm-accent hover:underline">ดูทั้งหมด</a>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto pr-2 space-y-3 min-h-0">
+            {recentActivities.map((item) => {
+              const Icon = WORK_LOG_TYPES[item.type].icon;
+              return (
+                <div key={item.id} className="flex items-center justify-between border-b border-gray-50 pb-2 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-[#F3EFE6] text-[#91712A] p-2 rounded-lg shrink-0">
+                      <Icon size={16} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-farm-text">{WORK_LOG_TYPES[item.type].labelTh}</p>
+                      <p className="text-[10px] font-medium text-gray-400 mt-0.5">{formatDate(item.date)}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-extrabold text-[#91712A]">{formatBaht(item.total)}</p>
                   </div>
                 </div>
-                <div className="font-bold text-sm text-white">
-                  {activity.amount}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
       </div>
+
     </div>
   );
 }
