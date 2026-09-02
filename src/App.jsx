@@ -1,4 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AdminLayout } from './layouts/admin/AdminLayout';
+import Dashboard from './pages/admin/Dashboard';
+import Workers from './pages/admin/Workers';
+import WorkLog from './pages/admin/WorkLog';
+import Overview from './pages/admin/Overview';
 
 // Layouts
 import WorkerLayout from './components/layout/WorkerLayout';
@@ -24,9 +29,16 @@ function App() {
           <Route path="balance" element={<WorkerBalance />} />
         </Route>
 
-        {/* เส้นทางของ Admin (หน้าเพื่อน) */}
-        <Route path="/admin" element={<div className="p-4">นี่คือที่ดินของ Admin (รอเพื่อนมาเขียน)</div>}>
-          <Route path="dashboard" element={<div>Admin Dashboard</div>} />
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="workers" element={<Workers />} />
+          <Route path="work/cutting" element={<WorkLog type="cutting" />} />
+          <Route path="work/planting" element={<WorkLog type="planting" />} />
+          <Route path="work/watering" element={<WorkLog type="watering" />} />
+          <Route path="work/spraying" element={<WorkLog type="spraying" />} />
+          <Route path="overview" element={<Overview />} />
         </Route>
         
         {/* เส้นทางของ Superadmin (หน้าเพื่อน) */}
