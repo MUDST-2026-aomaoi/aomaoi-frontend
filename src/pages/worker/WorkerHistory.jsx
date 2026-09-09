@@ -1,9 +1,26 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, forwardRef } from 'react';
 import { Search, Calendar, ChevronDown } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
 import { formatDate, formatBaht } from '../../lib/format';
+
+const CustomDateInput = forwardRef(({ value, onClick, placeholder }, ref) => (
+  <div className="relative w-full cursor-pointer" onClick={onClick} ref={ref}>
+    <input 
+      type="text"
+      readOnly
+      value={value}
+      placeholder={placeholder}
+      className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm focus:border-[#708238] cursor-pointer"
+    />
+    <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+  </div>
+));
+CustomDateInput.displayName = 'CustomDateInput';
 
 export default function WorkerHistory() {
   const { myWorkerId } = useOutletContext();
@@ -52,15 +69,15 @@ export default function WorkerHistory() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   const filteredData = useMemo(() => {
     return myData.filter(item => {
       const matchSearch = item.typeLabel.toLowerCase().includes(searchTerm.toLowerCase());
       const matchType = filterType ? item.type === filterType : true;
-      const matchStartDate = startDate ? item.rawDate >= startDate : true;
-      const matchEndDate = endDate ? item.rawDate <= endDate : true;
+      const matchStartDate = startDate ? item.rawDate >= format(startDate, 'yyyy-MM-dd') : true;
+      const matchEndDate = endDate ? item.rawDate <= format(endDate, 'yyyy-MM-dd') : true;
       return matchSearch && matchType && matchStartDate && matchEndDate;
     });
   }, [myData, searchTerm, filterType, startDate, endDate]);
@@ -103,26 +120,24 @@ export default function WorkerHistory() {
 
         {/* Date Range */}
         <div className="flex items-center gap-3">
-          <div className="relative w-[180px]">
-            <input 
-              type="date" 
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm relative z-20 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer focus:border-[#708238]"
+          <div className="w-[180px]">
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              customInput={<CustomDateInput placeholder="search your date" />}
+              dateFormat="dd/MM/yyyy"
             />
-            <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
           </div>
 
           <span className="text-farm-text font-bold text-[14px] px-1">ถึง</span>
 
-          <div className="relative w-[180px]">
-            <input 
-              type="date" 
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm relative z-20 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer focus:border-[#708238]"
+          <div className="w-[180px]">
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              customInput={<CustomDateInput placeholder="search your date" />}
+              dateFormat="dd/MM/yyyy"
             />
-            <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
           </div>
         </div>
 
@@ -132,7 +147,7 @@ export default function WorkerHistory() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
         <div className="overflow-x-auto w-full">
           <table className="w-full text-center border-collapse min-w-[800px]">
-            <thead className="bg-[#EFEBE1] border-b border-gray-200">
+            <thead className="bg-gray-200 border-b border-gray-200">
               <tr>
                 <th className="py-4 px-8 text-left text-[#5A5248] font-bold text-[15px]">Date</th>
                 <th className="py-4 px-6 text-[#5A5248] font-bold text-[15px]">Work Type</th>
