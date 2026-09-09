@@ -1,52 +1,23 @@
 import { useState } from 'react';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore, ROLE_HOME } from '../../store/useAuthStore';
-import { useWorkerStore } from '../../store/useWorkerStore';
-import { useAdminStore } from '../../store/useAdminStore';
 import SetPasswordModal from '../../components/auth/SetPasswordModal';
 
 export default function Login() {
   const navigate = useNavigate();
-  const login = useAuthStore((s) => s.login);
-  const currentUser = useAuthStore((s) => s.currentUser);  // ← ดึงผ่าน hook เพื่อให้ react re-render ถูกต้อง
-  const workers = useWorkerStore((s) => s.workers);
-  const admins = useAdminStore((s) => s.admins);
-
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [showSetPassword, setShowSetPassword] = useState(false);
-  const [pendingRole, setPendingRole] = useState(null);  // ← เก็บ role ไว้ใช้ตอน redirect หลังตั้งรหัสผ่าน
 
   const handleLogin = (e) => {
     e.preventDefault();
-    setError('');
-
-    if (!username.trim() || !password.trim()) {
-      setError('กรุณากรอก Username และ Password ให้ครบถ้วน');
-      return;
-    }
-
-    const result = login(username.trim(), password.trim(), { workers, admins });
-
-    if (!result.success) {
-      setError(result.error);
-      return;
-    }
-
-    if (result.isFirstLogin) {
-      setPendingRole(result.role);  // ← เก็บ role ไว้ก่อน (ปลอดภัยกว่าอ่านจาก store ทีหลัง)
-      setShowSetPassword(true);
-    } else {
-      navigate(ROLE_HOME[result.role] ?? '/login');
-    }
+    // TODO: เพิ่ม logic auth จริงๆ ทีหลัง
+    // ตอนนี้แค่แสดง popup ตั้งรหัสผ่านก่อน (จำลอง first login)
+    setShowSetPassword(true);
   };
 
   const handlePasswordSet = () => {
     setShowSetPassword(false);
-    navigate(ROLE_HOME[pendingRole] ?? '/login');  // ← ใช้ pendingRole ที่เก็บไว้แทน getState()
+    navigate('/worker/dashboard');
   };
 
   return (
@@ -80,8 +51,6 @@ export default function Login() {
               <User size={17} className="text-gray-400 shrink-0" />
               <input
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
                 placeholder="enter your username"
                 className="flex-1 outline-none text-sm text-gray-700 placeholder:text-gray-400 bg-transparent"
               />
@@ -95,8 +64,6 @@ export default function Login() {
               <Lock size={17} className="text-gray-400 shrink-0" />
               <input
                 type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 placeholder="enter your password"
                 className="flex-1 outline-none text-sm text-gray-700 placeholder:text-gray-400 bg-transparent"
               />
@@ -109,11 +76,6 @@ export default function Login() {
               </button>
             </div>
           </div>
-
-          {/* Error */}
-          {error && (
-            <p className="text-red-500 text-[13px] text-center font-medium">{error}</p>
-          )}
 
           {/* Submit Button */}
           <button

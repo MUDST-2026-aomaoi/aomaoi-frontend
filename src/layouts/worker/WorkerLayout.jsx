@@ -1,22 +1,16 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, History, LogOut, Sprout } from 'lucide-react';
-import { useAuthStore } from '../../store/useAuthStore';
 
 export default function WorkerLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const currentUser = useAuthStore((s) => s.currentUser);
-  const logout = useAuthStore((s) => s.logout);
 
-  // ดึงข้อมูลจากผู้ที่ล็อกอินเข้ามาจริงๆ
-  const myWorkerId = currentUser?.id ?? '1';
-  const myUsername = currentUser?.username ?? '';
-  const myFullName = currentUser?.fullName ?? '';
-  const myAvatar = currentUser?.avatar ?? '';
+  // TODO: เปลี่ยนเป็นดึงจาก auth จริงๆ ทีหลัง
+  const myWorkerId = '1';
+  const myUsername = 'somchai_j';
 
   const handleLogout = () => {
-    logout();
-    navigate('/login', { replace: true });
+    navigate('/login');
   };
 
   // ฟังก์ชันสลับสีเมนู (เพิ่มขอบเขียวด้านซ้ายตอน Active)
@@ -78,7 +72,7 @@ export default function WorkerLayout() {
           {/* Profile Section */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gray-200 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center shrink-0">
-              <img src={myAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${myUsername}`} alt="Profile" className="w-full h-full object-cover" />
+              <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${myUsername}`} alt="Profile" className="w-full h-full object-cover" />
             </div>
             <div className="text-left leading-tight">
               <p className="text-sm font-semibold text-farm-text">{myUsername}</p>
