@@ -77,7 +77,7 @@ export default function WorkerDashboard() {
   const donutColors = ['#1C3F1B', '#708238', '#A9C46C', '#D2E1A7']; 
 
   return (
-    <div className="flex flex-col gap-5 h-full w-full pb-10">
+    <div className="flex flex-col gap-5 h-full w-full pb-24">
       
       {/* 1. แถบแจ้งเตือนด้านบน */}
       <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-4 text-base font-normal text-farm-text shadow-sm">
@@ -158,7 +158,7 @@ export default function WorkerDashboard() {
       </div>
 
       {/* 4. Bottom Row */}
-      <div className="grid grid-cols-3 gap-5 h-[360px]">
+      <div className="grid grid-cols-3 gap-5 h-[400px]">
         
         {/* Bar Chart */}
         <div className="bg-white rounded-xl p-7 shadow-sm border border-gray-100 flex flex-col h-full">
@@ -199,12 +199,12 @@ export default function WorkerDashboard() {
                   labelLine={false}
                   label={({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
                     const RADIAN = Math.PI / 180;
-                    const radius = innerRadius + (outerRadius - innerRadius) * 0.45;
+                    const radius = innerRadius + (outerRadius - innerRadius) * 0.55;
                     const x = cx + radius * Math.cos(-midAngle * RADIAN);
                     const y = cy + radius * Math.sin(-midAngle * RADIAN);
                     if (value === 0) return null;
                     return (
-                      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight="bold">
+                      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight="bold">
                         {`${value}%`}
                       </text>
                     );
