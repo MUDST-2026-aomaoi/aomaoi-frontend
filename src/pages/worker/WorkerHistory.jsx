@@ -20,19 +20,19 @@ export default function WorkerHistory() {
         if (e.type === 'cutting') {
           qty = e.rows;
           unit = 'วา/แถว';
-          badgeStyle = 'bg-[#D6E6C3] text-[#1B4B27]'; // สีเขียวอ่อนตาม Figma
+          badgeStyle = 'bg-[#1C3F1B] text-white'; // Dark Green
         } else if (e.type === 'planting') {
           qty = e.furrows;
           unit = 'วา/ร่อง'; 
-          badgeStyle = 'bg-[#E3E1D5] text-[#374151]'; // สีเทาอมมะกอกตาม Figma
-        } else if (e.type === 'spraying') {
-          qty = e.tanks;
-          unit = 'ถัง';
-          badgeStyle = 'bg-[#EFE8CA] text-[#4A4238]'; // สีเบจ/เหลืองอ่อนตาม Figma
+          badgeStyle = 'bg-[#708238] text-white'; // Olive Green
         } else if (e.type === 'watering') {
           qty = e.days;
           unit = 'วัน';
-          badgeStyle = 'bg-[#F7E78F] text-[#4A4238]'; // สีเหลืองสว่างตาม Figma
+          badgeStyle = 'bg-[#A9C46C] text-[#1C3F1B]'; // Light Green
+        } else if (e.type === 'spraying') {
+          qty = e.tanks;
+          unit = 'ถัง';
+          badgeStyle = 'bg-[#D2E1A7] text-[#1C3F1B]'; // Pale Green
         }
 
         return {
@@ -108,9 +108,8 @@ export default function WorkerHistory() {
               type="date" 
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm relative z-20 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer focus:border-[#708238]"
+              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm focus:border-[#708238]"
             />
-            <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
           </div>
 
           <span className="text-farm-text font-bold text-[14px] px-1">ถึง</span>
@@ -120,9 +119,8 @@ export default function WorkerHistory() {
               type="date" 
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm relative z-20 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer focus:border-[#708238]"
+              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm focus:border-[#708238]"
             />
-            <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
           </div>
         </div>
 
