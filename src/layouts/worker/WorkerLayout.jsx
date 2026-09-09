@@ -1,80 +1,101 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, History, Wallet, LogOut, CircleUserRound } from 'lucide-react';
-import { useWorkerStore } from '../../store/useWorkerStore';
+import { useState } from 'react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, History, LogOut, Sprout } from 'lucide-react';
+import SetPasswordModal from '../../components/auth/SetPasswordModal';
 
 export default function WorkerLayout() {
   const location = useLocation();
-  const getWorkerName = useWorkerStore((s) => s.getWorkerName);
+  const navigate = useNavigate();
   
-  // สมมติว่าตอนนี้ล็อกอินด้วย ID '1'
+  // โชว์ Modal ตั้งรหัสผ่านถ้าหน้า Login แนบ state มาว่าเป็นการ login ครั้งแรก
+  const [showPasswordModal, setShowPasswordModal] = useState(
+    location.state?.showSetPassword || false
+  );
+
+  // TODO: เปลี่ยนเป็นดึงจาก auth จริงๆ ทีหลัง
   const myWorkerId = '1';
-  const myName = getWorkerName(myWorkerId);
+  const myUsername = 'somchai_j';
+
+  const handleLogout = () => {
+    navigate('/login');
+  };
+
+  // ฟังก์ชันสลับสีเมนู (ใช้เทคนิค -ml-6 pl-9 เหมือน Admin แต่สีสว่าง)
+  const linkBase = 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors';
+  const linkActive = 'bg-[#708238]/10 text-[#708238] border-l-4 border-[#708238] -ml-6 pl-9 rounded-none font-bold';
+  const linkInactive = 'text-gray-500 hover:bg-gray-50 hover:text-gray-900';
 
   const getNavClass = (path) => {
     const isActive = location.pathname.includes(path);
-    return `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-      isActive 
-        ? 'bg-white/20 text-white font-medium shadow-sm' 
-        : 'text-gray-300 hover:bg-white/10 hover:text-white'
-    }`;
+    return `${linkBase} ${isActive ? linkActive : linkInactive}`;
   };
 
-  const getPageInfo = () => {
-    if (location.pathname.includes('/history')) return { title: 'History', sub: 'Here is the history of overall data' };
-    if (location.pathname.includes('/balance')) return { title: 'Balance', sub: 'Here is the balance of overall data' };
-    return { title: 'Dashboard', sub: 'Here is the summary of overall data' };
-  };
-  const pageInfo = getPageInfo();
+  const pageTitle = location.pathname.includes('/history') ? 'History' : 'Dashboard';
 
   return (
-    <div className="flex h-screen bg-farm-bg text-farm-text font-sans">
-      <aside className="w-64 bg-farm-primary text-white flex flex-col justify-between shrink-0 shadow-lg z-10">
-        <div>
-          <div className="px-6 pt-8 pb-4">
-            <h2 className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold mb-4">Main Menu</h2>
-            <nav className="flex flex-col gap-2">
-              <Link to="/worker/dashboard" className={getNavClass('/dashboard')}>
-                <LayoutDashboard size={20} />
-                <span>Dashboard</span>
-              </Link>
-              <Link to="/worker/history" className={getNavClass('/history')}>
-                <History size={20} />
-                <span>History</span>
-              </Link>
-              <Link to="/worker/balance" className={getNavClass('/balance')}>
-                <Wallet size={20} />
-                <span>Balance</span>
-              </Link>
-            </nav>
-          </div>
+    <div className="flex h-screen bg-[#F9FAFB] text-farm-text font-sans relative">
+      
+      {/* ป็อปอัพตั้งรหัสผ่าน (บังทั้งหน้าจอ) */}
+      {showPasswordModal && (
+        <SetPasswordModal onSuccess={() => setShowPasswordModal(false)} />
+      )}
+      
+      {/* Sidebar: อ้างอิง Layout แบบ Admin แต่สีพื้นหลังสว่าง */}
+      <aside className="flex h-screen w-64 shrink-0 flex-col bg-white border-r border-gray-200">
+        
+        {/* Logo Section */}
+        <div className="flex items-center gap-3 p-6 text-[#708238]">
+          <Sprout className="h-8 w-8" strokeWidth={2.5} />
+          <h1 className="text-2xl font-bold tracking-tight">Sugarcane</h1>
         </div>
-        <div className="p-4 border-t border-white/10">
-          <button className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors w-full">
-            <LogOut size={20} />
-            <span>logout</span>
+
+        {/* Menu Section */}
+        <div className="flex-1 px-6 py-4">
+          <p className="mb-4 text-sm text-gray-400">Menu</p>
+          <nav className="flex flex-col gap-2">
+            <Link to="/worker/dashboard" className={getNavClass('/dashboard')}>
+              <LayoutDashboard className="h-5 w-5" />
+              <span>Dashboard</span>
+            </Link>
+            <Link to="/worker/history" className={getNavClass('/history')}>
+              <History className="h-5 w-5" />
+              <span>History</span>
+            </Link>
+          </nav>
+        </div>
+
+        {/* Logout Section */}
+        <div className="p-6">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 text-gray-500 transition-colors hover:text-red-500 font-medium"
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Log out</span>
           </button>
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col overflow-y-auto">
-        <header className="px-8 pt-8 pb-4 flex justify-between items-start shrink-0">
-          <div>
-            <h1 className="text-2xl font-bold text-farm-text">{pageInfo.title}</h1>
-            <p className="text-farm-primary font-medium text-sm mt-1">{pageInfo.sub}</p>
-          </div>
+      {/* Main Content Area */}
+      <main className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
+        <header className="mb-6 flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-gray-900">{pageTitle}</h1>
+          
+          {/* Profile Section */}
           <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-sm font-bold text-farm-primary leading-none">{myName}</p>
-              <p className="text-xs text-gray-500 mt-1">Worker</p>
+            <div className="w-11 h-11 bg-gray-200 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center shrink-0">
+              <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${myUsername}`} alt="Profile" className="w-full h-full object-cover" />
             </div>
-            <CircleUserRound size={36} className="text-gray-400" strokeWidth={1.5} />
+            <div className="text-left leading-tight">
+              <p className="text-sm font-semibold text-farm-text">{myUsername}</p>
+              <p className="text-[12px] font-normal text-gray-500">Worker</p>
+            </div>
           </div>
         </header>
 
-        <main className="px-8 pb-8 flex-1">
-          <Outlet context={{ myWorkerId }} />
-        </main>
-      </div>
+        <Outlet context={{ myWorkerId }} />
+      </main>
+
     </div>
   );
 }
