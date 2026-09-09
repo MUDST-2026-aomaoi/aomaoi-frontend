@@ -1,11 +1,15 @@
-import { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { forwardRef, useMemo, useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Search, ChevronDown, UserPlus, X } from 'lucide-react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
+import { Search, UserPlus, X, Calendar } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
+import { Dropdown } from '../../components/ui/Dropdown';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
@@ -21,10 +25,24 @@ function formatNumber(n) {
   return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 0 });
 }
 
+const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
+  <button
+    type="button"
+    onClick={onClick}
+    ref={ref}
+    className="flex w-full items-center justify-between rounded-lg border border-farm-secondary/50 bg-white px-3 py-2 text-left text-sm text-farm-text outline-none focus:border-farm-primary focus:ring-1 focus:ring-farm-primary"
+  >
+    <span>{value}</span>
+    <Calendar className="h-4 w-4 text-farm-text/40" />
+  </button>
+));
+CustomDateInput.displayName = 'CustomDateInput';
+
 function EntryForm({ type, onTypeChange, workers, onSubmit, onCancel }) {
   const config = WORK_LOG_TYPES[type];
   const {
     register,
+    control,
     handleSubmit,
     watch,
     formState: { errors },
@@ -54,7 +72,23 @@ function EntryForm({ type, onTypeChange, workers, onSubmit, onCancel }) {
 
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          <Input type="date" label="วันที่ทำงาน" {...register('date')} error={errors.date?.message} />
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-farm-text">วันที่ทำงาน</span>
+            <Controller
+              control={control}
+              name="date"
+              render={({ field }) => (
+                <DatePicker
+                  selected={field.value ? new Date(field.value) : null}
+                  onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                  dateFormat="dd/MM/yyyy"
+                  customInput={<CustomDateInput />}
+                  wrapperClassName="w-full"
+                />
+              )}
+            />
+            {errors.date && <span className="mt-1 block text-xs text-red-600">{errors.date.message}</span>}
+          </label>
           <Select label="คนงาน" {...register('workerId')} error={errors.workerId?.message}>
             {workers.map((w) => (
               <option key={w.id} value={w.id}>
@@ -151,37 +185,22 @@ export default function WorkLog() {
         </div>
 
         <div className="flex flex-wrap gap-4">
-          <div className="relative">
-            <select
-              value={workerFilter}
-              onChange={(e) => setWorkerFilter(e.target.value)}
-              className="min-w-40 appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-4 pr-10 text-gray-600 focus:outline-none"
-            >
-              <option value="all">พนักงานทั้งหมด</option>
-              {allWorkers.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.fullName}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-3.5 h-4 w-4 text-gray-400" />
-          </div>
+          <Dropdown
+            value={workerFilter}
+            onChange={setWorkerFilter}
+            className="w-48"
+            options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...allWorkers.map((w) => ({ value: w.id, label: w.fullName }))]}
+          />
 
-          <div className="relative">
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="min-w-40 appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-4 pr-10 text-gray-600 focus:outline-none"
-            >
-              <option value="all">ประเภทงานทั้งหมด</option>
-              {WORK_LOG_ORDER.map((key) => (
-                <option key={key} value={key}>
-                  {WORK_LOG_TYPES[key].labelTh}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-3.5 h-4 w-4 text-gray-400" />
-          </div>
+          <Dropdown
+            value={typeFilter}
+            onChange={setTypeFilter}
+            className="w-48"
+            options={[
+              { value: 'all', label: 'ประเภทงานทั้งหมด' },
+              ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
+            ]}
+          />
 
           <Button variant="accent" className="flex items-center gap-2" onClick={openNewEntry}>
             <UserPlus className="h-5 w-5" />
@@ -194,31 +213,31 @@ export default function WorkLog() {
         <table className="w-full border-collapse text-center text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
-              <th className="border-r border-[#517339] px-6 py-3.5 text-left font-medium">Name</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Date</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Work Type</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Qty</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Unit</th>
-              <th className="px-4 py-3.5 font-medium">Wages</th>
+              <th className="px-6 py-3.5 text-left font-medium">Name</th>
+              <th className="px-4 py-3.5 font-medium">Date</th>
+              <th className="px-4 py-3.5 font-medium">Work Type</th>
+              <th className="px-4 py-3.5 font-medium">Qty</th>
+              <th className="px-4 py-3.5 font-medium">Unit</th>
+              <th className="px-4 py-3.5 pr-6 text-right font-medium">Wages</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((entry) => {
               const config = WORK_LOG_TYPES[entry.type];
               return (
-                <tr key={entry.id} className="border-b border-gray-200 transition-colors last:border-0 hover:bg-gray-50">
-                  <td className="border-r border-gray-200 px-6 py-4 text-left font-medium text-gray-800">
+                <tr key={entry.id} className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
+                  <td className="px-6 py-4 text-left font-medium text-gray-800">
                     {getWorkerName(entry.workerId)}
                   </td>
-                  <td className="border-r border-gray-200 px-4 py-4 text-gray-800">{formatDateLong(entry.date)}</td>
-                  <td className="border-r border-gray-200 px-4 py-4">
+                  <td className="px-4 py-4 text-gray-800">{formatDateLong(entry.date)}</td>
+                  <td className="px-4 py-4">
                     <span className={`inline-block min-w-17.5 rounded-full px-4 py-1.5 text-xs font-bold ${config.badgeClass}`}>
                       {config.labelTh}
                     </span>
                   </td>
-                  <td className="border-r border-gray-200 px-4 py-4 text-gray-800">{config.primaryQty(entry)}</td>
-                  <td className="border-r border-gray-200 px-4 py-4 text-gray-800">{config.primaryUnit}</td>
-                  <td className="px-4 py-4 font-medium text-gray-800">{formatBaht(entry.total)}</td>
+                  <td className="px-4 py-4 text-gray-800">{config.primaryQty(entry)}</td>
+                  <td className="px-4 py-4 text-gray-800">{config.primaryUnit}</td>
+                  <td className="px-4 py-4 pr-6 text-right font-medium text-gray-800">{formatBaht(entry.total)}</td>
                 </tr>
               );
             })}

@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
@@ -43,21 +44,14 @@ function renderPercentLabel({ cx, cy, midAngle, innerRadius, outerRadius, percen
   );
 }
 
+const PERIOD_OPTIONS = [
+  { value: 'month', label: 'รายเดือน' },
+  { value: 'day', label: 'รายวัน' },
+  { value: 'year', label: 'รายปี' },
+];
+
 function PeriodSelect({ value, onChange }) {
-  return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="appearance-none rounded-md border border-gray-200 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-500 focus:outline-none"
-      >
-        <option value="month">รายเดือน</option>
-        <option value="day">รายวัน</option>
-        <option value="year">รายปี</option>
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-2 top-2 h-4 w-4 text-gray-400" />
-    </div>
-  );
+  return <Dropdown value={value} onChange={onChange} options={PERIOD_OPTIONS} className="w-32" />;
 }
 
 export default function Dashboard() {
@@ -192,21 +186,15 @@ export default function Dashboard() {
             <h3 className="text-lg font-bold text-gray-900">Payroll Overview</h3>
             <div className="flex gap-2">
               <PeriodSelect value={trendPeriod} onChange={setTrendPeriod} />
-              <div className="relative">
-                <select
-                  value={trendTypeFilter}
-                  onChange={(e) => setTrendTypeFilter(e.target.value)}
-                  className="appearance-none rounded-md border border-gray-200 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-500 focus:outline-none"
-                >
-                  <option value="all">ประเภทงานทั้งหมด</option>
-                  {WORK_LOG_ORDER.map((key) => (
-                    <option key={key} value={key}>
-                      {WORK_LOG_TYPES[key].labelTh}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-2 top-2 h-4 w-4 text-gray-400" />
-              </div>
+              <Dropdown
+                value={trendTypeFilter}
+                onChange={setTrendTypeFilter}
+                className="w-44"
+                options={[
+                  { value: 'all', label: 'ประเภทงานทั้งหมด' },
+                  ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
+                ]}
+              />
             </div>
           </div>
 
@@ -299,12 +287,12 @@ export default function Dashboard() {
         <table className="w-full text-center text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
-              <th className="border-r border-[#4f6e3a] px-4 py-3 pl-6 text-left font-medium">Name</th>
-              <th className="border-r border-[#4f6e3a] px-4 py-3 font-medium">Date</th>
-              <th className="border-r border-[#4f6e3a] px-4 py-3 font-medium">Work Type</th>
-              <th className="border-r border-[#4f6e3a] px-4 py-3 font-medium">Qty</th>
-              <th className="border-r border-[#4f6e3a] px-4 py-3 font-medium">Unit</th>
-              <th className="px-4 py-3 font-medium">Wages</th>
+              <th className="px-4 py-3.5 pl-6 text-left text-xs font-semibold uppercase tracking-wide">Name</th>
+              <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wide">Date</th>
+              <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wide">Work Type</th>
+              <th className="px-4 py-3.5 text-right text-xs font-semibold uppercase tracking-wide">Qty</th>
+              <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wide">Unit</th>
+              <th className="px-4 py-3.5 pr-6 text-right text-xs font-semibold uppercase tracking-wide">Wages</th>
             </tr>
           </thead>
           <tbody>
@@ -313,16 +301,18 @@ export default function Dashboard() {
               return (
                 <tr
                   key={entry.id}
-                  className={`border-b border-gray-200 hover:bg-gray-50 ${index === recentActivity.length - 1 ? 'border-b-0' : ''}`}
+                  className={`border-b border-gray-100 transition-colors hover:bg-gray-100/70 ${
+                    index === recentActivity.length - 1 ? 'border-b-0' : ''
+                  } ${index % 2 === 1 ? 'bg-gray-50/60' : ''}`}
                 >
-                  <td className="border-r border-gray-200 px-6 py-4 text-left font-medium text-gray-800">{getWorkerName(entry.workerId)}</td>
-                  <td className="border-r border-gray-200 px-4 py-4 text-gray-700">{formatDate(entry.date)}</td>
-                  <td className="border-r border-gray-200 px-4 py-4">
+                  <td className="px-4 py-4 pl-6 text-left font-medium text-gray-800">{getWorkerName(entry.workerId)}</td>
+                  <td className="px-4 py-4 text-gray-700">{formatDate(entry.date)}</td>
+                  <td className="px-4 py-4">
                     <span className={`rounded-full px-4 py-1.5 text-xs font-bold ${config.badgeClass}`}>{config.labelTh}</span>
                   </td>
-                  <td className="border-r border-gray-200 px-4 py-4 text-gray-700">{formatNumber(config.primaryQty(entry))}</td>
-                  <td className="border-r border-gray-200 px-4 py-4 text-gray-700">{config.primaryUnit}</td>
-                  <td className="px-4 py-4 font-medium text-gray-800">{formatNumber(entry.total)} บาท</td>
+                  <td className="px-4 py-4 text-right text-gray-700">{formatNumber(config.primaryQty(entry))}</td>
+                  <td className="px-4 py-4 text-gray-700">{config.primaryUnit}</td>
+                  <td className="px-4 py-4 pr-6 text-right font-medium text-gray-800">{formatNumber(entry.total)} บาท</td>
                 </tr>
               );
             })}

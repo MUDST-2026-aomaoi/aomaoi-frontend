@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useFarmStore } from '../../store/useFarmStore';
@@ -33,21 +33,14 @@ function renderPercentLabel({ cx, cy, midAngle, innerRadius, outerRadius, percen
   );
 }
 
+const PERIOD_OPTIONS = [
+  { value: 'month', label: 'รายเดือน' },
+  { value: 'day', label: 'รายวัน' },
+  { value: 'year', label: 'รายปี' },
+];
+
 function PeriodSelect({ value, onChange }) {
-  return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="appearance-none rounded-md border border-gray-200 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-500 focus:outline-none"
-      >
-        <option value="month">รายเดือน</option>
-        <option value="day">รายวัน</option>
-        <option value="year">รายปี</option>
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-2 top-2 h-4 w-4 text-gray-400" />
-    </div>
-  );
+  return <Dropdown value={value} onChange={onChange} options={PERIOD_OPTIONS} className="w-32" />;
 }
 
 function farmValueForPeriod(farm, period) {
@@ -142,21 +135,12 @@ export default function SuperAdminDashboard() {
             <h3 className="text-lg font-bold text-gray-900">Payroll Overview</h3>
             <div className="flex gap-2">
               <PeriodSelect value={trendPeriod} onChange={setTrendPeriod} />
-              <div className="relative">
-                <select
-                  value={trendFarmFilter}
-                  onChange={(e) => setTrendFarmFilter(e.target.value)}
-                  className="appearance-none rounded-md border border-gray-200 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-500 focus:outline-none"
-                >
-                  <option value="all">ฟาร์มทั้งหมด</option>
-                  {farms.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-2 top-2 h-4 w-4 text-gray-400" />
-              </div>
+              <Dropdown
+                value={trendFarmFilter}
+                onChange={setTrendFarmFilter}
+                className="w-44"
+                options={[{ value: 'all', label: 'ฟาร์มทั้งหมด' }, ...farms.map((f) => ({ value: f.id, label: f.name }))]}
+              />
             </div>
           </div>
 

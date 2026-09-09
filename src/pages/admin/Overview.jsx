@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Card } from '../../components/ui/Card';
+import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
@@ -26,18 +27,12 @@ export default function Overview() {
 
       <Card>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <select
+          <Dropdown
             value={workerFilter}
-            onChange={(e) => setWorkerFilter(e.target.value)}
-            className="w-56 rounded-lg border border-farm-secondary/50 bg-white px-3 py-2 text-sm text-farm-text outline-none focus:border-farm-primary focus:ring-1 focus:ring-farm-primary"
-          >
-            <option value="all">คนงานทั้งหมด</option>
-            {workers.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.fullName}
-              </option>
-            ))}
-          </select>
+            onChange={setWorkerFilter}
+            className="w-56"
+            options={[{ value: 'all', label: 'คนงานทั้งหมด' }, ...workers.map((w) => ({ value: w.id, label: w.fullName }))]}
+          />
           <p className="text-sm text-farm-text/70">
             รวมทั้งหมด: <span className="font-semibold text-farm-primary">{formatBaht(total)}</span>
           </p>
