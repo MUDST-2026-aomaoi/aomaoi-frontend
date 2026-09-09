@@ -1,4 +1,4 @@
-import { useState, useMemo, forwardRef } from 'react';
+import { useState, useMemo, forwardRef, useEffect, useRef } from 'react';
 import { Search, Calendar, ChevronDown } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
@@ -72,6 +72,20 @@ export default function WorkerHistory() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const filteredData = useMemo(() => {
     return myData.filter(item => {
       const matchSearch = item.typeLabel.toLowerCase().includes(searchTerm.toLowerCase());
@@ -81,6 +95,11 @@ export default function WorkerHistory() {
       return matchSearch && matchType && matchStartDate && matchEndDate;
     });
   }, [myData, searchTerm, filterType, startDate, endDate]);
+
+  const WORK_OPTIONS = [
+    { value: '', label: 'ประเภทงานทั้งหมด' },
+    ...WORK_LOG_ORDER.map(t => ({ value: t, label: WORK_LOG_TYPES[t].labelTh }))
+  ];
 
   return (
     <div className="flex flex-col h-full w-full pb-20">
@@ -104,18 +123,33 @@ export default function WorkerHistory() {
         </div>
 
         {/* Dropdown ประเภทงาน */}
-        <div className="relative w-[200px]">
-          <select 
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm appearance-none cursor-pointer focus:border-[#708238]"
+        <div className="relative w-[200px]" ref={dropdownRef}>
+          <div 
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg outline-none text-sm shadow-sm cursor-pointer flex items-center justify-between transition-colors focus:border-[#708238]"
           >
-            <option value="" className="text-gray-400">ประเภทงานทั้งหมด</option>
-            {WORK_LOG_ORDER.map(t => (
-              <option key={t} value={t}>{WORK_LOG_TYPES[t].labelTh}</option>
-            ))}
-          </select>
-          <ChevronDown size={20} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <span className={filterType === '' ? 'text-gray-400' : 'text-gray-600'}>
+              {filterType === '' ? 'ประเภทงานทั้งหมด' : WORK_LOG_TYPES[filterType].labelTh}
+            </span>
+          </div>
+          <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          
+          {isDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+              {WORK_OPTIONS.map(opt => (
+                <div 
+                  key={opt.value}
+                  onClick={() => {
+                    setFilterType(opt.value);
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`px-4 py-2.5 text-sm cursor-pointer transition-colors hover:bg-gray-50 ${filterType === opt.value ? 'bg-gray-50 text-farm-text font-bold' : 'text-gray-600'}`}
+                >
+                  {opt.label}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Date Range */}
