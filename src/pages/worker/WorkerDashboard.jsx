@@ -193,6 +193,9 @@ export default function WorkerDashboard() {
                   outerRadius="90%"
                   dataKey="pct"
                   stroke="none"
+                  paddingAngle={2}
+                  startAngle={90}
+                  endAngle={-270}
                   labelLine={false}
                   label={({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
                     const RADIAN = Math.PI / 180;
