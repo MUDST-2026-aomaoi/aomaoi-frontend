@@ -108,8 +108,9 @@ export default function WorkerHistory() {
               type="date" 
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm focus:border-[#708238]"
+              className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm relative z-20 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer focus:border-[#708238]"
             />
+            <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
           </div>
 
           <span className="text-farm-text font-bold text-[14px] px-1">ถึง</span>
@@ -119,8 +120,9 @@ export default function WorkerHistory() {
               type="date" 
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm focus:border-[#708238]"
+              className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm relative z-20 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer focus:border-[#708238]"
             />
+            <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
           </div>
         </div>
 
