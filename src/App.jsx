@@ -16,18 +16,35 @@ import WorkerLayout from './layouts/worker/WorkerLayout';
 // Pages
 import WorkerDashboard from './pages/worker/WorkerDashboard';
 import WorkerHistory from './pages/worker/WorkerHistory';
-
 import WorkerBalance from './pages/worker/WorkerBalance';
+import Login from './pages/auth/Login';
+
+// Auth Store
+import { useAuthStore } from './store/useAuthStore';
+
+// ProtectedRoute: ถ้าไม่ได้ล็อกอิน จะเด้งกลับหน้า Login
+function ProtectedRoute({ children }) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return children;
+}
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* หน้า Login (รอทำทีหลัง) */}
-        <Route path="/login" element={<div className="flex h-screen items-center justify-center bg-farm-bg text-2xl font-bold">Login Page (รอก่อนน้า)</div>} />
+        {/* หน้า Login */}
+        <Route path="/login" element={<Login />} />
 
-        {/* เส้นทางของ Worker */}
-        <Route path="/worker" element={<WorkerLayout />}>
+        {/* เส้นทางของ Worker (ต้องล็อกอินก่อน) */}
+        <Route
+          path="/worker"
+          element={
+            <ProtectedRoute>
+              <WorkerLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<WorkerDashboard />} />
           <Route path="history" element={<WorkerHistory />} />
@@ -50,11 +67,12 @@ function App() {
           <Route path="admins" element={<AdminsManagement />} />
         </Route>
 
-        {/* ค่าเริ่มต้น ถ้าเปิดเว็บมาให้โยงไปหน้า Dashboard เลย */}
-        <Route path="*" element={<Navigate to="/worker/dashboard" replace />} />
+        {/* Default: ไปหน้า Login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
+

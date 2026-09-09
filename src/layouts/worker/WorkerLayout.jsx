@@ -1,16 +1,23 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, History, LogOut, Sprout } from 'lucide-react';
-import { useWorkerStore } from '../../store/useWorkerStore';
+import { useAuthStore } from '../../store/useAuthStore';
 
 export default function WorkerLayout() {
   const location = useLocation();
-  const getWorkerName = useWorkerStore((s) => s.getWorkerName);
-  
-  // สมมติว่าตอนนี้ล็อกอินด้วย ID '1'
-  const myWorkerId = '1';
-  // เปลี่ยนชื่อจำลองให้ตรงกับดีไซน์ใหม่ "somchai_j" 
-  // (ของจริงอาจจะดึงจาก Store แบบ getWorkerUsername(myWorkerId))
-  const myUsername = 'somchai_j'; 
+  const navigate = useNavigate();
+  const currentUser = useAuthStore((s) => s.currentUser);
+  const logout = useAuthStore((s) => s.logout);
+
+  // ดึงข้อมูลจากผู้ที่ล็อกอินเข้ามาจริงๆ
+  const myWorkerId = currentUser?.id ?? '1';
+  const myUsername = currentUser?.username ?? '';
+  const myFullName = currentUser?.fullName ?? '';
+  const myAvatar = currentUser?.avatar ?? '';
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
 
   // ฟังก์ชันสลับสีเมนู (เพิ่มขอบเขียวด้านซ้ายตอน Active)
   const getNavClass = (path) => {
@@ -53,7 +60,10 @@ export default function WorkerLayout() {
 
         {/* Logout Section */}
         <div className="p-4 border-t border-gray-100">
-          <button className="flex items-center gap-3 px-4 py-3 text-farm-text font-medium hover:bg-gray-50 rounded-lg transition-colors w-full">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 text-farm-text font-medium hover:bg-red-50 hover:text-red-500 rounded-lg transition-colors w-full"
+          >
             <LogOut size={20} />
             <span>Log out</span>
           </button>
@@ -68,7 +78,7 @@ export default function WorkerLayout() {
           {/* Profile Section */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gray-200 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center shrink-0">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=somchai" alt="Profile" className="w-full h-full object-cover" />
+              <img src={myAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${myUsername}`} alt="Profile" className="w-full h-full object-cover" />
             </div>
             <div className="text-left leading-tight">
               <p className="text-sm font-semibold text-farm-text">{myUsername}</p>
