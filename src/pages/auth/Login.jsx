@@ -1,31 +1,19 @@
 import { useState } from 'react';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import SetPasswordModal from '../../components/auth/SetPasswordModal';
 
 export default function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [showSetPassword, setShowSetPassword] = useState(false);
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // TODO: เพิ่ม logic auth จริงๆ ทีหลัง
-    // ตอนนี้แค่แสดง popup ตั้งรหัสผ่านก่อน (จำลอง first login)
-    setShowSetPassword(true);
-  };
-
-  const handlePasswordSet = () => {
-    setShowSetPassword(false);
-    navigate('/worker/dashboard');
+    // นำทางไปหน้า dashboard พร้อมแนบ state ว่าให้โชว์ popup ตั้งรหัสผ่าน
+    navigate('/worker/dashboard', { state: { showSetPassword: true } });
   };
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
-      {/* Set Password Modal */}
-      {showSetPassword && (
-        <SetPasswordModal onSuccess={handlePasswordSet} />
-      )}
 
       {/* Login Card */}
       <div className="w-full max-w-[420px] px-8">

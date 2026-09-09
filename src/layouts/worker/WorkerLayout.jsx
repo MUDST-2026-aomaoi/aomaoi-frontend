@@ -1,9 +1,16 @@
+import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, History, LogOut, Sprout } from 'lucide-react';
+import SetPasswordModal from '../../components/auth/SetPasswordModal';
 
 export default function WorkerLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // โชว์ Modal ตั้งรหัสผ่านถ้าหน้า Login แนบ state มาว่าเป็นการ login ครั้งแรก
+  const [showPasswordModal, setShowPasswordModal] = useState(
+    location.state?.showSetPassword || false
+  );
 
   // TODO: เปลี่ยนเป็นดึงจาก auth จริงๆ ทีหลัง
   const myWorkerId = '1';
@@ -26,7 +33,12 @@ export default function WorkerLayout() {
   const pageTitle = location.pathname.includes('/history') ? 'History' : 'Dashboard';
 
   return (
-    <div className="flex h-screen bg-[#F9FAFB] text-farm-text font-sans">
+    <div className="flex h-screen bg-[#F9FAFB] text-farm-text font-sans relative">
+      
+      {/* ป็อปอัพตั้งรหัสผ่าน (บังทั้งหน้าจอ) */}
+      {showPasswordModal && (
+        <SetPasswordModal onSuccess={() => setShowPasswordModal(false)} />
+      )}
       
       {/* Sidebar: อ้างอิง Layout แบบ Admin แต่สีพื้นหลังสว่าง */}
       <aside className="flex h-screen w-64 shrink-0 flex-col bg-white border-r border-gray-200">
