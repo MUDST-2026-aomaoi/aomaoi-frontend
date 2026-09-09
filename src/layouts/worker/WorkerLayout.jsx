@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, History, LogOut, Sprout } from 'lucide-react';
 import SetPasswordModal from '../../components/auth/SetPasswordModal';
 
-export default function WorkerLayout() {
+export default function WorkerLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -53,11 +53,11 @@ export default function WorkerLayout() {
         <div className="flex-1 px-6 py-4">
           <p className="mb-4 text-sm text-gray-400">Menu</p>
           <nav className="flex flex-col gap-2">
-            <Link to="/worker/dashboard" className={getNavClass('/dashboard')}>
+            <Link to="/dashboard" className={getNavClass('/dashboard')}>
               <LayoutDashboard className="h-5 w-5" />
               <span>Dashboard</span>
             </Link>
-            <Link to="/worker/history" className={getNavClass('/history')}>
+            <Link to="/history" className={getNavClass('/history')}>
               <History className="h-5 w-5" />
               <span>History</span>
             </Link>
@@ -93,7 +93,7 @@ export default function WorkerLayout() {
           </div>
         </header>
 
-        <Outlet context={{ myWorkerId }} />
+        {children || <Outlet context={{ myWorkerId }} />}
       </main>
 
     </div>

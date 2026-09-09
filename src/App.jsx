@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import AuthGuard from './components/auth/AuthGuard';
+
 import { AdminLayout } from './layouts/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import Workers from './pages/admin/Workers';
@@ -15,40 +17,76 @@ import WorkerDashboard from './pages/worker/WorkerDashboard';
 import WorkerHistory from './pages/worker/WorkerHistory';
 import WorkerBalance from './pages/worker/WorkerBalance';
 import Login from './pages/auth/Login';
+import { useAuthStore } from './controller/authController';
+
+// A dynamic layout selector that renders the correct layout and dashboard
+// based on the logged-in user's role.
+function RoleBasedDashboard() {
+  const currentUser = useAuthStore(state => state.currentUser);
+  
+  if (!currentUser) return <Navigate to="/login" replace />;
+
+  if (currentUser.role === 'superadmin') {
+    return (
+      <SuperAdminLayout>
+        <SuperAdminDashboard />
+      </SuperAdminLayout>
+    );
+  }
+  
+  if (currentUser.role === 'admin') {
+    return (
+      <AdminLayout>
+        <Dashboard />
+      </AdminLayout>
+    );
+  }
+  
+  if (currentUser.role === 'worker') {
+    return (
+      <WorkerLayout>
+        <WorkerDashboard />
+      </WorkerLayout>
+    );
+  }
+  
+  return <Navigate to="/login" replace />;
+}
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* หน้า Login */}
         <Route path="/login" element={<Login />} />
 
-        {/* Worker Routes */}
-        <Route path="/worker" element={<WorkerLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<WorkerDashboard />} />
-          <Route path="history" element={<WorkerHistory />} />
+        {/* Unified Dashboard Route */}
+        <Route path="/dashboard" element={
+          <AuthGuard>
+            <RoleBasedDashboard />
+          </AuthGuard>
+        } />
+
+        {/* Worker-Only Routes */}
+        <Route element={<AuthGuard allowedRoles={['worker']}><WorkerLayout /></AuthGuard>}>
+          <Route path="/history" element={<WorkerHistory />} />
+          <Route path="/balance" element={<WorkerBalance />} />
         </Route>
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="workers" element={<Workers />} />
-          <Route path="work" element={<WorkLog />} />
-          <Route path="overview" element={<Overview />} />
+        {/* Admin-Only Routes */}
+        <Route element={<AuthGuard allowedRoles={['admin']}><AdminLayout /></AuthGuard>}>
+          <Route path="/workers" element={<Workers />} />
+          <Route path="/work" element={<WorkLog />} />
+          <Route path="/overview" element={<Overview />} />
         </Route>
 
-        {/* Superadmin Routes */}
-        <Route path="/superadmin" element={<SuperAdminLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<SuperAdminDashboard />} />
-          <Route path="farms" element={<AllFarms />} />
-          <Route path="admins" element={<AdminsManagement />} />
+        {/* SuperAdmin-Only Routes */}
+        <Route element={<AuthGuard allowedRoles={['superadmin']}><SuperAdminLayout /></AuthGuard>}>
+          <Route path="/farms" element={<AllFarms />} />
+          <Route path="/admins" element={<AdminsManagement />} />
         </Route>
 
-        {/* Default → Login */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* Default Catch-all */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );
