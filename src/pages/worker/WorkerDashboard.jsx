@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Clock, Wallet, ArrowDownToLine, ArrowRight } from 'lucide-react';
-import { useOutletContext, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
+import { useAuthStore } from '../../controller/authController';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
 import { formatDate, formatBaht } from '../../lib/format';
 
@@ -18,7 +19,9 @@ function isToday(dateStr) {
 }
 
 export default function WorkerDashboard() {
-  const { myWorkerId } = useOutletContext();
+  const currentUser = useAuthStore(state => state.currentUser);
+  const myWorkerId = currentUser?.id || '1';
+  
   const allEntries = useWorkLogStore((s) => s.entries);
   
   const myEntries = useMemo(() => allEntries.filter(e => e.workerId === myWorkerId), [allEntries, myWorkerId]);
@@ -248,7 +251,7 @@ export default function WorkerDashboard() {
         <div className="bg-white rounded-xl p-7 shadow-sm border border-gray-100 flex flex-col h-full">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-farm-text font-bold text-[19px]">Recent Activity</h3>
-            <Link to="/worker/history" className="text-[15px] font-medium text-farm-text hover:text-[#708238] flex items-center gap-1">
+            <Link to="/history" className="text-[15px] font-medium text-farm-text hover:text-[#708238] flex items-center gap-1">
               More <ArrowRight size={18} strokeWidth={2.5} />
             </Link>
           </div>
