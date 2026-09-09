@@ -1,0 +1,136 @@
+name: PR Automation & Security Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  issues: write
+  contents: read
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process PR Triage
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo, number: pull_number } = context.issue;
+            const prAuthor = context.payload.pull_request.user.login;
+
+            // Helper to ensure a label exists in the repo
+            async function ensureLabelExists(name, color = '1D76DB') {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name });
+              } catch (err) {
+                if (err.status === 404) {
+                  await github.rest.issues.createLabel({
+                    owner,
+                    repo,
+                    name,
+                    color,
+                    description: `Auto-generated label for ${name}`
+                  });
+                } else {
+                  throw err;
+                }
+              }
+            }
+
+            // 1. Auto-assign PR creator
+            await github.rest.issues.addAssignees({
+              owner,
+              repo,
+              issue_number: pull_number,
+              assignees: [prAuthor]
+            });
+
+            // 2. Auto-request review based on author
+            if (prAuthor.toLowerCase() === 'puthoputho') {
+              await github.rest.pulls.requestReviewers({
+                owner,
+                repo,
+                pull_number,
+                reviewers: ['Bankkie16149']
+              });
+            } else if (prAuthor.toLowerCase() === 'bankkie16149') {
+              await github.rest.pulls.requestReviewers({
+                owner,
+                repo,
+                pull_number,
+                reviewers: ['PuthoPutho']
+              });
+            }
+
+            // 3. Get changed files
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner,
+              repo,
+              pull_number,
+              per_page: 100
+            });
+
+            const labelsToAdd = new Set();
+            let hasEnvFile = false;
+
+            // 4. Scan paths and check for .env files
+            for (const file of files) {
+              const filename = file.filename;
+              const segments = filename.split('/');
+              const baseName = segments[segments.length - 1];
+
+              // Detect strict .env file (ignoring .env.example, .env.local, etc.)
+              if (baseName === '.env') {
+                hasEnvFile = true;
+              }
+
+              // Path directory checks
+              if (segments.includes('admin')) labelsToAdd.add('admin');
+              if (segments.includes('superadmin')) labelsToAdd.add('superadmin');
+              if (segments.includes('auth')) labelsToAdd.add('auth');
+              if (segments.includes('worker')) labelsToAdd.add('worker');
+              if (segments.includes('components')) labelsToAdd.add('component');
+              if (segments.includes('public') || segments.includes('assets')) labelsToAdd.add('assets');
+              if (segments.includes('workflows')) labelsToAdd.add('workflows');
+            }
+
+            // 5. Handle .env warning and critical label
+            if (hasEnvFile) {
+              labelsToAdd.add('critical');
+              await ensureLabelExists('critical', 'D93F0B');
+
+              const commentBody = `⚠️ **CRITICAL WARNING**: @${prAuthor}, a \`.env\` file was detected in this PR. Please delete it from the repository immediately!`;
+              
+              // Prevent duplicate comments on synchronize
+              const comments = await github.rest.issues.listComments({
+                owner,
+                repo,
+                issue_number: pull_number
+              });
+              const exists = comments.data.some(c => c.body.includes('CRITICAL WARNING'));
+
+              if (!exists) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: pull_number,
+                  body: commentBody
+                });
+              }
+            }
+
+            // 6. Ensure and apply all detected labels
+            if (labelsToAdd.size > 0) {
+              for (const label of labelsToAdd) {
+                await ensureLabelExists(label);
+              }
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: pull_number,
+                labels: Array.from(labelsToAdd)
+              });
+            }

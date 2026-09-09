@@ -1,122 +1,61 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AdminLayout } from './layouts/admin/AdminLayout';
+import Dashboard from './pages/admin/Dashboard';
+import Workers from './pages/admin/Workers';
+import WorkLog from './pages/admin/WorkLog';
+import Overview from './pages/admin/Overview';
+
+import { SuperAdminLayout } from './layouts/superadmin/SuperAdminLayout';
+import SuperAdminDashboard from './pages/superadmin/Dashboard';
+import AllFarms from './pages/superadmin/AllFarms';
+import AdminsManagement from './pages/superadmin/AdminsManagement';
+
+// Layouts
+import WorkerLayout from './layouts/worker/WorkerLayout';
+
+// Pages
+import WorkerDashboard from './pages/worker/WorkerDashboard';
+import WorkerHistory from './pages/worker/WorkerHistory';
+
+import WorkerBalance from './pages/worker/WorkerBalance';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <Routes>
+        {/* หน้า Login (รอทำทีหลัง) */}
+        <Route path="/login" element={<div className="flex h-screen items-center justify-center bg-farm-bg text-2xl font-bold">Login Page (รอก่อนน้า)</div>} />
 
-      <div className="ticks"></div>
+        {/* เส้นทางของ Worker */}
+        <Route path="/worker" element={<WorkerLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<WorkerDashboard />} />
+          <Route path="history" element={<WorkerHistory />} />
+          <Route path="balance" element={<WorkerBalance />} />
+        </Route>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="workers" element={<Workers />} />
+          <Route path="work" element={<WorkLog />} />
+          <Route path="overview" element={<Overview />} />
+        </Route>
+        
+        {/* เส้นทางของ Superadmin */}
+        <Route path="/superadmin" element={<SuperAdminLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<SuperAdminDashboard />} />
+          <Route path="farms" element={<AllFarms />} />
+          <Route path="admins" element={<AdminsManagement />} />
+        </Route>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* ค่าเริ่มต้น ถ้าเปิดเว็บมาให้โยงไปหน้า Dashboard เลย */}
+        <Route path="*" element={<Navigate to="/worker/dashboard" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
