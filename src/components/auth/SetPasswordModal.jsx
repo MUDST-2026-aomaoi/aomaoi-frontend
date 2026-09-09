@@ -1,31 +1,12 @@
 import { useState } from 'react';
-import { useAuthStore } from '../../store/useAuthStore';
 
 export default function SetPasswordModal({ onSuccess }) {
-  const updatePassword = useAuthStore((s) => s.updatePassword);
-
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-
-    if (!newPassword.trim() || !confirmPassword.trim()) {
-      setError('กรุณากรอกรหัสผ่านให้ครบทั้ง 2 ช่อง');
-      return;
-    }
-    if (newPassword.length < 6) {
-      setError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setError('รหัสผ่านทั้ง 2 ช่องไม่ตรงกัน กรุณาลองใหม่');
-      return;
-    }
-
-    updatePassword(newPassword);
+    // นำทางไปหน้า dashboard ทันทีโดยไม่มี logic เช็คใดๆ
     onSuccess();
   };
 
@@ -68,10 +49,7 @@ export default function SetPasswordModal({ onSuccess }) {
             />
           </div>
 
-          {/* Error */}
-          {error && (
-            <p className="text-red-500 text-[13px] text-center font-medium">{error}</p>
-          )}
+
 
           {/* Submit Button */}
           <button
