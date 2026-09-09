@@ -77,7 +77,7 @@ export default function WorkerDashboard() {
   const donutColors = ['#1C3F1B', '#708238', '#A9C46C', '#D2E1A7']; 
 
   return (
-    <div className="flex flex-col gap-4 h-full max-w-[1200px] w-full pb-8">
+    <div className="flex flex-col gap-4 h-full w-full pb-8">
       
       {/* 1. แถบแจ้งเตือนด้านบน */}
       <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl p-3 text-sm font-medium text-farm-text shadow-sm">
