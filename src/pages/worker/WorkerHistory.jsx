@@ -102,7 +102,7 @@ export default function WorkerHistory() {
   ];
 
   return (
-    <div className="flex flex-col h-full w-full pb-20">
+    <div className="flex flex-col w-full pb-20">
       
       {/* Subtitle ใต้ Header */}
       <p className="text-gray-400 font-medium text-[18px] mb-8 mt-[-12px]">Here is the history of overall data</p>
