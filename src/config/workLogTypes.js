@@ -1,13 +1,12 @@
 import { z } from 'zod';
-import { Sprout, Droplets, SprayCan } from 'lucide-react';
-import SugarcaneIcon from '../components/icons/SugarcaneIcon';
+import { Scissors, Sprout, Droplets, SprayCan } from 'lucide-react';
 
 export const WORK_LOG_TYPES = {
   cutting: {
     key: 'cutting',
     path: 'cutting',
     labelTh: 'ตัดอ้อย',
-    icon: SugarcaneIcon,
+    icon: Scissors,
     formulaLabel: 'แถว × 100 วา/แถว × 2 บาท',
     chartColor: '#B4D355',
     badgeClass: 'bg-[#dcfce7] text-[#166534]',
