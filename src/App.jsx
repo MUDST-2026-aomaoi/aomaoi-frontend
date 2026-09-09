@@ -31,7 +31,6 @@ function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<WorkerDashboard />} />
           <Route path="history" element={<WorkerHistory />} />
-          <Route path="balance" element={<WorkerBalance />} />
         </Route>
 
         {/* Admin Routes */}
