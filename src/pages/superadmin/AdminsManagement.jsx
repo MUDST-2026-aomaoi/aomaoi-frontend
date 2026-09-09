@@ -4,23 +4,26 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Search, ChevronDown, UserPlus, Edit, Trash2, X, AlertTriangle, ImagePlus, Info, Shuffle } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
+import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { Avatar } from '../../components/ui/Avatar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
-import { useWorkerStore } from '../../store/useWorkerStore';
+import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
+import { useAdminStore } from '../../store/useAdminStore';
+import { useFarmStore } from '../../store/useFarmStore';
 import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 
-const workerSchema = z.object({
+const adminSchema = z.object({
   fullName: z.string().min(1, 'กรุณากรอกชื่อ-นามสกุล'),
-  nickname: z.string().min(1, 'กรุณากรอกชื่อเล่น'),
   username: z.string().min(3, 'ต้องมีอย่างน้อย 3 ตัวอักษร'),
   phone: z.string().min(1, 'กรุณากรอกเบอร์โทร'),
+  farmId: z.string().min(1, 'กรุณาเลือกฟาร์ม'),
 });
 
-const addWorkerSchema = workerSchema.extend({
+const addAdminSchema = adminSchema.extend({
   tempPassword: z.string().min(6, 'ต้องมีอย่างน้อย 6 ตัวอักษร'),
 });
 
@@ -29,31 +32,37 @@ function randomPassword() {
   return Array.from({ length: 9 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-function EditWorkerForm({ worker, onSubmit, onCancel }) {
+function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(workerSchema), defaultValues: worker });
+  } = useForm({ resolver: zodResolver(adminSchema), defaultValues: admin });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">Edit Worker</h3>
+        <h3 className="text-lg font-bold text-farm-primary">Edit Admin</h3>
         <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
           <X className="h-5 w-5" />
         </button>
       </div>
 
       <div className="mb-6 flex justify-center">
-        <Avatar src={worker.avatar} name={worker.fullName} className="h-24 w-24 border border-gray-200 text-2xl" />
+        <Avatar src={admin.avatar} name={admin.fullName} className="h-24 w-24 border border-gray-200 text-2xl" />
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-4">
         <Input label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
-        <Input label="ชื่อเล่น" {...register('nickname')} error={errors.nickname?.message} />
         <Input label="Username" {...register('username')} error={errors.username?.message} />
         <Input label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
+        <Select label="ฟาร์ม" {...register('farmId')} error={errors.farmId?.message}>
+          {farms.map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.name}
+            </option>
+          ))}
+        </Select>
       </div>
 
       <div className="flex w-full gap-4">
@@ -68,7 +77,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel }) {
   );
 }
 
-function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
+function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
   const [avatarPreview, setAvatarPreview] = useState(null);
   const fileInputRef = useRef(null);
   const {
@@ -76,7 +85,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(addWorkerSchema), defaultValues });
+  } = useForm({ resolver: zodResolver(addAdminSchema), defaultValues });
 
   function handleAvatarChange(e) {
     const file = e.target.files?.[0];
@@ -89,7 +98,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
   return (
     <form onSubmit={handleSubmit((data) => onSubmit({ ...data, avatar: avatarPreview ?? undefined }))}>
       <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">Add New Worker</h3>
+        <h3 className="text-lg font-bold text-farm-primary">Add New Admin</h3>
         <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
           <X className="h-5 w-5" />
         </button>
@@ -112,9 +121,15 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
 
       <div className="mb-4 grid grid-cols-2 gap-4">
         <Input label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
-        <Input label="ชื่อเล่น" {...register('nickname')} error={errors.nickname?.message} />
         <Input label="Username" {...register('username')} error={errors.username?.message} />
         <Input label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
+        <Select label="ฟาร์ม" {...register('farmId')} error={errors.farmId?.message}>
+          {farms.map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.name}
+            </option>
+          ))}
+        </Select>
       </div>
 
       <div className="mb-2">
@@ -130,7 +145,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
 
       <div className="mb-6 mt-3 flex items-start gap-2 rounded-md bg-[#FEF3C7] p-3 text-xs text-[#92400E]">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
-        <p>ส่งข้อมูลนี้ให้คนงานทางที่สะดวก ระบบจะบังคับเปลี่ยนรหัสผ่านตอนเข้าสู่ระบบครั้งแรก</p>
+        <p>ส่งข้อมูลนี้ให้ Admin ทางที่สะดวก ระบบจะบังคับเปลี่ยนรหัสผ่านตอนเข้าสู่ระบบครั้งแรก</p>
       </div>
 
       <div className="flex w-full gap-4">
@@ -145,54 +160,56 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
   );
 }
 
-export default function Workers() {
-  const workers = useWorkerStore((s) => s.workers);
-  const addWorker = useWorkerStore((s) => s.addWorker);
-  const updateWorker = useWorkerStore((s) => s.updateWorker);
-  const setWorkerStatus = useWorkerStore((s) => s.setWorkerStatus);
-  const nextUsername = useWorkerStore((s) => s.nextUsername);
+export default function AdminsManagement() {
+  const admins = useAdminStore((s) => s.admins);
+  const addAdmin = useAdminStore((s) => s.addAdmin);
+  const updateAdmin = useAdminStore((s) => s.updateAdmin);
+  const setAdminStatus = useAdminStore((s) => s.setAdminStatus);
+  const nextUsername = useAdminStore((s) => s.nextUsername);
+  const allFarms = useFarmStore((s) => s.farms);
+  const getFarmName = useFarmStore((s) => s.getFarmName);
 
   const [search, setSearch] = useState('');
-  const [workerFilter, setWorkerFilter] = useState('all');
+  const [farmFilter, setFarmFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [modal, setModal] = useState(null);
 
+  const farms = useMemo(() => allFarms.filter((f) => f.status !== 'inactive'), [allFarms]);
+
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return workers.filter((w) => {
-      const matchesSearch =
-        !term ||
-        [w.fullName, w.nickname, w.username, w.phone].some((field) => field.toLowerCase().includes(term));
-      const matchesWorker = workerFilter === 'all' || w.id === workerFilter;
-      const matchesStatus = statusFilter === 'all' || w.status === statusFilter;
-      return matchesSearch && matchesWorker && matchesStatus;
+    return admins.filter((a) => {
+      const matchesSearch = !term || [a.fullName, a.username, a.phone].some((field) => field.toLowerCase().includes(term));
+      const matchesFarm = farmFilter === 'all' || a.farmId === farmFilter;
+      const matchesStatus = statusFilter === 'all' || a.status === statusFilter;
+      return matchesSearch && matchesFarm && matchesStatus;
     });
-  }, [workers, search, workerFilter, statusFilter]);
+  }, [admins, search, farmFilter, statusFilter]);
 
   function closeModal() {
     setModal(null);
   }
 
   function handleAddSubmit(data) {
-    const { tempPassword, ...worker } = data;
+    const { tempPassword, ...admin } = data;
     void tempPassword;
-    addWorker(worker);
+    addAdmin(admin);
     setModal({ mode: 'success', action: 'add' });
   }
 
   function handleEditSubmit(data) {
-    updateWorker(modal.worker.id, data);
+    updateAdmin(modal.admin.id, data);
     setModal({ mode: 'success', action: 'edit' });
   }
 
   function handleConfirmDelete() {
-    setWorkerStatus(modal.worker.id, 'inactive');
-    setModal({ mode: 'success', action: 'delete', worker: modal.worker });
+    setAdminStatus(modal.admin.id, 'inactive');
+    setModal({ mode: 'success', action: 'delete', admin: modal.admin });
   }
 
   return (
     <div>
-      <PageHeader title="Worker Management" />
+      <PageHeader title="Admins Management" admin={CURRENT_SUPER_ADMIN} />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="relative max-w-lg flex-1">
@@ -209,14 +226,14 @@ export default function Workers() {
         <div className="flex flex-wrap gap-4">
           <div className="relative">
             <select
-              value={workerFilter}
-              onChange={(e) => setWorkerFilter(e.target.value)}
+              value={farmFilter}
+              onChange={(e) => setFarmFilter(e.target.value)}
               className="min-w-37.5 appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-4 pr-10 text-gray-600 focus:outline-none"
             >
-              <option value="all">พนักงานทั้งหมด</option>
-              {workers.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.fullName}
+              <option value="all">ฟาร์มทั้งหมด</option>
+              {farms.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
                 </option>
               ))}
             </select>
@@ -243,12 +260,12 @@ export default function Workers() {
             onClick={() =>
               setModal({
                 mode: 'add',
-                defaultValues: { fullName: '', nickname: '', username: nextUsername(), phone: '', tempPassword: randomPassword() },
+                defaultValues: { fullName: '', username: nextUsername(), phone: '', farmId: farms[0]?.id ?? '', tempPassword: randomPassword() },
               })
             }
           >
             <UserPlus className="h-5 w-5" />
-            <span>เพิ่มคนงานใหม่</span>
+            <span>เพิ่ม Admin ใหม่</span>
           </Button>
         </div>
       </div>
@@ -258,44 +275,48 @@ export default function Workers() {
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
               <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Name</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Nickname</th>
               <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Username</th>
               <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Phone Number</th>
+              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Farm</th>
               <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Status</th>
               <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Start Date</th>
               <th className="px-4 py-3.5 font-medium">Manage</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((worker) => (
-              <tr key={worker.id} className="border-b border-gray-200 transition-colors last:border-0 hover:bg-gray-50">
+            {filtered.map((admin) => (
+              <tr key={admin.id} className="border-b border-gray-200 transition-colors last:border-0 hover:bg-gray-50">
                 <td className="border-r border-gray-200 px-4 py-3 text-left">
                   <div className="flex items-center justify-start gap-3 pl-2">
-                    <Avatar src={worker.avatar} name={worker.fullName} />
-                    <span className="font-semibold text-gray-800">{worker.fullName}</span>
+                    <Avatar src={admin.avatar} name={admin.fullName} />
+                    <span className="font-semibold text-gray-800">{admin.fullName}</span>
                   </div>
                 </td>
-                <td className="border-r border-gray-200 px-4 py-3 font-medium text-gray-800">{worker.nickname}</td>
-                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">@{worker.username}</td>
-                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">{worker.phone}</td>
+                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">{admin.username}</td>
+                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">{admin.phone}</td>
                 <td className="border-r border-gray-200 px-4 py-3">
-                  <span className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[worker.status]}`}>
-                    {STATUS_LABEL[worker.status]}
+                  <span className="inline-block rounded-full bg-farm-secondary/40 px-3 py-1 text-xs font-medium text-farm-text">
+                    {getFarmName(admin.farmId)}
                   </span>
                 </td>
-                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">{formatDateLong(worker.joinedDate)}</td>
+                <td className="border-r border-gray-200 px-4 py-3">
+                  <span className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[admin.status]}`}>
+                    {STATUS_LABEL[admin.status]}
+                  </span>
+                </td>
+                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">{formatDateLong(admin.joinedDate)}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-center gap-4">
                     <button
                       type="button"
-                      onClick={() => setModal({ mode: 'edit', worker })}
+                      onClick={() => setModal({ mode: 'edit', admin })}
                       className="text-gray-700 transition-colors hover:text-black"
                     >
                       <Edit className="h-5 w-5" />
                     </button>
                     <button
                       type="button"
-                      onClick={() => setModal({ mode: 'delete', worker })}
+                      onClick={() => setModal({ mode: 'delete', admin })}
                       className="text-red-500 transition-colors hover:text-red-700"
                     >
                       <Trash2 className="h-5 w-5" />
@@ -307,7 +328,7 @@ export default function Workers() {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className="py-8 text-gray-400">
-                  ไม่พบคนงานที่ตรงกับเงื่อนไข
+                  ไม่พบ Admin ที่ตรงกับเงื่อนไข
                 </td>
               </tr>
             )}
@@ -317,13 +338,13 @@ export default function Workers() {
 
       {modal?.mode === 'add' && (
         <ModalShell onClose={closeModal} className="w-112.5">
-          <AddWorkerForm defaultValues={modal.defaultValues} onSubmit={handleAddSubmit} onCancel={closeModal} />
+          <AddAdminForm defaultValues={modal.defaultValues} farms={farms} onSubmit={handleAddSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 
       {modal?.mode === 'edit' && (
         <ModalShell onClose={closeModal} className="w-112.5">
-          <EditWorkerForm worker={modal.worker} onSubmit={handleEditSubmit} onCancel={closeModal} />
+          <EditAdminForm admin={modal.admin} farms={farms} onSubmit={handleEditSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 
@@ -333,8 +354,8 @@ export default function Workers() {
             <X className="h-5 w-5" />
           </button>
           <AlertTriangle className="mb-4 h-16 w-16 stroke-[1.5] text-red-600" />
-          <p className="mb-1 font-medium text-gray-800">ยืนยันการลบคนงาน "{modal.worker.fullName}"?</p>
-          <p className="mb-8 text-sm font-medium text-red-600">ประวัติการทำงานจะยังอยู่ แต่จะไม่สามารถเข้าสู่ระบบได้อีก</p>
+          <p className="mb-1 font-medium text-gray-800">ยืนยันการลบ Admin "{modal.admin.fullName}"?</p>
+          <p className="mb-8 text-sm font-medium text-red-600">ประวัติจะยังอยู่ แต่จะไม่สามารถเข้าสู่ระบบได้อีก</p>
           <div className="flex w-full gap-4">
             <Button variant="outline" className="flex-1" onClick={closeModal}>
               cancel
@@ -350,11 +371,11 @@ export default function Workers() {
         <SuccessModal
           onClose={closeModal}
           message={
-            (modal.action === 'add' && 'เพิ่มคนงานสำเร็จ') ||
+            (modal.action === 'add' && 'เพิ่ม Admin สำเร็จ') ||
             (modal.action === 'edit' && 'แก้ไขข้อมูลสำเร็จ') ||
-            'ลบคนงานสำเร็จ'
+            'ลบ Admin สำเร็จ'
           }
-          submessage={modal.action === 'delete' ? `${modal.worker.fullName} ถูกปิดการใช้งานแล้ว` : undefined}
+          submessage={modal.action === 'delete' ? `${modal.admin.fullName} ถูกปิดการใช้งานแล้ว` : undefined}
         />
       )}
     </div>

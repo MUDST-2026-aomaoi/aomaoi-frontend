@@ -16,6 +16,12 @@ export default {
           accent: '#D1A344',
           bg: '#F5F2E9',
           text: '#2C2C2C',
+          sidebar: '#2B4222',
+          sidebarActive: '#425F33',
+          sidebarText: '#D1D5DB',
+          sidebarAccent: '#9BB92F',
+          superSidebar: '#3B2A1D',
+          superSidebarActive: '#5C4632',
         }
       }
     },

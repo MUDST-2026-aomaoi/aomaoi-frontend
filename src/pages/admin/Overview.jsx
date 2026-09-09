@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Card } from '../../components/ui/Card';
+import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { WORK_LOG_TYPES } from '../../config/workLogTypes';
@@ -21,7 +22,7 @@ export default function Overview() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-farm-text">ภาพรวม</h1>
+      <PageHeader title="ภาพรวม" />
 
       <Card>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">

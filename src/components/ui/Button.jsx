@@ -3,7 +3,8 @@ export function Button({ children, variant = 'primary', className = '', ...props
   const variants = {
     primary: "bg-farm-primary text-white hover:bg-green-800",
     outline: "border border-farm-primary text-farm-primary hover:bg-farm-bg",
-    danger: "bg-red-600 text-white hover:bg-red-700"
+    danger: "bg-red-600 text-white hover:bg-red-700",
+    accent: "bg-farm-accent text-white hover:brightness-90"
   };
 
   return (
