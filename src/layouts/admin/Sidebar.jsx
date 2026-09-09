@@ -1,78 +1,46 @@
-import { useState } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, ClipboardList, ChevronDown, BarChart3, LogOut } from 'lucide-react';
-import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { LayoutGrid, Users, FileText, LogOut, Sprout } from 'lucide-react';
 
-const linkBase = 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors';
-const linkActive = 'bg-white text-farm-primary';
-const linkInactive = 'text-farm-bg/90 hover:bg-white/10';
+const linkBase = 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors';
+const linkActive = 'bg-farm-sidebarActive text-white border-l-4 border-farm-sidebarAccent -ml-6 pl-9 rounded-none';
+const linkInactive = 'text-farm-sidebarText hover:text-white';
 
 export function Sidebar() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const [workLogOpen, setWorkLogOpen] = useState(location.pathname.startsWith('/admin/work'));
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col bg-farm-primary px-3 py-4">
-      <div className="mb-6 px-2">
-        <span className="text-lg font-bold text-white">บัญชีไร่อ้อย</span>
+    <aside className="flex h-screen w-64 shrink-0 flex-col bg-farm-sidebar text-white">
+      <div className="flex items-center gap-3 p-6">
+        <Sprout className="h-8 w-8 text-farm-sidebarAccent" />
+        <h1 className="text-2xl font-bold text-farm-sidebarAccent">Sugarcane</h1>
       </div>
 
-      <nav className="flex-1 space-y-1">
-        <NavLink to="/admin/dashboard" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
-          <LayoutDashboard size={18} />
-          Dashboard
-        </NavLink>
+      <div className="flex-1 px-6 py-4">
+        <p className="mb-4 text-sm text-farm-sidebarText">Menu</p>
+        <nav className="flex flex-col gap-2">
+          <NavLink to="/admin/dashboard" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
+            <LayoutGrid className="h-5 w-5" />
+            <span>Dashboard</span>
+          </NavLink>
 
-        <NavLink to="/admin/workers" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
-          <Users size={18} />
-          คนงาน
-        </NavLink>
+          <NavLink to="/admin/workers" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
+            <Users className="h-5 w-5" />
+            <span>Workers</span>
+          </NavLink>
 
-        <button
-          type="button"
-          onClick={() => setWorkLogOpen((v) => !v)}
-          className={`${linkBase} ${linkInactive} w-full justify-between`}
-        >
-          <span className="flex items-center gap-3">
-            <ClipboardList size={18} />
-            บันทึกงาน
-          </span>
-          <ChevronDown size={16} className={`transition-transform ${workLogOpen ? 'rotate-180' : ''}`} />
+          <NavLink to="/admin/work" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
+            <FileText className="h-5 w-5" />
+            <span>Work Log</span>
+          </NavLink>
+        </nav>
+      </div>
+
+      <div className="p-6">
+        <button type="button" onClick={() => navigate('/login')} className="flex items-center gap-3 text-white transition-colors hover:text-farm-sidebarText">
+          <LogOut className="h-5 w-5" />
+          <span>Log out</span>
         </button>
-
-        {workLogOpen && (
-          <div className="ml-8 space-y-1 border-l border-white/15 pl-3">
-            {WORK_LOG_ORDER.map((key) => {
-              const type = WORK_LOG_TYPES[key];
-              return (
-                <NavLink
-                  key={key}
-                  to={`/admin/work/${type.path}`}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm ${
-                      isActive ? 'bg-white text-farm-primary' : 'text-farm-bg/80 hover:bg-white/10'
-                    }`
-                  }
-                >
-                  <type.icon size={16} />
-                  {type.labelTh}
-                </NavLink>
-              );
-            })}
-          </div>
-        )}
-
-        <NavLink to="/admin/overview" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
-          <BarChart3 size={18} />
-          ภาพรวม
-        </NavLink>
-      </nav>
-
-      <button type="button" onClick={() => navigate('/login')} className={`${linkBase} ${linkInactive} mt-4 w-full`}>
-        <LogOut size={18} />
-        Logout
-      </button>
+      </div>
     </aside>
   );
 }

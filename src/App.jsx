@@ -5,6 +5,11 @@ import Workers from './pages/admin/Workers';
 import WorkLog from './pages/admin/WorkLog';
 import Overview from './pages/admin/Overview';
 
+import { SuperAdminLayout } from './layouts/superadmin/SuperAdminLayout';
+import SuperAdminDashboard from './pages/superadmin/Dashboard';
+import AllFarms from './pages/superadmin/AllFarms';
+import AdminsManagement from './pages/superadmin/AdminsManagement';
+
 // Layouts
 import WorkerLayout from './layouts/worker/WorkerLayout';
 
@@ -34,16 +39,16 @@ function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="workers" element={<Workers />} />
-          <Route path="work/cutting" element={<WorkLog type="cutting" />} />
-          <Route path="work/planting" element={<WorkLog type="planting" />} />
-          <Route path="work/watering" element={<WorkLog type="watering" />} />
-          <Route path="work/spraying" element={<WorkLog type="spraying" />} />
+          <Route path="work" element={<WorkLog />} />
           <Route path="overview" element={<Overview />} />
         </Route>
         
-        {/* เส้นทางของ Superadmin (หน้าเพื่อน) */}
-        <Route path="/superadmin" element={<div className="p-4">นี่คือที่ดินของ Superadmin (รอเพื่อนมาเขียน)</div>}>
-          <Route path="admins" element={<div>Manage Admins</div>} />
+        {/* เส้นทางของ Superadmin */}
+        <Route path="/superadmin" element={<SuperAdminLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<SuperAdminDashboard />} />
+          <Route path="farms" element={<AllFarms />} />
+          <Route path="admins" element={<AdminsManagement />} />
         </Route>
 
         {/* ค่าเริ่มต้น ถ้าเปิดเว็บมาให้โยงไปหน้า Dashboard เลย */}

@@ -9,3 +9,11 @@ export function formatDate(dateStr) {
     day: 'numeric',
   });
 }
+
+export function formatDateLong(dateStr) {
+  return new Date(dateStr).toLocaleDateString('th-TH', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}

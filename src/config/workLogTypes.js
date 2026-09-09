@@ -8,6 +8,10 @@ export const WORK_LOG_TYPES = {
     labelTh: 'ตัดอ้อย',
     icon: Scissors,
     formulaLabel: 'แถว × 100 วา/แถว × 2 บาท',
+    chartColor: '#B4D355',
+    badgeClass: 'bg-[#dcfce7] text-[#166534]',
+    primaryUnit: 'วา',
+    primaryQty: (v) => v.rows * v.waPerRow,
     fields: [
       { name: 'rows', label: 'จำนวนแถว', suffix: 'แถว', defaultValue: 1 },
       { name: 'waPerRow', label: 'วา/แถว (มาตรฐาน)', suffix: 'วา', defaultValue: 100 },
@@ -27,6 +31,10 @@ export const WORK_LOG_TYPES = {
     labelTh: 'ปลูกอ้อย',
     icon: Sprout,
     formulaLabel: 'ร่อง × วา/ร่อง × 2.5 บาท',
+    chartColor: '#1F3C28',
+    badgeClass: 'bg-[#e5e7eb] text-[#374151]',
+    primaryUnit: 'วา',
+    primaryQty: (v) => v.furrows * v.waPerFurrow,
     fields: [
       { name: 'furrows', label: 'จำนวนร่อง', suffix: 'ร่อง', defaultValue: 1 },
       { name: 'waPerFurrow', label: 'วา/ร่อง', suffix: 'วา', defaultValue: 20 },
@@ -46,6 +54,10 @@ export const WORK_LOG_TYPES = {
     labelTh: 'รดน้ำ',
     icon: Droplets,
     formulaLabel: 'จำนวนวัน × ค่าแรงต่อวัน',
+    chartColor: '#568A3B',
+    badgeClass: 'bg-[#fef08a] text-[#854d0e]',
+    primaryUnit: 'วัน',
+    primaryQty: (v) => v.days,
     fields: [
       { name: 'days', label: 'จำนวนวัน', suffix: 'วัน', defaultValue: 1 },
       { name: 'dailyRate', label: 'ค่าแรงต่อวัน', suffix: 'บาท', defaultValue: 350 },
@@ -65,6 +77,10 @@ export const WORK_LOG_TYPES = {
     labelTh: 'พ่นยา',
     icon: SprayCan,
     formulaLabel: 'จำนวนถัง × 150 บาท/ถัง',
+    chartColor: '#6A9E48',
+    badgeClass: 'bg-[#fef08a] text-[#854d0e]',
+    primaryUnit: 'ถัง',
+    primaryQty: (v) => v.tanks,
     fields: [{ name: 'tanks', label: 'จำนวนถัง', suffix: 'ถัง', defaultValue: 1 }],
     schema: z.object({
       date: z.string().min(1, 'กรุณาเลือกวันที่'),
