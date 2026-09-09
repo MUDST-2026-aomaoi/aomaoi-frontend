@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/useAuthStore';
+import { useAuthStore, ROLE_HOME } from '../../store/useAuthStore';
 import { useWorkerStore } from '../../store/useWorkerStore';
+import { useAdminStore } from '../../store/useAdminStore';
 import SetPasswordModal from '../../components/auth/SetPasswordModal';
 
 export default function Login() {
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
   const workers = useWorkerStore((s) => s.workers);
+  const admins = useAdminStore((s) => s.admins);
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +27,7 @@ export default function Login() {
       return;
     }
 
-    const result = login(username.trim(), password.trim(), workers);
+    const result = login(username.trim(), password.trim(), { workers, admins });
 
     if (!result.success) {
       setError(result.error);
@@ -35,13 +37,14 @@ export default function Login() {
     if (result.isFirstLogin) {
       setShowSetPassword(true);
     } else {
-      navigate('/worker/dashboard');
+      navigate(ROLE_HOME[result.role] ?? '/login');
     }
   };
 
   const handlePasswordSet = () => {
     setShowSetPassword(false);
-    navigate('/worker/dashboard');
+    const currentUser = useAuthStore.getState().currentUser;
+    navigate(ROLE_HOME[currentUser?.role] ?? '/login');
   };
 
   return (

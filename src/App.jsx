@@ -22,10 +22,12 @@ import Login from './pages/auth/Login';
 // Auth Store
 import { useAuthStore } from './store/useAuthStore';
 
-// ProtectedRoute: ถ้าไม่ได้ล็อกอิน จะเด้งกลับหน้า Login
-function ProtectedRoute({ children }) {
+// ProtectedRoute: ถ้าไม่ได้ล็อกอิน หรือ Role ไม่ตรง จะเด้งกลับหน้า Login
+function ProtectedRoute({ children, role }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const currentUser = useAuthStore((s) => s.currentUser);
   if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (role && currentUser?.role !== role) return <Navigate to="/login" replace />;
   return children;
 }
 
@@ -50,8 +52,15 @@ function App() {
           <Route path="history" element={<WorkerHistory />} />
         </Route>
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
+        {/* Admin Routes (ต้อง Login และเป็น Role admin) */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="workers" element={<Workers />} />
@@ -59,8 +68,15 @@ function App() {
           <Route path="overview" element={<Overview />} />
         </Route>
         
-        {/* เส้นทางของ Superadmin */}
-        <Route path="/superadmin" element={<SuperAdminLayout />}>
+        {/* เส้นทางของ Superadmin (ต้อง Login และเป็น Role superadmin) */}
+        <Route
+          path="/superadmin"
+          element={
+            <ProtectedRoute role="superadmin">
+              <SuperAdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<SuperAdminDashboard />} />
           <Route path="farms" element={<AllFarms />} />
