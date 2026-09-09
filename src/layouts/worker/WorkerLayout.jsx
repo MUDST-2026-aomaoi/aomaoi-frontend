@@ -37,7 +37,7 @@ export default function WorkerLayout() {
           </div>
 
           <div className="pt-2 pb-4">
-            <h2 className="px-6 text-[11px] text-gray-500 font-bold mb-2">Menu</h2>
+            <h2 className="px-6 text-[12px] text-gray-400 font-medium mb-2">Menu</h2>
             <nav className="flex flex-col gap-1">
               <Link to="/worker/dashboard" className={getNavClass('/dashboard')}>
                 <LayoutDashboard size={20} />
@@ -53,7 +53,7 @@ export default function WorkerLayout() {
 
         {/* Logout Section */}
         <div className="p-4 border-t border-gray-100">
-          <button className="flex items-center gap-3 px-4 py-3 text-farm-text font-bold hover:bg-gray-50 rounded-lg transition-colors w-full">
+          <button className="flex items-center gap-3 px-4 py-3 text-farm-text font-medium hover:bg-gray-50 rounded-lg transition-colors w-full">
             <LogOut size={20} />
             <span>Log out</span>
           </button>
@@ -63,18 +63,16 @@ export default function WorkerLayout() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-y-auto">
         <header className="px-8 pt-8 pb-4 flex justify-between items-center shrink-0">
-          {/* เอา Subtitle ออก เหลือแค่ Dashboard คำเดียวใหญ่ๆ */}
-          <h1 className="text-3xl font-extrabold text-farm-text">{pageTitle}</h1>
+          <h1 className="text-3xl font-bold text-farm-text">{pageTitle}</h1>
           
-          {/* Profile Section: แบบวงกลมและชื่อด้านข้าง */}
+          {/* Profile Section */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gray-200 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center shrink-0">
-              {/* ใส่รูป placeholder ชั่วคราว หรือใช้ไอคอนไปก่อน */}
               <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=somchai" alt="Profile" className="w-full h-full object-cover" />
             </div>
             <div className="text-left leading-tight">
-              <p className="text-sm font-extrabold text-farm-text">{myUsername}</p>
-              <p className="text-[10px] font-bold text-gray-500">Worker</p>
+              <p className="text-sm font-semibold text-farm-text">{myUsername}</p>
+              <p className="text-[11px] font-normal text-gray-500">Worker</p>
             </div>
           </div>
         </header>
