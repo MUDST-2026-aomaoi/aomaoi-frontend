@@ -14,7 +14,7 @@ export default {
           primary: '#435834',
           secondary: '#C4B99D',
           accent: '#D1A344',
-          bg: '#F5F2E9',
+          bg: '#F9FAFB',
           text: '#2C2C2C',
           sidebar: '#2B4222',
           sidebarActive: '#425F33',

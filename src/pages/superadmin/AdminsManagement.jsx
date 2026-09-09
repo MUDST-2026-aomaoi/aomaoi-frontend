@@ -2,13 +2,14 @@ import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Search, ChevronDown, UserPlus, Edit, Trash2, X, AlertTriangle, ImagePlus, Info, Shuffle } from 'lucide-react';
+import { Search, UserPlus, Edit, Trash2, X, AlertTriangle, ImagePlus, Info, Shuffle } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { Avatar } from '../../components/ui/Avatar';
+import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useAdminStore } from '../../store/useAdminStore';
@@ -224,35 +225,24 @@ export default function AdminsManagement() {
         </div>
 
         <div className="flex flex-wrap gap-4">
-          <div className="relative">
-            <select
-              value={farmFilter}
-              onChange={(e) => setFarmFilter(e.target.value)}
-              className="min-w-37.5 appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-4 pr-10 text-gray-600 focus:outline-none"
-            >
-              <option value="all">ฟาร์มทั้งหมด</option>
-              {farms.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-3.5 h-4 w-4 text-gray-400" />
-          </div>
+          <Dropdown
+            value={farmFilter}
+            onChange={setFarmFilter}
+            className="w-48"
+            options={[{ value: 'all', label: 'ฟาร์มทั้งหมด' }, ...farms.map((f) => ({ value: f.id, label: f.name }))]}
+          />
 
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="min-w-37.5 appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-4 pr-10 text-gray-600 focus:outline-none"
-            >
-              <option value="all">สถานะทั้งหมด</option>
-              <option value="active">Active</option>
-              <option value="pending">Pending</option>
-              <option value="inactive">Inactive</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-3.5 h-4 w-4 text-gray-400" />
-          </div>
+          <Dropdown
+            value={statusFilter}
+            onChange={setStatusFilter}
+            className="w-48"
+            options={[
+              { value: 'all', label: 'สถานะทั้งหมด' },
+              { value: 'active', label: 'Active' },
+              { value: 'pending', label: 'Pending' },
+              { value: 'inactive', label: 'Inactive' },
+            ]}
+          />
 
           <Button
             variant="accent"

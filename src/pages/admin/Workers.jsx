@@ -2,12 +2,13 @@ import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Search, ChevronDown, UserPlus, Edit, Trash2, X, AlertTriangle, ImagePlus, Info, Shuffle } from 'lucide-react';
+import { Search, UserPlus, Edit, Trash2, X, AlertTriangle, ImagePlus, Info, Shuffle } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { Avatar } from '../../components/ui/Avatar';
+import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { formatDateLong } from '../../lib/format';
@@ -207,35 +208,24 @@ export default function Workers() {
         </div>
 
         <div className="flex flex-wrap gap-4">
-          <div className="relative">
-            <select
-              value={workerFilter}
-              onChange={(e) => setWorkerFilter(e.target.value)}
-              className="min-w-37.5 appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-4 pr-10 text-gray-600 focus:outline-none"
-            >
-              <option value="all">พนักงานทั้งหมด</option>
-              {workers.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.fullName}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-3.5 h-4 w-4 text-gray-400" />
-          </div>
+          <Dropdown
+            value={workerFilter}
+            onChange={setWorkerFilter}
+            className="w-48"
+            options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...workers.map((w) => ({ value: w.id, label: w.fullName }))]}
+          />
 
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="min-w-37.5 appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-4 pr-10 text-gray-600 focus:outline-none"
-            >
-              <option value="all">สถานะทั้งหมด</option>
-              <option value="active">Active</option>
-              <option value="pending">Pending</option>
-              <option value="inactive">Inactive</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-3.5 h-4 w-4 text-gray-400" />
-          </div>
+          <Dropdown
+            value={statusFilter}
+            onChange={setStatusFilter}
+            className="w-48"
+            options={[
+              { value: 'all', label: 'สถานะทั้งหมด' },
+              { value: 'active', label: 'Active' },
+              { value: 'pending', label: 'Pending' },
+              { value: 'inactive', label: 'Inactive' },
+            ]}
+          />
 
           <Button
             variant="accent"
@@ -257,34 +247,34 @@ export default function Workers() {
         <table className="w-full border-collapse text-center text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Name</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Nickname</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Username</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Phone Number</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Status</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Start Date</th>
-              <th className="px-4 py-3.5 font-medium">Manage</th>
+              <th className="px-4 py-3.5 pl-6 text-left font-medium">Name</th>
+              <th className="px-4 py-3.5 font-medium">Nickname</th>
+              <th className="px-4 py-3.5 font-medium">Username</th>
+              <th className="px-4 py-3.5 font-medium">Phone Number</th>
+              <th className="px-4 py-3.5 font-medium">Status</th>
+              <th className="px-4 py-3.5 font-medium">Start Date</th>
+              <th className="px-4 py-3.5 pr-6 font-medium">Manage</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((worker) => (
-              <tr key={worker.id} className="border-b border-gray-200 transition-colors last:border-0 hover:bg-gray-50">
-                <td className="border-r border-gray-200 px-4 py-3 text-left">
-                  <div className="flex items-center justify-start gap-3 pl-2">
+              <tr key={worker.id} className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
+                <td className="px-4 py-3 pl-6 text-left">
+                  <div className="flex items-center justify-start gap-3">
                     <Avatar src={worker.avatar} name={worker.fullName} />
                     <span className="font-semibold text-gray-800">{worker.fullName}</span>
                   </div>
                 </td>
-                <td className="border-r border-gray-200 px-4 py-3 font-medium text-gray-800">{worker.nickname}</td>
-                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">@{worker.username}</td>
-                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">{worker.phone}</td>
-                <td className="border-r border-gray-200 px-4 py-3">
+                <td className="px-4 py-3 font-medium text-gray-800">{worker.nickname}</td>
+                <td className="px-4 py-3 text-gray-800">@{worker.username}</td>
+                <td className="px-4 py-3 text-gray-800">{worker.phone}</td>
+                <td className="px-4 py-3">
                   <span className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[worker.status]}`}>
                     {STATUS_LABEL[worker.status]}
                   </span>
                 </td>
-                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">{formatDateLong(worker.joinedDate)}</td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 text-gray-800">{formatDateLong(worker.joinedDate)}</td>
+                <td className="px-4 py-3 pr-6">
                   <div className="flex items-center justify-center gap-4">
                     <button
                       type="button"
