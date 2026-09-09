@@ -10,23 +10,20 @@ import SuperAdminDashboard from './pages/superadmin/Dashboard';
 import AllFarms from './pages/superadmin/AllFarms';
 import AdminsManagement from './pages/superadmin/AdminsManagement';
 
-// Layouts
 import WorkerLayout from './layouts/worker/WorkerLayout';
-
-// Pages
 import WorkerDashboard from './pages/worker/WorkerDashboard';
 import WorkerHistory from './pages/worker/WorkerHistory';
-
 import WorkerBalance from './pages/worker/WorkerBalance';
+import Login from './pages/auth/Login';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* หน้า Login (รอทำทีหลัง) */}
-        <Route path="/login" element={<div className="flex h-screen items-center justify-center bg-farm-bg text-2xl font-bold">Login Page (รอก่อนน้า)</div>} />
+        {/* หน้า Login */}
+        <Route path="/login" element={<Login />} />
 
-        {/* เส้นทางของ Worker */}
+        {/* Worker Routes */}
         <Route path="/worker" element={<WorkerLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<WorkerDashboard />} />
@@ -41,8 +38,8 @@ function App() {
           <Route path="work" element={<WorkLog />} />
           <Route path="overview" element={<Overview />} />
         </Route>
-        
-        {/* เส้นทางของ Superadmin */}
+
+        {/* Superadmin Routes */}
         <Route path="/superadmin" element={<SuperAdminLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<SuperAdminDashboard />} />
@@ -50,8 +47,8 @@ function App() {
           <Route path="admins" element={<AdminsManagement />} />
         </Route>
 
-        {/* ค่าเริ่มต้น ถ้าเปิดเว็บมาให้โยงไปหน้า Dashboard เลย */}
-        <Route path="*" element={<Navigate to="/worker/dashboard" replace />} />
+        {/* Default → Login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
