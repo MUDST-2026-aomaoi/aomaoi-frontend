@@ -9,6 +9,7 @@ import SetPasswordModal from '../../components/auth/SetPasswordModal';
 export default function Login() {
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
+  const currentUser = useAuthStore((s) => s.currentUser);  // ← ดึงผ่าน hook เพื่อให้ react re-render ถูกต้อง
   const workers = useWorkerStore((s) => s.workers);
   const admins = useAdminStore((s) => s.admins);
 
@@ -17,6 +18,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [showSetPassword, setShowSetPassword] = useState(false);
+  const [pendingRole, setPendingRole] = useState(null);  // ← เก็บ role ไว้ใช้ตอน redirect หลังตั้งรหัสผ่าน
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -35,6 +37,7 @@ export default function Login() {
     }
 
     if (result.isFirstLogin) {
+      setPendingRole(result.role);  // ← เก็บ role ไว้ก่อน (ปลอดภัยกว่าอ่านจาก store ทีหลัง)
       setShowSetPassword(true);
     } else {
       navigate(ROLE_HOME[result.role] ?? '/login');
@@ -43,8 +46,7 @@ export default function Login() {
 
   const handlePasswordSet = () => {
     setShowSetPassword(false);
-    const currentUser = useAuthStore.getState().currentUser;
-    navigate(ROLE_HOME[currentUser?.role] ?? '/login');
+    navigate(ROLE_HOME[pendingRole] ?? '/login');  // ← ใช้ pendingRole ที่เก็บไว้แทน getState()
   };
 
   return (

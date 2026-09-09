@@ -69,8 +69,13 @@ export const useAuthStore = create(
       updatePassword: (newPassword) => {
         const user = get().currentUser;
         if (!user) return;
+        const updated = {
+          ...get().passwords[user.username],
+          password: newPassword,
+          isFirstLogin: false,
+        };
         set((state) => ({
-          passwords: { ...state.passwords, [user.username]: { ...state.passwords[user.username], password: newPassword, isFirstLogin: false } },
+          passwords: { ...state.passwords, [user.username]: updated },
           currentUser: { ...state.currentUser, isFirstLogin: false },
         }));
       },
@@ -81,6 +86,15 @@ export const useAuthStore = create(
         currentUser: state.currentUser,
         isAuthenticated: state.isAuthenticated,
         passwords: state.passwords,
+      }),
+      // merge: ให้ passwords จาก localStorage ชนะ MOCK_PASSWORDS เสมอ
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...persistedState,
+        passwords: {
+          ...MOCK_PASSWORDS,             // ค่า default ทั้งหมด (เผื่อมี user ใหม่เพิ่มขึ้น)
+          ...persistedState?.passwords,  // ของที่เคยบันทึกไว้ (รหัสผ่านใหม่) ชนะ
+        },
       }),
     }
   )
