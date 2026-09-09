@@ -224,16 +224,21 @@ export default function WorkerDashboard() {
             </div>
           </div>
 
-          <div className="w-full grid grid-cols-2 gap-x-4 gap-y-5 mt-8">
+          <div className="w-full grid grid-cols-2 gap-3 mt-8">
             {statsBoxes.map((stat, idx) => (
-              <div key={stat.id} className="flex items-center gap-3">
-                <div className="w-1.5 h-[44px] rounded-full shrink-0" style={{ backgroundColor: donutColors[idx] }}></div>
-                <div className="flex-1 flex flex-col justify-center">
-                  <span className="text-[13px] font-semibold text-gray-800 leading-tight">{stat.title}</span>
-                  <span className="text-[11px] text-gray-400 font-normal leading-tight mt-1">{stat.amountNum} {stat.unit}</span>
-                  <span className="text-[11px] text-gray-400 font-normal leading-tight mt-0.5">{stat.thbStr} บาท</span>
+              <div key={stat.id} className="flex items-center bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                {/* แถบสีด้านซ้ายสุด (ยืดเต็มความสูง) */}
+                <div className="w-[14px] self-stretch shrink-0" style={{ backgroundColor: donutColors[idx] }}></div>
+                
+                {/* เนื้อหาด้านในกรอบ */}
+                <div className="flex-1 flex items-center justify-between p-3 pl-4">
+                  <div className="flex flex-col justify-center text-left">
+                    <span className="text-[14px] font-semibold text-gray-800 leading-tight">{stat.title}</span>
+                    <span className="text-[12px] text-gray-400 font-normal leading-tight mt-1">{stat.amountNum} {stat.unit}</span>
+                    <span className="text-[12px] text-gray-400 font-normal leading-tight mt-0.5">{stat.thbStr} บาท</span>
+                  </div>
+                  <div className="text-[28px] font-bold text-[#2B3E26] shrink-0">{stat.pct}%</div>
                 </div>
-                <div className="text-[28px] font-bold text-farm-text shrink-0">{stat.pct}%</div>
               </div>
             ))}
           </div>
