@@ -14,6 +14,7 @@ import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useFarmStore } from '../../store/useFarmStore';
+import { adminService } from '../../service/adminService';
 import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 
@@ -191,11 +192,16 @@ export default function AdminsManagement() {
     setModal(null);
   }
 
-  function handleAddSubmit(data) {
-    const { tempPassword, ...admin } = data;
-    void tempPassword;
-    addAdmin(admin);
-    setModal({ mode: 'success', action: 'add' });
+  async function handleAddSubmit(data) {
+    try {
+      await adminService.addAdmin(data); // Send to backend with tempPassword
+      const { tempPassword, ...admin } = data;
+      addAdmin(admin);
+      setModal({ mode: 'success', action: 'add' });
+    } catch (error) {
+      console.error("Failed to add admin", error);
+      alert("Failed to add admin: " + (error.response?.data?.message || error.message));
+    }
   }
 
   function handleEditSubmit(data) {

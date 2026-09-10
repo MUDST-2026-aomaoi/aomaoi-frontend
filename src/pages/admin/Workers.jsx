@@ -11,6 +11,7 @@ import { Avatar } from '../../components/ui/Avatar';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
+import { workerService } from '../../service/workerService';
 import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 
@@ -174,11 +175,16 @@ export default function Workers() {
     setModal(null);
   }
 
-  function handleAddSubmit(data) {
-    const { tempPassword, ...worker } = data;
-    void tempPassword;
-    addWorker(worker);
-    setModal({ mode: 'success', action: 'add' });
+  async function handleAddSubmit(data) {
+    try {
+      await workerService.addWorker(data); // Send to backend with tempPassword
+      const { tempPassword, ...worker } = data;
+      addWorker(worker);
+      setModal({ mode: 'success', action: 'add' });
+    } catch (error) {
+      console.error("Failed to add worker", error);
+      alert("Failed to add worker: " + (error.response?.data?.message || error.message));
+    }
   }
 
   function handleEditSubmit(data) {
