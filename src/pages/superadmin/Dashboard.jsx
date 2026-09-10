@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
@@ -51,7 +51,14 @@ function farmValueForPeriod(farm, period) {
 
 export default function SuperAdminDashboard() {
   const allFarms = useFarmStore((s) => s.farms);
+  const fetchFarms = useFarmStore((s) => s.fetchFarms);
   const allAdmins = useAdminStore((s) => s.admins);
+  const fetchAdmins = useAdminStore((s) => s.fetchAdmins);
+
+  useEffect(() => {
+    fetchFarms();
+    fetchAdmins();
+  }, [fetchFarms, fetchAdmins]);
 
   const [trendPeriod, setTrendPeriod] = useState('month');
   const [trendFarmFilter, setTrendFarmFilter] = useState('all');

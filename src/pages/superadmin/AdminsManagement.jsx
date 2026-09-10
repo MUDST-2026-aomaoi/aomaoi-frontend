@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -170,6 +170,13 @@ export default function AdminsManagement() {
   const nextUsername = useAdminStore((s) => s.nextUsername);
   const allFarms = useFarmStore((s) => s.farms);
   const getFarmName = useFarmStore((s) => s.getFarmName);
+  const fetchAdmins = useAdminStore((s) => s.fetchAdmins);
+  const fetchFarms = useFarmStore((s) => s.fetchFarms);
+
+  useEffect(() => {
+    fetchAdmins();
+    fetchFarms();
+  }, [fetchAdmins, fetchFarms]);
 
   const [search, setSearch] = useState('');
   const [farmFilter, setFarmFilter] = useState('all');
@@ -194,9 +201,8 @@ export default function AdminsManagement() {
 
   async function handleAddSubmit(data) {
     try {
-      await adminService.addAdmin(data); // Send to backend with tempPassword
-      const { tempPassword, ...admin } = data;
-      addAdmin(admin);
+      const response = await adminService.addAdmin(data);
+      addAdmin(response);
       setModal({ mode: 'success', action: 'add' });
     } catch (error) {
       console.error("Failed to add admin", error);
@@ -204,14 +210,26 @@ export default function AdminsManagement() {
     }
   }
 
-  function handleEditSubmit(data) {
-    updateAdmin(modal.admin.id, data);
-    setModal({ mode: 'success', action: 'edit' });
+  async function handleEditSubmit(data) {
+    try {
+      const response = await adminService.updateAdmin(modal.admin.id, data);
+      updateAdmin(modal.admin.id, response);
+      setModal({ mode: 'success', action: 'edit' });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update admin');
+    }
   }
 
-  function handleConfirmDelete() {
-    setAdminStatus(modal.admin.id, 'inactive');
-    setModal({ mode: 'success', action: 'delete', admin: modal.admin });
+  async function handleConfirmDelete() {
+    try {
+      await adminService.deleteAdmin(modal.admin.id);
+      setAdminStatus(modal.admin.id, 'inactive');
+      setModal({ mode: 'success', action: 'delete', admin: modal.admin });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to delete admin');
+    }
   }
 
   return (

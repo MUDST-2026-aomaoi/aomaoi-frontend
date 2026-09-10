@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -87,7 +87,14 @@ export default function AllFarms() {
   const addFarm = useFarmStore((s) => s.addFarm);
   const updateFarm = useFarmStore((s) => s.updateFarm);
   const setFarmStatus = useFarmStore((s) => s.setFarmStatus);
+  const fetchFarms = useFarmStore((s) => s.fetchFarms);
   const allAdmins = useAdminStore((s) => s.admins);
+  const fetchAdmins = useAdminStore((s) => s.fetchAdmins);
+
+  useEffect(() => {
+    fetchFarms();
+    fetchAdmins();
+  }, [fetchFarms, fetchAdmins]);
 
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null);
@@ -106,19 +113,40 @@ export default function AllFarms() {
     setModal(null);
   }
 
-  function handleAddSubmit(data) {
-    addFarm(data);
-    setModal({ mode: 'success', action: 'add' });
+  async function handleAddSubmit(data) {
+    try {
+      const { default: api } = await import('../../service/api');
+      const res = await api.post('/farms', data);
+      addFarm(res.data);
+      setModal({ mode: 'success', action: 'add' });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to add farm');
+    }
   }
 
-  function handleEditSubmit(data) {
-    updateFarm(modal.farm.id, data);
-    setModal({ mode: 'success', action: 'edit' });
+  async function handleEditSubmit(data) {
+    try {
+      const { default: api } = await import('../../service/api');
+      const res = await api.put(`/farms/${modal.farm.id}`, data);
+      updateFarm(modal.farm.id, res.data);
+      setModal({ mode: 'success', action: 'edit' });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update farm');
+    }
   }
 
-  function handleConfirmDelete() {
-    setFarmStatus(modal.farm.id, 'inactive');
-    setModal({ mode: 'success', action: 'delete', farm: modal.farm });
+  async function handleConfirmDelete() {
+    try {
+      const { default: api } = await import('../../service/api');
+      await api.delete(`/farms/${modal.farm.id}`);
+      setFarmStatus(modal.farm.id, 'inactive');
+      setModal({ mode: 'success', action: 'delete', farm: modal.farm });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to delete farm');
+    }
   }
 
   return (

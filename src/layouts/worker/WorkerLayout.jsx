@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, History, LogOut, Sprout } from 'lucide-react';
 import SetPasswordModal from '../../components/auth/SetPasswordModal';
+import { useAuthStore } from '../../controller/authController';
 
 export default function WorkerLayout({ children }) {
   const location = useLocation();
@@ -12,9 +13,9 @@ export default function WorkerLayout({ children }) {
     location.state?.showSetPassword || false
   );
 
-  // TODO: เปลี่ยนเป็นดึงจาก auth จริงๆ ทีหลัง
+  const currentUser = useAuthStore((state) => state.currentUser);
   const myWorkerId = '1';
-  const myUsername = 'somchai_j';
+  const myUsername = currentUser?.username || 'worker';
 
   const handleLogout = () => {
     navigate('/login');
