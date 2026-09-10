@@ -11,6 +11,8 @@ import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useFarmStore } from '../../store/useFarmStore';
 import { useAdminStore } from '../../store/useAdminStore';
+import { useWorkLogStore } from '../../store/useWorkLogStore';
+import { useWorkerStore } from '../../store/useWorkerStore';
 
 function formatNumber(n) {
   return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 0 });
@@ -90,11 +92,17 @@ export default function AllFarms() {
   const fetchFarms = useFarmStore((s) => s.fetchFarms);
   const allAdmins = useAdminStore((s) => s.admins);
   const fetchAdmins = useAdminStore((s) => s.fetchAdmins);
+  const allEntries = useWorkLogStore((s) => s.entries);
+  const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
+  const allWorkers = useWorkerStore((s) => s.workers);
+  const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
 
   useEffect(() => {
     fetchFarms();
     fetchAdmins();
-  }, [fetchFarms, fetchAdmins]);
+    fetchEntries();
+    fetchWorkers();
+  }, [fetchFarms, fetchAdmins, fetchEntries, fetchWorkers]);
 
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null);
@@ -104,8 +112,20 @@ export default function AllFarms() {
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return visibleFarms.filter((f) => !term || [f.name, f.location].some((field) => field.toLowerCase().includes(term)));
-  }, [visibleFarms, search]);
+    const now = new Date();
+    return visibleFarms
+      .filter((f) => !term || [f.name, f.location].some((field) => field.toLowerCase().includes(term)))
+      .map(farm => {
+        // Calculate monthly wages dynamically
+        const farmWages = allEntries.filter(entry => {
+          const worker = allWorkers.find(w => String(w.id) === String(entry.workerId));
+          if (!worker || String(worker.farmId) !== String(farm.id)) return false;
+          const d = new Date(entry.date);
+          return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+        }).reduce((sum, entry) => sum + entry.total, 0);
+        return { ...farm, monthlyWages: farmWages };
+      });
+  }, [visibleFarms, search, allEntries, allWorkers]);
 
   const totalWorkers = useMemo(() => visibleFarms.reduce((sum, f) => sum + f.workerCount, 0), [visibleFarms]);
 

@@ -76,8 +76,15 @@ export default function SuperAdminDashboard() {
   const allEntries = useWorkLogStore((s) => s.entries);
   const allWorkers = useWorkerStore((s) => s.workers);
 
-  const totalAllTime = useMemo(() => farms.reduce((sum, f) => sum + f.totalWages, 0), [farms]);
-  const totalThisMonth = useMemo(() => farms.reduce((sum, f) => sum + f.monthlyWages, 0), [farms]);
+  const totalAllTime = useMemo(() => allEntries.reduce((sum, e) => sum + e.total, 0), [allEntries]);
+  
+  const totalThisMonth = useMemo(() => {
+    const now = new Date();
+    return allEntries.filter(e => {
+      const d = new Date(e.date);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    }).reduce((sum, e) => sum + e.total, 0);
+  }, [allEntries]);
 
   const monthlyTrend = useMemo(() => {
     const now = new Date();
@@ -104,16 +111,36 @@ export default function SuperAdminDashboard() {
     });
   }, [farms, allEntries, allWorkers]);
 
-  const breakdown = useMemo(
-    () =>
-      farms.map((f, idx) => ({
+  const breakdown = useMemo(() => {
+    return farms.map((f, idx) => {
+      let value = 0;
+      const now = new Date();
+      allEntries.forEach(entry => {
+        const worker = allWorkers.find(w => String(w.id) === String(entry.workerId));
+        if (worker && String(worker.farmId) === String(f.id)) {
+          const d = new Date(entry.date);
+          if (breakdownPeriod === 'day') {
+            if (d.toDateString() === now.toDateString()) value += entry.total;
+          } else if (breakdownPeriod === 'month') {
+            if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) value += entry.total;
+          } else if (breakdownPeriod === '6M') {
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(now.getMonth() - 5);
+            sixMonthsAgo.setDate(1);
+            if (d >= sixMonthsAgo) value += entry.total;
+          } else if (breakdownPeriod === 'year') {
+            if (d.getFullYear() === now.getFullYear()) value += entry.total;
+          }
+        }
+      });
+      return {
         key: f.id,
         name: f.name,
         color: FARM_DONUT_COLORS[idx % FARM_DONUT_COLORS.length],
-        value: farmValueForPeriod(f, breakdownPeriod),
-      })),
-    [farms, breakdownPeriod]
-  );
+        value: value,
+      };
+    });
+  }, [farms, breakdownPeriod, allEntries, allWorkers]);
 
   const breakdownTotal = useMemo(() => breakdown.reduce((sum, e) => sum + e.value, 0), [breakdown]);
 
