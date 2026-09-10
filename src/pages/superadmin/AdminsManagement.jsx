@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,6 +14,7 @@ import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useFarmStore } from '../../store/useFarmStore';
+import { adminService } from '../../service/adminService';
 import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 
@@ -169,6 +170,13 @@ export default function AdminsManagement() {
   const nextUsername = useAdminStore((s) => s.nextUsername);
   const allFarms = useFarmStore((s) => s.farms);
   const getFarmName = useFarmStore((s) => s.getFarmName);
+  const fetchAdmins = useAdminStore((s) => s.fetchAdmins);
+  const fetchFarms = useFarmStore((s) => s.fetchFarms);
+
+  useEffect(() => {
+    fetchAdmins();
+    fetchFarms();
+  }, [fetchAdmins, fetchFarms]);
 
   const [search, setSearch] = useState('');
   const [farmFilter, setFarmFilter] = useState('all');
@@ -191,26 +199,42 @@ export default function AdminsManagement() {
     setModal(null);
   }
 
-  function handleAddSubmit(data) {
-    const { tempPassword, ...admin } = data;
-    void tempPassword;
-    addAdmin(admin);
-    setModal({ mode: 'success', action: 'add' });
+  async function handleAddSubmit(data) {
+    try {
+      const response = await adminService.addAdmin(data);
+      addAdmin(response);
+      setModal({ mode: 'success', action: 'add' });
+    } catch (error) {
+      console.error("Failed to add admin", error);
+      alert("Failed to add admin: " + (error.response?.data?.message || error.message));
+    }
   }
 
-  function handleEditSubmit(data) {
-    updateAdmin(modal.admin.id, data);
-    setModal({ mode: 'success', action: 'edit' });
+  async function handleEditSubmit(data) {
+    try {
+      const response = await adminService.updateAdmin(modal.admin.id, data);
+      updateAdmin(modal.admin.id, response);
+      setModal({ mode: 'success', action: 'edit' });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update admin');
+    }
   }
 
-  function handleConfirmDelete() {
-    setAdminStatus(modal.admin.id, 'inactive');
-    setModal({ mode: 'success', action: 'delete', admin: modal.admin });
+  async function handleConfirmDelete() {
+    try {
+      await adminService.deleteAdmin(modal.admin.id);
+      setAdminStatus(modal.admin.id, 'inactive');
+      setModal({ mode: 'success', action: 'delete', admin: modal.admin });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to delete admin');
+    }
   }
 
   return (
     <div>
-      <PageHeader title="Admins Management" admin={CURRENT_SUPER_ADMIN} />
+      <PageHeader title="Admins Management"  />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="relative max-w-lg flex-1">
@@ -334,7 +358,7 @@ export default function AdminsManagement() {
 
       {modal?.mode === 'edit' && (
         <ModalShell onClose={closeModal} className="w-112.5">
-          <EditAdminForm admin={modal.admin} farms={farms} onSubmit={handleEditSubmit} onCancel={closeModal} />
+          <EditAdminForm  farms={farms} onSubmit={handleEditSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 

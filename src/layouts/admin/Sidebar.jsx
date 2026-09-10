@@ -18,17 +18,17 @@ export function Sidebar() {
       <div className="flex-1 px-6 py-4">
         <p className="mb-4 text-sm text-farm-sidebarText">Menu</p>
         <nav className="flex flex-col gap-2">
-          <NavLink to="/admin/dashboard" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
+          <NavLink to="/dashboard" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
             <LayoutGrid className="h-5 w-5" />
             <span>Dashboard</span>
           </NavLink>
 
-          <NavLink to="/admin/workers" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
+          <NavLink to="/workers" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
             <Users className="h-5 w-5" />
             <span>Workers</span>
           </NavLink>
 
-          <NavLink to="/admin/work" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
+          <NavLink to="/work" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
             <FileText className="h-5 w-5" />
             <span>Work Log</span>
           </NavLink>

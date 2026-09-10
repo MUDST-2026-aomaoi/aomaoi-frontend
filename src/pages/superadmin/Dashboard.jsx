@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
-import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useFarmStore } from '../../store/useFarmStore';
 import { useAdminStore } from '../../store/useAdminStore';
+import { useWorkLogStore } from '../../store/useWorkLogStore';
+import { useWorkerStore } from '../../store/useWorkerStore';
+import { useAuthStore } from '../../controller/authController';
 
 const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const RADIAN = Math.PI / 180;
@@ -21,17 +23,17 @@ function formatCompactBaht(n) {
   return `฿ ${n}`;
 }
 
-function renderPercentLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }) {
-  if (percent < 0.03) return null;
+const renderPercentLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+  if (percent < 0.05) return null;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
   return (
-    <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight="bold">
-      {`${Math.round(percent * 100)}%`}
+    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight="bold">
+      {`${(percent * 100).toFixed(0)}%`}
     </text>
   );
-}
+};
 
 const PERIOD_OPTIONS = [
   { value: 'month', label: 'รายเดือน' },
@@ -51,7 +53,18 @@ function farmValueForPeriod(farm, period) {
 
 export default function SuperAdminDashboard() {
   const allFarms = useFarmStore((s) => s.farms);
+  const fetchFarms = useFarmStore((s) => s.fetchFarms);
   const allAdmins = useAdminStore((s) => s.admins);
+  const fetchAdmins = useAdminStore((s) => s.fetchAdmins);
+  const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
+  const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
+
+  useEffect(() => {
+    fetchFarms();
+    fetchAdmins();
+    fetchEntries();
+    fetchWorkers();
+  }, [fetchFarms, fetchAdmins, fetchEntries, fetchWorkers]);
 
   const [trendPeriod, setTrendPeriod] = useState('month');
   const [trendFarmFilter, setTrendFarmFilter] = useState('all');
@@ -60,32 +73,74 @@ export default function SuperAdminDashboard() {
   const farms = useMemo(() => allFarms.filter((f) => f.status !== 'inactive'), [allFarms]);
   const admins = useMemo(() => allAdmins.filter((a) => a.status !== 'inactive'), [allAdmins]);
 
-  const totalAllTime = useMemo(() => farms.reduce((sum, f) => sum + f.totalWages, 0), [farms]);
-  const totalThisMonth = useMemo(() => farms.reduce((sum, f) => sum + f.monthlyWages, 0), [farms]);
+  const allEntries = useWorkLogStore((s) => s.entries);
+  const allWorkers = useWorkerStore((s) => s.workers);
+
+  const totalAllTime = useMemo(() => allEntries.reduce((sum, e) => sum + e.total, 0), [allEntries]);
+  
+  const totalThisMonth = useMemo(() => {
+    const now = new Date();
+    return allEntries.filter(e => {
+      const d = new Date(e.date);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    }).reduce((sum, e) => sum + e.total, 0);
+  }, [allEntries]);
 
   const monthlyTrend = useMemo(() => {
     const now = new Date();
     return Array.from({ length: 6 }, (_, i) => {
       const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
-      const point = { name: THAI_MONTHS_SHORT[d.getMonth()] };
-      farms.forEach((f, idx) => {
-        const wave = Math.sin((i + idx * 2) * 0.9) * 0.12;
-        point[f.id] = Math.max(0, Math.round(f.monthlyWages * (0.5 + i * 0.1 + wave)));
+      const year = d.getFullYear();
+      const month = d.getMonth();
+      const point = { name: THAI_MONTHS_SHORT[month] };
+      
+      farms.forEach((f) => {
+        point[f.id] = 0;
+      });
+
+      allEntries.forEach(entry => {
+        const entryDate = new Date(entry.date);
+        if (entryDate.getFullYear() === year && entryDate.getMonth() === month) {
+          const worker = allWorkers.find(w => String(w.id) === String(entry.workerId));
+          if (worker && worker.farmId) {
+            point[worker.farmId] = (point[worker.farmId] || 0) + entry.total;
+          }
+        }
       });
       return point;
     });
-  }, [farms]);
+  }, [farms, allEntries, allWorkers]);
 
-  const breakdown = useMemo(
-    () =>
-      farms.map((f, idx) => ({
+  const breakdown = useMemo(() => {
+    return farms.map((f, idx) => {
+      let value = 0;
+      const now = new Date();
+      allEntries.forEach(entry => {
+        const worker = allWorkers.find(w => String(w.id) === String(entry.workerId));
+        if (worker && String(worker.farmId) === String(f.id)) {
+          const d = new Date(entry.date);
+          if (breakdownPeriod === 'day') {
+            if (d.toDateString() === now.toDateString()) value += entry.total;
+          } else if (breakdownPeriod === 'month') {
+            if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) value += entry.total;
+          } else if (breakdownPeriod === '6M') {
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(now.getMonth() - 5);
+            sixMonthsAgo.setDate(1);
+            if (d >= sixMonthsAgo) value += entry.total;
+          } else if (breakdownPeriod === 'year') {
+            if (d.getFullYear() === now.getFullYear()) value += entry.total;
+          }
+        }
+      });
+      return {
         key: f.id,
         name: f.name,
         color: FARM_DONUT_COLORS[idx % FARM_DONUT_COLORS.length],
-        value: farmValueForPeriod(f, breakdownPeriod),
-      })),
-    [farms, breakdownPeriod]
-  );
+        value: value,
+      };
+    });
+  }, [farms, breakdownPeriod, allEntries, allWorkers]);
 
   const breakdownTotal = useMemo(() => breakdown.reduce((sum, e) => sum + e.value, 0), [breakdown]);
 
@@ -94,9 +149,11 @@ export default function SuperAdminDashboard() {
     [farms, trendFarmFilter]
   );
 
+  const currentUser = useAuthStore((s) => s.currentUser);
+
   return (
     <div>
-      <PageHeader title="Dashboard" admin={CURRENT_SUPER_ADMIN} />
+      <PageHeader title="Dashboard" />
 
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">

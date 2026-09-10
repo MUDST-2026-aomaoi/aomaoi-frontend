@@ -18,17 +18,17 @@ export function SuperAdminSidebar() {
       <div className="flex-1 px-6 py-4">
         <p className="mb-4 text-sm text-white/50">Menu</p>
         <nav className="flex flex-col gap-2">
-          <NavLink to="/superadmin/dashboard" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
+          <NavLink to="/dashboard" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
             <LayoutGrid className="h-5 w-5" />
             <span>Dashboard</span>
           </NavLink>
 
-          <NavLink to="/superadmin/farms" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
+          <NavLink to="/farms" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
             <Sprout className="h-5 w-5" />
             <span>All Farms</span>
           </NavLink>
 
-          <NavLink to="/superadmin/admins" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
+          <NavLink to="/admins" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
             <Users className="h-5 w-5" />
             <span>All Admins</span>
           </NavLink>

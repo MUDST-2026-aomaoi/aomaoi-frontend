@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, History, LogOut, Sprout } from 'lucide-react';
 import SetPasswordModal from '../../components/auth/SetPasswordModal';
+import { useAuthStore } from '../../controller/authController';
 
-export default function WorkerLayout() {
+export default function WorkerLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -12,9 +13,10 @@ export default function WorkerLayout() {
     location.state?.showSetPassword || false
   );
 
-  // TODO: เปลี่ยนเป็นดึงจาก auth จริงๆ ทีหลัง
-  const myWorkerId = '1';
-  const myUsername = 'somchai_j';
+  const currentUser = useAuthStore((state) => state.currentUser);
+  const myWorkerId = currentUser?.id;
+  const myUsername = currentUser?.username || 'worker';
+  const myFullName = currentUser?.fullName || myUsername;
 
   const handleLogout = () => {
     navigate('/login');
@@ -53,11 +55,11 @@ export default function WorkerLayout() {
         <div className="flex-1 px-6 py-4">
           <p className="mb-4 text-sm text-gray-400">Menu</p>
           <nav className="flex flex-col gap-2">
-            <Link to="/worker/dashboard" className={getNavClass('/dashboard')}>
+            <Link to="/dashboard" className={getNavClass('/dashboard')}>
               <LayoutDashboard className="h-5 w-5" />
               <span>Dashboard</span>
             </Link>
-            <Link to="/worker/history" className={getNavClass('/history')}>
+            <Link to="/history" className={getNavClass('/history')}>
               <History className="h-5 w-5" />
               <span>History</span>
             </Link>
@@ -84,16 +86,16 @@ export default function WorkerLayout() {
           {/* Profile Section */}
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 bg-gray-200 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center shrink-0">
-              <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${myUsername}`} alt="Profile" className="w-full h-full object-cover" />
+              <img src={currentUser?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${myUsername}`} alt="Profile" className="w-full h-full object-cover" />
             </div>
             <div className="text-left leading-tight">
-              <p className="text-sm font-semibold text-farm-text">{myUsername}</p>
+              <p className="text-sm font-semibold text-farm-text">{myFullName}</p>
               <p className="text-[12px] font-normal text-gray-500">Worker</p>
             </div>
           </div>
         </header>
 
-        <Outlet context={{ myWorkerId }} />
+        {children || <Outlet context={{ myWorkerId }} />}
       </main>
 
     </div>

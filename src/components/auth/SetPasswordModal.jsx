@@ -6,10 +6,21 @@ export default function SetPasswordModal({ onSuccess }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // เปลี่ยนสถานะเป็นหน้า Success แทนที่จะปิดทันที
-    setIsSuccess(true);
+    if (newPassword !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+    try {
+      // Assuming api wrapper handles the JWT token
+      const { default: api } = await import('../../service/api');
+      await api.post('/auth/change-password', { newPassword });
+      setIsSuccess(true);
+    } catch (error) {
+      console.error("Failed to change password", error);
+      alert("Failed to change password");
+    }
   };
 
   if (isSuccess) {

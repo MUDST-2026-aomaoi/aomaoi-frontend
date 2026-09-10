@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -56,8 +56,13 @@ function PeriodSelect({ value, onChange }) {
 
 export default function Dashboard() {
   const workers = useWorkerStore((s) => s.workers);
+  const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
   const getWorkerName = useWorkerStore((s) => s.getWorkerName);
   const entries = useWorkLogStore((s) => s.entries);
+
+  useEffect(() => {
+    fetchWorkers();
+  }, [fetchWorkers]);
 
   const [trendTypeFilter, setTrendTypeFilter] = useState('all');
   const [trendPeriod, setTrendPeriod] = useState('month');

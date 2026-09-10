@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { Clock, Wallet, ArrowDownToLine, ArrowRight } from 'lucide-react';
-import { useOutletContext, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
+import { useAuthStore } from '../../controller/authController';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
 import { formatDate, formatBaht } from '../../lib/format';
 
@@ -18,10 +19,17 @@ function isToday(dateStr) {
 }
 
 export default function WorkerDashboard() {
-  const { myWorkerId } = useOutletContext();
+  const currentUser = useAuthStore(state => state.currentUser);
+  const myWorkerId = currentUser?.id || '1';
+  
+  const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
+  useEffect(() => {
+    fetchEntries();
+  }, [fetchEntries]);
+
   const allEntries = useWorkLogStore((s) => s.entries);
   
-  const myEntries = useMemo(() => allEntries.filter(e => e.workerId === myWorkerId), [allEntries, myWorkerId]);
+  const myEntries = useMemo(() => allEntries.filter(e => String(e.workerId) === String(myWorkerId)), [allEntries, myWorkerId]);
   const myEntriesThisMonth = useMemo(() => myEntries.filter(e => isThisMonth(e.date)), [myEntries]);
   
   const totalBalanceThisMonth = useMemo(() => myEntriesThisMonth.reduce((sum, e) => sum + e.total, 0), [myEntriesThisMonth]);
@@ -66,13 +74,23 @@ export default function WorkerDashboard() {
     });
   }, [myEntriesThisMonth, totalBalanceThisMonth]);
 
-  const chartBars = [
-    { label: 'มี.ค.', value: 35 },
-    { label: 'เม.ย.', value: 37 },
-    { label: 'พ.ค.', value: 30 },
-    { label: 'ก.ค.', value: 25 },
-    { label: 'ส.ค.', value: 27 },
-  ];
+  const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+  const chartBars = useMemo(() => {
+    const now = new Date();
+    return Array.from({ length: 5 }, (_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - (4 - i), 1);
+      const year = d.getFullYear();
+      const month = d.getMonth();
+      
+      const count = myEntries.filter(e => {
+        const entryDate = new Date(e.date);
+        return entryDate.getFullYear() === year && entryDate.getMonth() === month;
+      }).length;
+      
+      return { label: THAI_MONTHS_SHORT[month], value: count };
+    });
+  }, [myEntries]);
 
   const donutColors = ['#1C3F1B', '#708238', '#A9C46C', '#D2E1A7']; 
 
@@ -167,7 +185,7 @@ export default function WorkerDashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartBars} margin={{ top: 20, right: 0, left: -25, bottom: 0 }} barSize={38}>
                 <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#9ca3af', fontWeight: 'normal' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#9ca3af', fontWeight: 'normal' }} domain={[0, 40]} ticks={[0, 5, 10, 15, 20, 25, 30, 35, 40]} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#9ca3af', fontWeight: 'normal' }} />
                 <Tooltip cursor={{ fill: 'transparent' }} />
                 <Bar dataKey="value" fill="#E5E7EB" activeBar={{ fill: '#2B3E26' }} radius={[4, 4, 0, 0]}>
                   {chartBars.map((entry, index) => (
@@ -248,7 +266,7 @@ export default function WorkerDashboard() {
         <div className="bg-white rounded-xl p-7 shadow-sm border border-gray-100 flex flex-col h-full">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-farm-text font-bold text-[19px]">Recent Activity</h3>
-            <Link to="/worker/history" className="text-[15px] font-medium text-farm-text hover:text-[#708238] flex items-center gap-1">
+            <Link to="/history" className="text-[15px] font-medium text-farm-text hover:text-[#708238] flex items-center gap-1">
               More <ArrowRight size={18} strokeWidth={2.5} />
             </Link>
           </div>

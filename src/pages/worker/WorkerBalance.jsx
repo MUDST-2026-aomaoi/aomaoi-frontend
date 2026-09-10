@@ -12,7 +12,7 @@ export default function WorkerBalance() {
   const allEntries = useWorkLogStore((s) => s.entries);
   
   // กรองเฉพาะงานของคนนี้
-  const myEntries = useMemo(() => allEntries.filter(e => e.workerId === myWorkerId), [allEntries, myWorkerId]);
+  const myEntries = useMemo(() => allEntries.filter(e => String(e.workerId) === String(myWorkerId)), [allEntries, myWorkerId]);
 
   // คำนวณยอดเงินรวมทั้งหมด
   const totalBalance = useMemo(() => myEntries.reduce((sum, e) => sum + e.total, 0), [myEntries]);

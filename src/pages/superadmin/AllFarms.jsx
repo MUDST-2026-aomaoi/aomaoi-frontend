@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,6 +11,8 @@ import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useFarmStore } from '../../store/useFarmStore';
 import { useAdminStore } from '../../store/useAdminStore';
+import { useWorkLogStore } from '../../store/useWorkLogStore';
+import { useWorkerStore } from '../../store/useWorkerStore';
 
 function formatNumber(n) {
   return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 0 });
@@ -87,7 +89,20 @@ export default function AllFarms() {
   const addFarm = useFarmStore((s) => s.addFarm);
   const updateFarm = useFarmStore((s) => s.updateFarm);
   const setFarmStatus = useFarmStore((s) => s.setFarmStatus);
+  const fetchFarms = useFarmStore((s) => s.fetchFarms);
   const allAdmins = useAdminStore((s) => s.admins);
+  const fetchAdmins = useAdminStore((s) => s.fetchAdmins);
+  const allEntries = useWorkLogStore((s) => s.entries);
+  const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
+  const allWorkers = useWorkerStore((s) => s.workers);
+  const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
+
+  useEffect(() => {
+    fetchFarms();
+    fetchAdmins();
+    fetchEntries();
+    fetchWorkers();
+  }, [fetchFarms, fetchAdmins, fetchEntries, fetchWorkers]);
 
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null);
@@ -97,8 +112,20 @@ export default function AllFarms() {
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return visibleFarms.filter((f) => !term || [f.name, f.location].some((field) => field.toLowerCase().includes(term)));
-  }, [visibleFarms, search]);
+    const now = new Date();
+    return visibleFarms
+      .filter((f) => !term || [f.name, f.location].some((field) => field.toLowerCase().includes(term)))
+      .map(farm => {
+        // Calculate monthly wages dynamically
+        const farmWages = allEntries.filter(entry => {
+          const worker = allWorkers.find(w => String(w.id) === String(entry.workerId));
+          if (!worker || String(worker.farmId) !== String(farm.id)) return false;
+          const d = new Date(entry.date);
+          return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+        }).reduce((sum, entry) => sum + entry.total, 0);
+        return { ...farm, monthlyWages: farmWages };
+      });
+  }, [visibleFarms, search, allEntries, allWorkers]);
 
   const totalWorkers = useMemo(() => visibleFarms.reduce((sum, f) => sum + f.workerCount, 0), [visibleFarms]);
 
@@ -106,24 +133,45 @@ export default function AllFarms() {
     setModal(null);
   }
 
-  function handleAddSubmit(data) {
-    addFarm(data);
-    setModal({ mode: 'success', action: 'add' });
+  async function handleAddSubmit(data) {
+    try {
+      const { default: api } = await import('../../service/api');
+      const res = await api.post('/farms', data);
+      addFarm(res.data);
+      setModal({ mode: 'success', action: 'add' });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to add farm');
+    }
   }
 
-  function handleEditSubmit(data) {
-    updateFarm(modal.farm.id, data);
-    setModal({ mode: 'success', action: 'edit' });
+  async function handleEditSubmit(data) {
+    try {
+      const { default: api } = await import('../../service/api');
+      const res = await api.put(`/farms/${modal.farm.id}`, data);
+      updateFarm(modal.farm.id, res.data);
+      setModal({ mode: 'success', action: 'edit' });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update farm');
+    }
   }
 
-  function handleConfirmDelete() {
-    setFarmStatus(modal.farm.id, 'inactive');
-    setModal({ mode: 'success', action: 'delete', farm: modal.farm });
+  async function handleConfirmDelete() {
+    try {
+      const { default: api } = await import('../../service/api');
+      await api.delete(`/farms/${modal.farm.id}`);
+      setFarmStatus(modal.farm.id, 'inactive');
+      setModal({ mode: 'success', action: 'delete', farm: modal.farm });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to delete farm');
+    }
   }
 
   return (
     <div>
-      <PageHeader title="All Farms" admin={CURRENT_SUPER_ADMIN} />
+      <PageHeader title="All Farms"  />
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">

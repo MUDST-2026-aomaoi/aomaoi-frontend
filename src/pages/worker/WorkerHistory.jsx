@@ -1,10 +1,10 @@
 import { useState, useMemo, forwardRef, useEffect, useRef } from 'react';
 import { Search, Calendar, ChevronDown } from 'lucide-react';
-import { useOutletContext } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
+import { useAuthStore } from '../../controller/authController';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
 import { formatDate, formatBaht } from '../../lib/format';
 
@@ -23,12 +23,19 @@ const CustomDateInput = forwardRef(({ value, onClick, placeholder }, ref) => (
 CustomDateInput.displayName = 'CustomDateInput';
 
 export default function WorkerHistory() {
-  const { myWorkerId } = useOutletContext();
+  const currentUser = useAuthStore(state => state.currentUser);
+  const myWorkerId = currentUser?.id || '1';
+  
+  const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
+  useEffect(() => {
+    fetchEntries();
+  }, [fetchEntries]);
+
   const allEntries = useWorkLogStore((s) => s.entries);
   
   const myData = useMemo(() => {
     return allEntries
-      .filter(e => e.workerId === myWorkerId)
+      .filter(e => String(e.workerId) === String(myWorkerId))
       .map(e => {
         let qty = 0;
         let unit = '';

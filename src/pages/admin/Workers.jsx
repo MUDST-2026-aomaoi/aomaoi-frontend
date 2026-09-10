@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,6 +11,7 @@ import { Avatar } from '../../components/ui/Avatar';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
+import { workerService } from '../../service/workerService';
 import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 
@@ -148,10 +149,15 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
 
 export default function Workers() {
   const workers = useWorkerStore((s) => s.workers);
+  const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
   const addWorker = useWorkerStore((s) => s.addWorker);
   const updateWorker = useWorkerStore((s) => s.updateWorker);
   const setWorkerStatus = useWorkerStore((s) => s.setWorkerStatus);
   const nextUsername = useWorkerStore((s) => s.nextUsername);
+
+  useEffect(() => {
+    fetchWorkers();
+  }, [fetchWorkers]);
 
   const [search, setSearch] = useState('');
   const [workerFilter, setWorkerFilter] = useState('all');
@@ -174,21 +180,37 @@ export default function Workers() {
     setModal(null);
   }
 
-  function handleAddSubmit(data) {
-    const { tempPassword, ...worker } = data;
-    void tempPassword;
-    addWorker(worker);
-    setModal({ mode: 'success', action: 'add' });
+  async function handleAddSubmit(data) {
+    try {
+      const response = await workerService.addWorker(data);
+      addWorker(response);
+      setModal({ mode: 'success', action: 'add' });
+    } catch (error) {
+      console.error("Failed to add worker", error);
+      alert("Failed to add worker: " + (error.response?.data?.message || error.message));
+    }
   }
 
-  function handleEditSubmit(data) {
-    updateWorker(modal.worker.id, data);
-    setModal({ mode: 'success', action: 'edit' });
+  async function handleEditSubmit(data) {
+    try {
+      const response = await workerService.updateWorker(modal.worker.id, data);
+      updateWorker(modal.worker.id, response);
+      setModal({ mode: 'success', action: 'edit' });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update worker');
+    }
   }
 
-  function handleConfirmDelete() {
-    setWorkerStatus(modal.worker.id, 'inactive');
-    setModal({ mode: 'success', action: 'delete', worker: modal.worker });
+  async function handleConfirmDelete() {
+    try {
+      await workerService.deleteWorker(modal.worker.id);
+      setWorkerStatus(modal.worker.id, 'inactive');
+      setModal({ mode: 'success', action: 'delete', worker: modal.worker });
+    } catch (error) {
+      console.error(error);
+      alert('Failed to delete worker');
+    }
   }
 
   return (
