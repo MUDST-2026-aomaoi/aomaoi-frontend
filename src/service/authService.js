@@ -1,12 +1,10 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:8080/api/auth';
+import api from './api';
 
 export const authService = {
   login: async (username, password) => {
     try {
       // Calling the Spring Boot backend
-      const response = await axios.post(`${API_URL}/login`, { username, password });
+      const response = await api.post('/auth/login', { username, password });
       
       // The backend should return a token and user details
       return { 
