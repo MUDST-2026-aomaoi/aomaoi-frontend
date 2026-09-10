@@ -234,7 +234,7 @@ export default function AdminsManagement() {
 
   return (
     <div>
-      <PageHeader title="Admins Management" admin={CURRENT_SUPER_ADMIN} />
+      <PageHeader title="Admins Management"  />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="relative max-w-lg flex-1">
@@ -358,7 +358,7 @@ export default function AdminsManagement() {
 
       {modal?.mode === 'edit' && (
         <ModalShell onClose={closeModal} className="w-112.5">
-          <EditAdminForm admin={modal.admin} farms={farms} onSubmit={handleEditSubmit} onCancel={closeModal} />
+          <EditAdminForm  farms={farms} onSubmit={handleEditSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 

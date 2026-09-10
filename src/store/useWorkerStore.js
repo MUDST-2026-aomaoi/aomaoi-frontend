@@ -31,5 +31,5 @@ export const useWorkerStore = create((set, get) => ({
       workers: state.workers.map((w) => (w.id === id ? { ...w, status } : w)),
     })),
 
-  getWorkerName: (id) => get().workers.find((w) => w.id === id)?.fullName ?? 'ไม่ทราบชื่อ',
+  getWorkerName: (id) => get().workers.find((w) => String(w.id) === String(id))?.fullName ?? 'ไม่ระบุ',
 }));

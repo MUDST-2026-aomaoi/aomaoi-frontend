@@ -26,11 +26,16 @@ export default function WorkerHistory() {
   const currentUser = useAuthStore(state => state.currentUser);
   const myWorkerId = currentUser?.id || '1';
   
+  const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
+  useEffect(() => {
+    fetchEntries();
+  }, [fetchEntries]);
+
   const allEntries = useWorkLogStore((s) => s.entries);
   
   const myData = useMemo(() => {
     return allEntries
-      .filter(e => e.workerId === myWorkerId)
+      .filter(e => String(e.workerId) === String(myWorkerId))
       .map(e => {
         let qty = 0;
         let unit = '';

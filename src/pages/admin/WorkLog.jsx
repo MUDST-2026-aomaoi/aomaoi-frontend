@@ -147,7 +147,7 @@ export default function WorkLog() {
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return allEntries
-      .filter((e) => workerFilter === 'all' || e.workerId === workerFilter)
+      .filter((e) => workerFilter === 'all' || String(e.workerId) === String(workerFilter))
       .filter((e) => typeFilter === 'all' || e.type === typeFilter)
       .filter((e) => !term || getWorkerName(e.workerId).toLowerCase().includes(term))
       .sort((a, b) => b.date.localeCompare(a.date) || Number(b.id) - Number(a.id));

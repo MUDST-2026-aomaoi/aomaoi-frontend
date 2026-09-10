@@ -151,7 +151,7 @@ export default function AllFarms() {
 
   return (
     <div>
-      <PageHeader title="All Farms" admin={CURRENT_SUPER_ADMIN} />
+      <PageHeader title="All Farms"  />
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">

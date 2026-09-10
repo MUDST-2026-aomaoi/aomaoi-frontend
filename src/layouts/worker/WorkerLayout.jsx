@@ -14,8 +14,9 @@ export default function WorkerLayout({ children }) {
   );
 
   const currentUser = useAuthStore((state) => state.currentUser);
-  const myWorkerId = '1';
+  const myWorkerId = currentUser?.id;
   const myUsername = currentUser?.username || 'worker';
+  const myFullName = currentUser?.fullName || myUsername;
 
   const handleLogout = () => {
     navigate('/login');
@@ -85,10 +86,10 @@ export default function WorkerLayout({ children }) {
           {/* Profile Section */}
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 bg-gray-200 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center shrink-0">
-              <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${myUsername}`} alt="Profile" className="w-full h-full object-cover" />
+              <img src={currentUser?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${myUsername}`} alt="Profile" className="w-full h-full object-cover" />
             </div>
             <div className="text-left leading-tight">
-              <p className="text-sm font-semibold text-farm-text">{myUsername}</p>
+              <p className="text-sm font-semibold text-farm-text">{myFullName}</p>
               <p className="text-[12px] font-normal text-gray-500">Worker</p>
             </div>
           </div>
