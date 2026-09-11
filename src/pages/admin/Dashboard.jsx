@@ -63,10 +63,12 @@ export default function Dashboard() {
   const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
   const getWorkerName = useWorkerStore((s) => s.getWorkerName);
   const entries = useWorkLogStore((s) => s.entries);
+  const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
 
   useEffect(() => {
     fetchWorkers();
-  }, [fetchWorkers]);
+    fetchEntries();
+  }, [fetchWorkers, fetchEntries]);
 
   const [trendTypeFilter, setTrendTypeFilter] = useState('all');
   const [trendPeriod, setTrendPeriod] = useState('month');

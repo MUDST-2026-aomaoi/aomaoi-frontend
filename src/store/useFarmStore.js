@@ -32,5 +32,5 @@ export const useFarmStore = create((set, get) => ({
       farms: state.farms.map((f) => (f.id === id ? { ...f, status } : f)),
     })),
 
-  getFarmName: (id) => get().farms.find((f) => f.id === id)?.name ?? 'ไม่ทราบฟาร์ม',
+  getFarmName: (id) => get().farms.find((f) => String(f.id) === String(id))?.name ?? 'ไม่ทราบฟาร์ม',
 }));

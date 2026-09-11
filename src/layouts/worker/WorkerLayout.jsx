@@ -19,7 +19,8 @@ export default function WorkerLayout({ children }) {
   const myFullName = currentUser?.fullName || myUsername;
 
   const handleLogout = () => {
-    navigate('/login');
+    useAuthStore.getState().logout();
+    window.location.href = '/login';
   };
 
   // ฟังก์ชันสลับสีเมนู (ใช้เทคนิค -ml-6 pl-9 เหมือน Admin แต่สีสว่าง)

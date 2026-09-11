@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useState } from 'react';
+import { forwardRef, useMemo, useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import DatePicker from 'react-datepicker';
@@ -136,6 +136,13 @@ export default function WorkLog() {
   const getWorkerName = useWorkerStore((s) => s.getWorkerName);
   const allEntries = useWorkLogStore((s) => s.entries);
   const addEntry = useWorkLogStore((s) => s.addEntry);
+  const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
+  const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
+
+  useEffect(() => {
+    fetchWorkers();
+    fetchEntries();
+  }, [fetchWorkers, fetchEntries]);
 
   const activeWorkers = useMemo(() => allWorkers.filter((w) => w.status !== 'inactive'), [allWorkers]);
 

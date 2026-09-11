@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutGrid, Users, FileText, LogOut, Sprout } from 'lucide-react';
+import { useAuthStore } from '../../controller/authController';
 
 const linkBase = 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors';
 const linkActive = 'bg-farm-sidebarActive text-white border-l-4 border-farm-sidebarAccent -ml-6 pl-9 rounded-none';
@@ -36,7 +37,7 @@ export function Sidebar() {
       </div>
 
       <div className="p-6">
-        <button type="button" onClick={() => navigate('/login')} className="flex items-center gap-3 text-white transition-colors hover:text-farm-sidebarText">
+        <button type="button" onClick={() => { useAuthStore.getState().logout(); window.location.href = '/login'; }} className="flex items-center gap-3 text-white transition-colors hover:text-farm-sidebarText">
           <LogOut className="h-5 w-5" />
           <span>Log out</span>
         </button>
