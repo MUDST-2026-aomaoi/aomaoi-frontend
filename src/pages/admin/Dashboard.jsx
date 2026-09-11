@@ -23,13 +23,17 @@ function formatCompactBaht(n) {
 }
 
 function isToday(dateStr) {
-  return new Date(dateStr).toDateString() === new Date().toDateString();
+  if (!dateStr) return false;
+  const [y, m, d] = dateStr.split('-');
+  const now = new Date();
+  return now.getFullYear() === Number(y) && now.getMonth() + 1 === Number(m) && now.getDate() === Number(d);
 }
 
 function isThisMonth(dateStr) {
-  const d = new Date(dateStr);
+  if (!dateStr) return false;
+  const [y, m] = dateStr.split('-');
   const now = new Date();
-  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  return now.getFullYear() === Number(y) && now.getMonth() + 1 === Number(m);
 }
 
 function renderPercentLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }) {
@@ -115,7 +119,7 @@ export default function Dashboard() {
 
   const breakdownEntries = useMemo(() => {
     if (breakdownPeriod === 'day') return entriesToday;
-    if (breakdownPeriod === 'year') return entries.filter((e) => new Date(e.date).getFullYear() === new Date().getFullYear());
+    if (breakdownPeriod === 'year') return entries.filter((e) => e.date && Number(e.date.split('-')[0]) === new Date().getFullYear());
     return entriesThisMonth;
   }, [entries, entriesToday, entriesThisMonth, breakdownPeriod]);
 

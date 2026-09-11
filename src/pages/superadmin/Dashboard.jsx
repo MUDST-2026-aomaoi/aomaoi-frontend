@@ -81,8 +81,9 @@ export default function SuperAdminDashboard() {
   const totalThisMonth = useMemo(() => {
     const now = new Date();
     return allEntries.filter(e => {
-      const d = new Date(e.date);
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      if (!e.date) return false;
+      const [y, m] = e.date.split('-');
+      return Number(y) === now.getFullYear() && Number(m) === now.getMonth() + 1;
     }).reduce((sum, e) => sum + e.total, 0);
   }, [allEntries]);
 
@@ -99,8 +100,9 @@ export default function SuperAdminDashboard() {
       });
 
       allEntries.forEach(entry => {
-        const entryDate = new Date(entry.date);
-        if (entryDate.getFullYear() === year && entryDate.getMonth() === month) {
+        if (!entry.date) return;
+        const [y, m] = entry.date.split('-');
+        if (Number(y) === year && Number(m) - 1 === month) {
           const worker = allWorkers.find(w => String(w.id) === String(entry.workerId));
           if (worker && worker.farmId) {
             point[worker.farmId] = (point[worker.farmId] || 0) + entry.total;
@@ -118,18 +120,23 @@ export default function SuperAdminDashboard() {
       allEntries.forEach(entry => {
         const worker = allWorkers.find(w => String(w.id) === String(entry.workerId));
         if (worker && String(worker.farmId) === String(f.id)) {
-          const d = new Date(entry.date);
+          if (!entry.date) return;
+          const [y, m, d] = entry.date.split('-');
+          const entryYear = Number(y);
+          const entryMonth = Number(m) - 1;
+          const entryDate = Number(d);
+
           if (breakdownPeriod === 'day') {
-            if (d.toDateString() === now.toDateString()) value += entry.total;
+            if (entryYear === now.getFullYear() && entryMonth === now.getMonth() && entryDate === now.getDate()) value += entry.total;
           } else if (breakdownPeriod === 'month') {
-            if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) value += entry.total;
+            if (entryYear === now.getFullYear() && entryMonth === now.getMonth()) value += entry.total;
           } else if (breakdownPeriod === '6M') {
             const sixMonthsAgo = new Date();
             sixMonthsAgo.setMonth(now.getMonth() - 5);
             sixMonthsAgo.setDate(1);
-            if (d >= sixMonthsAgo) value += entry.total;
+            if (new Date(entryYear, entryMonth, entryDate) >= sixMonthsAgo) value += entry.total;
           } else if (breakdownPeriod === 'year') {
-            if (d.getFullYear() === now.getFullYear()) value += entry.total;
+            if (entryYear === now.getFullYear()) value += entry.total;
           }
         }
       });
