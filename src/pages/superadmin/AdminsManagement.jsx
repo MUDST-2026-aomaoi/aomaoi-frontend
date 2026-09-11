@@ -19,7 +19,7 @@ import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 
 const adminSchema = z.object({
-  fullName: z.string().min(1, 'กรุณากรอกชื่อ-นามสกุล'),
+  fullName: z.string().min(1, 'กรุณากรอกชื่อ-นามสกุล').regex(/^[^0-9]*$/, 'ชื่อ-นามสกุลต้องไม่มีตัวเลข'),
   username: z.string().min(3, 'ต้องมีอย่างน้อย 3 ตัวอักษร'),
   phone: z.string().min(1, 'กรุณากรอกเบอร์โทร'),
   farmId: z.string().min(1, 'กรุณาเลือกฟาร์ม'),
@@ -126,6 +126,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
         <Input label="Username" {...register('username')} error={errors.username?.message} />
         <Input label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
         <Select label="ฟาร์ม" {...register('farmId')} error={errors.farmId?.message}>
+          <option value="">----- กรุณาเลือกฟาร์ม -----</option>
           {farms.map((f) => (
             <option key={f.id} value={f.id}>
               {f.name}
@@ -274,7 +275,7 @@ export default function AdminsManagement() {
             onClick={() =>
               setModal({
                 mode: 'add',
-                defaultValues: { fullName: '', username: nextUsername(), phone: '', farmId: farms[0]?.id ?? '', tempPassword: randomPassword() },
+                defaultValues: { fullName: '', username: nextUsername(), phone: '', farmId: '', tempPassword: randomPassword() },
               })
             }
           >

@@ -50,7 +50,7 @@ function EntryForm({ type, onTypeChange, workers, onSubmit, onCancel }) {
     resolver: zodResolver(config.schema),
     defaultValues: {
       date: todayISO(),
-      workerId: workers[0]?.id ?? '',
+      workerId: '',
       ...Object.fromEntries(config.fields.map((f) => [f.name, f.defaultValue])),
     },
   });
@@ -90,6 +90,7 @@ function EntryForm({ type, onTypeChange, workers, onSubmit, onCancel }) {
             {errors.date && <span className="mt-1 block text-xs text-red-600">{errors.date.message}</span>}
           </label>
           <Select label="คนงาน" {...register('workerId')} error={errors.workerId?.message}>
+            <option value="">----- กรุณาเลือกคนงาน -----</option>
             {workers.map((w) => (
               <option key={w.id} value={w.id}>
                 {w.fullName}

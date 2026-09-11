@@ -16,8 +16,8 @@ import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 
 const workerSchema = z.object({
-  fullName: z.string().min(1, 'กรุณากรอกชื่อ-นามสกุล'),
-  nickname: z.string().min(1, 'กรุณากรอกชื่อเล่น'),
+  fullName: z.string().min(1, 'กรุณากรอกชื่อ-นามสกุล').regex(/^[^0-9]*$/, 'ชื่อ-นามสกุลต้องไม่มีตัวเลข'),
+  nickname: z.string().min(1, 'กรุณากรอกชื่อเล่น').regex(/^[^0-9]*$/, 'ชื่อเล่นต้องไม่มีตัวเลข'),
   username: z.string().min(3, 'ต้องมีอย่างน้อย 3 ตัวอักษร'),
   phone: z.string().min(1, 'กรุณากรอกเบอร์โทร'),
 });
