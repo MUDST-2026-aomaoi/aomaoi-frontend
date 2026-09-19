@@ -1,0 +1,8 @@
+services:
+  frontend:
+    build: .
+    container_name: aomaoi-frontend
+    ports:
+      # เปิดเว็บที่พอร์ต 3000 และชี้เข้าพอร์ต 80 ของ Nginx ข้างใน Container
+      - "3000:80"
+    restart: unless-stopped
