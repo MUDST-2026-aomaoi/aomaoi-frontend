@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutGrid, Users, FileText, LogOut, Sprout } from 'lucide-react';
+import { LayoutGrid, Users, FileText, LogOut } from 'lucide-react';
+import logo from '../../assets/sugarcane-logo.png';
 import { useAuthStore } from '../../controller/authController';
 
 const linkBase = 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors';
@@ -12,7 +13,7 @@ export function Sidebar() {
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col bg-farm-sidebar text-white">
       <div className="flex items-center gap-3 p-6">
-        <Sprout className="h-8 w-8 text-farm-sidebarAccent" />
+        <img src={logo} alt="Sugarcane Logo" className="h-9 w-9 object-contain" />
         <h1 className="text-2xl font-bold text-farm-sidebarAccent">Sugarcane</h1>
       </div>
 

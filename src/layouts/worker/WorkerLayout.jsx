@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, History, LogOut, Sprout } from 'lucide-react';
+import { LayoutDashboard, History, LogOut } from 'lucide-react';
+import logo from '../../assets/sugarcane-logo.png';
 import SetPasswordModal from '../../components/auth/SetPasswordModal';
 import { useAuthStore } from '../../controller/authController';
 
@@ -48,7 +49,7 @@ export default function WorkerLayout({ children }) {
         
         {/* Logo Section */}
         <div className="flex items-center gap-3 p-6 text-[#708238]">
-          <Sprout className="h-8 w-8" strokeWidth={2.5} />
+          <img src={logo} alt="Sugarcane Logo" className="h-9 w-9 object-contain" />
           <h1 className="text-2xl font-bold tracking-tight">Sugarcane</h1>
         </div>
 
