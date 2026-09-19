@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutGrid, Sprout, Users, LogOut } from 'lucide-react';
 import { useAuthStore } from '../../controller/authController';
+import logo from '../../assets/sugarcane-logo.png';
 
 const linkBase = 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors';
 const linkActive = 'bg-farm-superSidebarActive text-white border-l-4 border-farm-sidebarAccent -ml-6 pl-9 rounded-none';
@@ -12,7 +13,7 @@ export function SuperAdminSidebar() {
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col bg-farm-superSidebar text-white">
       <div className="flex items-center gap-3 p-6">
-        <Sprout className="h-8 w-8 text-farm-sidebarAccent" />
+        <img src={logo} alt="Sugarcane Logo" className="h-9 w-9 object-contain" />
         <h1 className="text-2xl font-bold text-farm-sidebarAccent">Sugarcane</h1>
       </div>
 
