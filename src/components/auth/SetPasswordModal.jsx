@@ -2,12 +2,17 @@ import { useState } from 'react';
 import { Check, X } from 'lucide-react';
 
 export default function SetPasswordModal({ onSuccess }) {
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      alert("Please fill in all fields");
+      return;
+    }
     if (newPassword !== confirmPassword) {
       alert("Passwords do not match");
       return;
@@ -15,7 +20,7 @@ export default function SetPasswordModal({ onSuccess }) {
     try {
       // Assuming api wrapper handles the JWT token
       const { default: api } = await import('../../service/api');
-      await api.post('/auth/change-password', { newPassword });
+      await api.post('/auth/change-password', { oldPassword, newPassword });
       setIsSuccess(true);
     } catch (error) {
       console.error("Failed to change password", error);
@@ -60,6 +65,20 @@ export default function SetPasswordModal({ onSuccess }) {
         </h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          {/* Old Password */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[14px] font-semibold text-[#3B5323]">
+              Old Password
+            </label>
+            <input
+              type="password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              placeholder="enter your old password"
+              className="w-full px-5 py-4 border border-gray-300 rounded-2xl text-sm text-gray-700 placeholder:text-gray-400 outline-none focus:border-[#708238] transition-colors"
+            />
+          </div>
+
           {/* New Password */}
           <div className="flex flex-col gap-2">
             <label className="text-[14px] font-semibold text-[#3B5323]">
