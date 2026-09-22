@@ -26,3 +26,7 @@ jobs:
     - name: Build Project
       # This ensures the React/Vite code compiles successfully without syntax errors
       run: npm run build
+
+    - name: Build Docker Image
+      # This fulfills the requirement: Pipeline as Code to build docker on github
+      run: docker build -t aomaoi-frontend:latest .
