@@ -3,7 +3,7 @@ import { useAuthStore } from '../controller/authController';
 
 // Create a shared Axios instance that ALL services should use
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
 // REQUEST Interceptor: Automatically attach the JWT token to every outgoing request
