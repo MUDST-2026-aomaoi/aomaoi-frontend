@@ -13,6 +13,10 @@ export default function SetPasswordModal({ onSuccess }) {
       alert("Please fill in all fields");
       return;
     }
+    if (newPassword.length < 6) {
+      alert("Password must be at least 6 characters");
+      return;
+    }
     if (newPassword !== confirmPassword) {
       alert("Passwords do not match");
       return;

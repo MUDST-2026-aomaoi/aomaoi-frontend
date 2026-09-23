@@ -33,6 +33,9 @@ function randomPassword() {
 
 function EditWorkerForm({ worker, onSubmit, onCancel }) {
   const [avatarPreview, setAvatarPreview] = useState(worker?.avatar || null);
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const fileInputRef = useRef(null);
   
   const {
@@ -50,18 +53,21 @@ function EditWorkerForm({ worker, onSubmit, onCancel }) {
   }
 
   const handleResetPassword = async () => {
-    const newPass = prompt("กรุณากรอกรหัสผ่านใหม่ที่ต้องการตั้งให้คนงาน (ต้องมีอย่างน้อย 6 ตัวอักษร):");
-    if (!newPass) return;
-    if (newPass.length < 6) {
+    if (newPassword.length < 6) {
       alert("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร");
       return;
     }
+    setIsChangingPassword(true);
     try {
-      await workerService.resetWorkerPassword(worker.id, newPass);
+      await workerService.resetWorkerPassword(worker.id, newPassword);
       alert("เปลี่ยนรหัสผ่านสำเร็จ!");
+      setShowPasswordChange(false);
+      setNewPassword('');
     } catch (err) {
       console.error("Failed to reset password", err);
       alert("ไม่สามารถเปลี่ยนรหัสผ่านได้: " + (err.response?.data?.message || err.message));
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -101,10 +107,44 @@ function EditWorkerForm({ worker, onSubmit, onCancel }) {
         <Input label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
       </div>
 
-      <div className="mb-8 flex justify-end">
-        <button type="button" onClick={handleResetPassword} className="text-sm font-medium text-farm-accent hover:underline">
-          + เปลี่ยนรหัสผ่านคนงาน
-        </button>
+      <div className="mb-8">
+        {!showPasswordChange ? (
+          <div className="flex justify-end">
+            <button type="button" onClick={() => setShowPasswordChange(true)} className="text-sm font-medium text-farm-primary hover:underline">
+              + เปลี่ยนรหัสผ่านคนงาน
+            </button>
+          </div>
+        ) : (
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h4 className="text-sm font-bold text-gray-700">เปลี่ยนรหัสผ่านคนงาน</h4>
+              <button type="button" onClick={() => setShowPasswordChange(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)" 
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-farm-primary focus:outline-none focus:ring-1 focus:ring-farm-primary"
+              />
+              <Button type="button" variant="primary" onClick={handleResetPassword} disabled={isChangingPassword}>
+                {isChangingPassword ? 'กำลังเปลี่ยน...' : 'บันทึกรหัสผ่าน'}
+              </Button>
+            </div>
+            <div className="mt-2 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setNewPassword(randomPassword())}
+                className="flex items-center gap-1 text-xs font-medium text-farm-primary hover:underline"
+              >
+                <Shuffle size={12} /> สุ่มรหัสผ่าน
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex w-full gap-4">

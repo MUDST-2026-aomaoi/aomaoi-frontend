@@ -22,7 +22,7 @@ export const workerRepository = {
   },
 
   resetPassword: async (id, newPassword) => {
-    const response = await api.post(`/admin/workers/${id}/reset-password`, { newPassword });
+    const response = await api.post(`/workers/${id}/reset-password`, { newPassword });
     return response.data;
   }
 };

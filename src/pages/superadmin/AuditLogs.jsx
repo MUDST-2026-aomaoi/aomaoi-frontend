@@ -36,15 +36,24 @@ export default function AuditLogs() {
   const filtered = auditLogs.filter((log) => {
     const searchLower = search.toLowerCase();
     const matchSearch = 
-      (log.actionBy && log.actionBy.toLowerCase().includes(searchLower)) ||
+      ((log.performedBy || log.actionBy) && (log.performedBy || log.actionBy).toLowerCase().includes(searchLower)) ||
       (log.action && log.action.toLowerCase().includes(searchLower)) ||
       (log.targetUser && log.targetUser.toLowerCase().includes(searchLower)) ||
       (log.details && log.details.toLowerCase().includes(searchLower));
 
     let matchDate = true;
     if (dateFilter) {
-      const logDate = new Date(log.createdAt).toISOString().split('T')[0];
-      matchDate = logDate === dateFilter;
+      const dateStr = log.timestamp || log.createdAt;
+      if (dateStr) {
+        try {
+          const logDate = new Date(dateStr).toISOString().split('T')[0];
+          matchDate = logDate === dateFilter;
+        } catch(e) {
+          matchDate = false;
+        }
+      } else {
+        matchDate = false;
+      }
     }
 
     return matchSearch && matchDate;
@@ -104,27 +113,26 @@ export default function AuditLogs() {
               <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Action By</th>
               <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Action</th>
               <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Target User</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">IP Address</th>
               <th className="px-4 py-3.5 font-medium">Details</th>
             </tr>
           </thead>
           <tbody>
             {isLoading && auditLogs.length === 0 ? (
               <tr>
-                <td colSpan="6" className="py-8 text-gray-400 text-center">Loading logs...</td>
+                <td colSpan="5" className="py-8 text-gray-400 text-center">Loading logs...</td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan="6" className="py-8 text-gray-400 text-center">No logs found matching your criteria.</td>
+                <td colSpan="5" className="py-8 text-gray-400 text-center">No logs found matching your criteria.</td>
               </tr>
             ) : (
               filtered.map((log) => (
                 <tr key={log.id} className="border-b border-gray-200 transition-colors last:border-0 hover:bg-gray-50">
                   <td className="border-r border-gray-200 px-4 py-3 text-gray-800">
-                    {formatDateLong(log.createdAt)}
+                    {formatDateLong(log.timestamp || log.createdAt)}
                   </td>
                   <td className="border-r border-gray-200 px-4 py-3 font-semibold text-gray-800">
-                    {log.actionBy || '-'}
+                    {log.performedBy || log.actionBy || '-'}
                   </td>
                   <td className="border-r border-gray-200 px-4 py-3">
                     <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 border border-blue-200">
@@ -133,9 +141,6 @@ export default function AuditLogs() {
                   </td>
                   <td className="border-r border-gray-200 px-4 py-3 text-gray-800">
                     {log.targetUser || '-'}
-                  </td>
-                  <td className="border-r border-gray-200 px-4 py-3 text-xs font-mono text-gray-600">
-                    {log.ipAddress || 'unknown'}
                   </td>
                   <td className="px-4 py-3 text-left text-gray-600 max-w-xs truncate" title={log.details}>
                     {log.details || '-'}
