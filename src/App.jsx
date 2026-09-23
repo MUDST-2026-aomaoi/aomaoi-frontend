@@ -11,6 +11,7 @@ import { SuperAdminLayout } from './layouts/superadmin/SuperAdminLayout';
 import SuperAdminDashboard from './pages/superadmin/Dashboard';
 import AllFarms from './pages/superadmin/AllFarms';
 import AdminsManagement from './pages/superadmin/AdminsManagement';
+import AuditLogs from './pages/superadmin/AuditLogs';
 
 import WorkerLayout from './layouts/worker/WorkerLayout';
 import WorkerDashboard from './pages/worker/WorkerDashboard';
@@ -83,6 +84,7 @@ function App() {
         <Route element={<AuthGuard allowedRoles={['superadmin']}><SuperAdminLayout /></AuthGuard>}>
           <Route path="/farms" element={<AllFarms />} />
           <Route path="/admins" element={<AdminsManagement />} />
+          <Route path="/audit-logs" element={<AuditLogs />} />
         </Route>
 
         {/* Default Catch-all */}

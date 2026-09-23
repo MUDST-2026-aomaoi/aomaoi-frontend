@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutGrid, Sprout, Users, LogOut } from 'lucide-react';
+import { LayoutGrid, Sprout, Users, LogOut, ClipboardList } from 'lucide-react';
 import { useAuthStore } from '../../controller/authController';
 import logo from '../../assets/sugarcane-logo.png';
 
@@ -33,6 +33,11 @@ export function SuperAdminSidebar() {
           <NavLink to="/admins" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
             <Users className="h-5 w-5" />
             <span>All Admins</span>
+          </NavLink>
+          
+          <NavLink to="/audit-logs" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
+            <ClipboardList className="h-5 w-5" />
+            <span>Audit Logs</span>
           </NavLink>
         </nav>
       </div>
