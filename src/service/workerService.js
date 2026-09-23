@@ -1,27 +1,19 @@
-import api from './api';
+import { workerRepository } from '../repository/workerRepository';
 
 export const workerService = {
   getAllWorkers: async () => {
-    // Calls GET /api/workers
-    const response = await api.get('/workers');
-    return response.data;
+    return await workerRepository.getAll();
   },
 
   addWorker: async (workerData) => {
-    // Calls POST /api/workers
-    const response = await api.post('/workers', workerData);
-    return response.data;
+    return await workerRepository.add(workerData);
   },
 
   updateWorker: async (id, workerData) => {
-    // Calls PUT /api/workers/{id}
-    const response = await api.put(`/workers/${id}`, workerData);
-    return response.data;
+    return await workerRepository.update(id, workerData);
   },
 
   deleteWorker: async (id) => {
-    // Calls DELETE /api/workers/{id}
-    const response = await api.delete(`/workers/${id}`);
-    return response.data;
+    return await workerRepository.delete(id);
   }
 };

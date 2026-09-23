@@ -1,23 +1,19 @@
-import api from './api';
+import { adminRepository } from '../repository/adminRepository';
 
 export const adminService = {
   getAllAdmins: async () => {
-    const response = await api.get('/admins');
-    return response.data;
+    return await adminRepository.getAll();
   },
 
   addAdmin: async (adminData) => {
-    const response = await api.post('/admins', adminData);
-    return response.data;
+    return await adminRepository.add(adminData);
   },
 
   updateAdmin: async (id, adminData) => {
-    const response = await api.put(`/admins/${id}`, adminData);
-    return response.data;
+    return await adminRepository.update(id, adminData);
   },
 
   deleteAdmin: async (id) => {
-    const response = await api.delete(`/admins/${id}`);
-    return response.data;
+    return await adminRepository.delete(id);
   }
 };
