@@ -21,7 +21,7 @@ import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 const adminSchema = z.object({
   fullName: z.string().min(1, 'กรุณากรอกชื่อ-นามสกุล').regex(/^[^0-9]*$/, 'ชื่อ-นามสกุลต้องไม่มีตัวเลข'),
   username: z.string().min(3, 'ต้องมีอย่างน้อย 3 ตัวอักษร'),
-  phone: z.string().min(1, 'กรุณากรอกเบอร์โทร'),
+  phone: z.string().regex(/^[0-9]{10}$/, 'เบอร์โทรต้องเป็นตัวเลข 10 หลัก'),
   farmId: z.string().min(1, 'กรุณาเลือกฟาร์ม'),
 });
 
@@ -35,14 +35,25 @@ function randomPassword() {
 }
 
 function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
+  const [avatarPreview, setAvatarPreview] = useState(admin?.avatar || null);
+  const fileInputRef = useRef(null);
+  
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: zodResolver(adminSchema), defaultValues: admin });
 
+  function handleAvatarChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setAvatarPreview(reader.result);
+    reader.readAsDataURL(file);
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit((data) => onSubmit({ ...data, avatar: avatarPreview ?? undefined }))}>
       <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
         <h3 className="text-lg font-bold text-farm-primary">Edit Admin</h3>
         <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
@@ -51,7 +62,23 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-6 flex justify-center">
-        <Avatar src={admin.avatar} name={admin.fullName} className="h-24 w-24 border border-gray-200 text-2xl" />
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-gray-300 bg-gray-50 text-gray-400 hover:border-farm-primary"
+        >
+          {avatarPreview ? (
+            <>
+              <img src={avatarPreview} alt="Preview" className="h-full w-full object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                <ImagePlus className="h-6 w-6 text-white" />
+              </div>
+            </>
+          ) : (
+            <ImagePlus className="h-8 w-8 group-hover:text-farm-primary" />
+          )}
+        </button>
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-4">
@@ -359,7 +386,7 @@ export default function AdminsManagement() {
 
       {modal?.mode === 'edit' && (
         <ModalShell onClose={closeModal} className="w-112.5">
-          <EditAdminForm  farms={farms} onSubmit={handleEditSubmit} onCancel={closeModal} />
+          <EditAdminForm admin={modal.admin} farms={farms} onSubmit={handleEditSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 

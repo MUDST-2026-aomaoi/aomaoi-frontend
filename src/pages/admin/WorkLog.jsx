@@ -56,9 +56,14 @@ function EntryForm({ type, onTypeChange, workers, onSubmit, onCancel }) {
   });
 
   const values = watch();
-  const previewValid = config.fields.every((f) => Number(values[f.name]) > 0);
+  const previewValid = config.fields.every((f) => 
+    f.type === 'date' ? !!values[f.name] : Number(values[f.name]) > 0
+  );
   const preview = previewValid
-    ? config.calcTotal(config.fields.reduce((acc, f) => ({ ...acc, [f.name]: Number(values[f.name]) }), {}))
+    ? config.calcTotal(config.fields.reduce((acc, f) => ({ 
+        ...acc, 
+        [f.name]: f.type === 'date' ? values[f.name] : Number(values[f.name]) 
+      }), {}))
     : 0;
 
   return (
@@ -108,7 +113,14 @@ function EntryForm({ type, onTypeChange, workers, onSubmit, onCancel }) {
             ))}
           </Select>
           {config.fields.map((field) => (
-            <Input key={field.name} type="number" step="any" label={field.label} {...register(field.name)} error={errors[field.name]?.message} />
+            <Input 
+              key={field.name} 
+              type={field.type || "number"} 
+              step={field.type === 'date' ? undefined : "any"} 
+              label={field.label} 
+              {...register(field.name)} 
+              error={errors[field.name]?.message} 
+            />
           ))}
         </div>
 
@@ -170,7 +182,7 @@ export default function WorkLog() {
     const config = WORK_LOG_TYPES[type];
     const numericData = { ...data };
     config.fields.forEach((f) => {
-      numericData[f.name] = Number(data[f.name]);
+      numericData[f.name] = f.type === 'date' ? data[f.name] : Number(data[f.name]);
     });
     addEntry(type, numericData);
     setModalState('success');

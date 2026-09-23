@@ -15,5 +15,9 @@ export const workerService = {
 
   deleteWorker: async (id) => {
     return await workerRepository.delete(id);
+  },
+
+  resetWorkerPassword: async (id, newPassword) => {
+    return await workerRepository.resetPassword(id, newPassword);
   }
 };

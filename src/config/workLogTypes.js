@@ -57,19 +57,42 @@ export const WORK_LOG_TYPES = {
     chartColor: '#568A3B',
     badgeClass: 'bg-[#fef08a] text-[#854d0e]',
     primaryUnit: 'วัน',
-    primaryQty: (v) => v.days,
+    primaryQty: (v) => {
+      if (v.startDate && v.endDate) {
+        const start = new Date(v.startDate);
+        const end = new Date(v.endDate);
+        return Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      }
+      return 0;
+    },
     fields: [
-      { name: 'days', label: 'จำนวนวัน', suffix: 'วัน', defaultValue: 1 },
+      { name: 'startDate', label: 'วันที่เริ่ม', suffix: '', type: 'date', defaultValue: '' },
+      { name: 'endDate', label: 'วันที่สิ้นสุด', suffix: '', type: 'date', defaultValue: '' },
       { name: 'dailyRate', label: 'ค่าแรงต่อวัน', suffix: 'บาท', defaultValue: 350 },
     ],
     schema: z.object({
       date: z.string().min(1, 'กรุณาเลือกวันที่'),
       workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),
-      days: z.coerce.number().positive('ต้องมากกว่า 0'),
+      startDate: z.string().min(1, 'กรุณาเลือกวันที่เริ่ม'),
+      endDate: z.string().min(1, 'กรุณาเลือกวันที่สิ้นสุด'),
       dailyRate: z.coerce.number().positive('ต้องมากกว่า 0'),
-    }),
-    calcTotal: (v) => v.days * v.dailyRate,
-    summaryText: (v) => `${v.days} วัน × ${v.dailyRate} บาท/วัน`,
+    }).refine((data) => {
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      return end >= start;
+    }, { message: 'วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่ม', path: ['endDate'] }),
+    calcTotal: (v) => {
+      const start = new Date(v.startDate);
+      const end = new Date(v.endDate);
+      const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      return (days > 0 ? days : 0) * v.dailyRate;
+    },
+    summaryText: (v) => {
+      const start = new Date(v.startDate);
+      const end = new Date(v.endDate);
+      const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      return `${days > 0 ? days : 0} วัน × ${v.dailyRate} บาท/วัน`;
+    },
   },
   spraying: {
     key: 'spraying',

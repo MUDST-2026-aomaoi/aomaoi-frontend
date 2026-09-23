@@ -19,5 +19,10 @@ export const workerRepository = {
   delete: async (id) => {
     const response = await api.delete(`/workers/${id}`);
     return response.data;
+  },
+
+  resetPassword: async (id, newPassword) => {
+    const response = await api.post(`/admin/workers/${id}/reset-password`, { newPassword });
+    return response.data;
   }
 };
