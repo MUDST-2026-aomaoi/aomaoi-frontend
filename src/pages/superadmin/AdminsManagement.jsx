@@ -348,22 +348,26 @@ export default function AdminsManagement() {
                 </td>
                 <td className="border-r border-gray-200 px-4 py-3 text-gray-800">{formatDateLong(admin.joinedDate)}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center justify-center gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setModal({ mode: 'edit', admin })}
-                      className="text-gray-700 transition-colors hover:text-black"
-                    >
-                      <Edit className="h-5 w-5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setModal({ mode: 'delete', admin })}
-                      className="text-red-500 transition-colors hover:text-red-700"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </div>
+                  {admin.status !== 'inactive' ? (
+                    <div className="flex items-center justify-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setModal({ mode: 'edit', admin })}
+                        className="text-gray-700 transition-colors hover:text-black"
+                      >
+                        <Edit className="h-5 w-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setModal({ mode: 'delete', admin })}
+                        className="text-red-500 transition-colors hover:text-red-700"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
                 </td>
               </tr>
             ))}
