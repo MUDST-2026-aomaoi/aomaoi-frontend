@@ -8,6 +8,8 @@ RUN npm ci
 
 # คัดลอกโค้ดทั้งหมดแล้วสั่ง Build
 COPY . .
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
 # Stage 2: Serve the application with Nginx
