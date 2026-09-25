@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
-export function Dropdown({ value, onChange, options, className = '' }) {
+export function Dropdown({ value, onChange, options, className = '', label, error }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -18,6 +18,7 @@ export function Dropdown({ value, onChange, options, className = '' }) {
 
   return (
     <div ref={ref} className={`relative ${className}`}>
+      {label && <span className="mb-1 block text-sm font-medium text-farm-text">{label}</span>}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -37,8 +38,8 @@ export function Dropdown({ value, onChange, options, className = '' }) {
                 onChange(opt.value);
                 setOpen(false);
               }}
-              className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm transition-colors hover:bg-gray-50 ${
-                opt.value === value ? 'font-semibold text-gray-900' : 'text-gray-500'
+              className={`block w-full truncate rounded-lg px-3 py-2.5 text-left text-sm transition-colors hover:bg-gray-50 ${
+                opt.value === value ? 'font-semibold text-gray-900' : opt.value === '' ? 'text-gray-400 italic' : 'text-gray-500'
               }`}
             >
               {opt.label}
@@ -46,6 +47,7 @@ export function Dropdown({ value, onChange, options, className = '' }) {
           ))}
         </div>
       )}
+      {error && <span className="mt-1 block text-xs text-red-600">{error}</span>}
     </div>
   );
 }

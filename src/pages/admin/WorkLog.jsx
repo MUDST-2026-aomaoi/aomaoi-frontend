@@ -6,7 +6,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { Search, UserPlus, X, Calendar } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { Dropdown } from '../../components/ui/Dropdown';
@@ -102,21 +101,28 @@ function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCance
           <div className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700">{submitError}</div>
         )}
         <div className="grid grid-cols-2 gap-4">
-          <Select label="คนงาน" {...register('workerId')} error={errors.workerId?.message}>
-            <option value="">----- กรุณาเลือกคนงาน -----</option>
-            {workers.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.fullName}
-              </option>
-            ))}
-          </Select>
-          <Select label="ประเภทงาน" value={type} onChange={(e) => onTypeChange(e.target.value)}>
-            {WORK_LOG_ORDER.map((key) => (
-              <option key={key} value={key}>
-                {WORK_LOG_TYPES[key].labelTh}
-              </option>
-            ))}
-          </Select>
+          <Controller
+            control={control}
+            name="workerId"
+            render={({ field }) => (
+              <Dropdown
+                label="คนงาน"
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.workerId?.message}
+                options={[
+                  { value: '', label: 'เลือกคนงาน' },
+                  ...workers.map((w) => ({ value: String(w.id), label: w.fullName })),
+                ]}
+              />
+            )}
+          />
+          <Dropdown
+            label="ประเภทงาน"
+            value={type}
+            onChange={onTypeChange}
+            options={WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh }))}
+          />
         </div>
 
         <div className="grid grid-cols-3 gap-4">
