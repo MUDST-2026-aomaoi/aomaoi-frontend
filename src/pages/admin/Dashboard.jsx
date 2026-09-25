@@ -290,7 +290,7 @@ export default function Dashboard() {
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-gray-100 p-5">
           <h3 className="text-xl font-bold text-gray-900">Work Activity Log</h3>
-          <Link to="/admin/work" className="flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-gray-900">
+          <Link to="/work" className="flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-gray-900">
             More <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

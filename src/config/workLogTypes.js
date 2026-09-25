@@ -13,6 +13,7 @@ export const WORK_LOG_TYPES = {
     primaryUnit: 'วา',
     primaryQty: (v) => v.rows * v.waPerRow,
     fields: [
+      { name: 'date', label: 'วันที่ทำงาน', type: 'date', defaultValue: '' },
       { name: 'rows', label: 'จำนวนแถว', suffix: 'แถว', defaultValue: 1 },
       { name: 'waPerRow', label: 'วา/แถว (มาตรฐาน)', suffix: 'วา', defaultValue: 100 },
     ],
@@ -36,6 +37,7 @@ export const WORK_LOG_TYPES = {
     primaryUnit: 'วา',
     primaryQty: (v) => v.furrows * v.waPerFurrow,
     fields: [
+      { name: 'date', label: 'วันที่ทำงาน', type: 'date', defaultValue: '' },
       { name: 'furrows', label: 'จำนวนร่อง', suffix: 'ร่อง', defaultValue: 1 },
       { name: 'waPerFurrow', label: 'วา/ร่อง', suffix: 'วา', defaultValue: 20 },
     ],
@@ -71,7 +73,6 @@ export const WORK_LOG_TYPES = {
       { name: 'dailyRate', label: 'ค่าแรงต่อวัน', suffix: 'บาท', defaultValue: 350 },
     ],
     schema: z.object({
-      date: z.string().min(1, 'กรุณาเลือกวันที่'),
       workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),
       startDate: z.string().min(1, 'กรุณาเลือกวันที่เริ่ม'),
       endDate: z.string().min(1, 'กรุณาเลือกวันที่สิ้นสุด'),
@@ -104,7 +105,10 @@ export const WORK_LOG_TYPES = {
     badgeClass: 'bg-[#fef08a] text-[#854d0e]',
     primaryUnit: 'ถัง',
     primaryQty: (v) => v.tanks,
-    fields: [{ name: 'tanks', label: 'จำนวนถัง', suffix: 'ถัง', defaultValue: 1 }],
+    fields: [
+      { name: 'date', label: 'วันที่ทำงาน', type: 'date', defaultValue: '' },
+      { name: 'tanks', label: 'จำนวนถัง', suffix: 'ถัง', defaultValue: 1 },
+    ],
     schema: z.object({
       date: z.string().min(1, 'กรุณาเลือกวันที่'),
       workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),

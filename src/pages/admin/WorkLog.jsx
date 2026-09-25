@@ -38,7 +38,29 @@ const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
 ));
 CustomDateInput.displayName = 'CustomDateInput';
 
-function EntryForm({ type, onTypeChange, workers, onSubmit, onCancel }) {
+function DateField({ control, name, label, error }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-sm font-medium text-farm-text">{label}</span>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => (
+          <DatePicker
+            selected={field.value ? new Date(field.value) : null}
+            onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+            dateFormat="dd/MM/yyyy"
+            customInput={<CustomDateInput />}
+            wrapperClassName="w-full"
+          />
+        )}
+      />
+      {error && <span className="mt-1 block text-xs text-red-600">{error}</span>}
+    </label>
+  );
+}
+
+function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCancel }) {
   const config = WORK_LOG_TYPES[type];
   const {
     register,
@@ -49,22 +71,22 @@ function EntryForm({ type, onTypeChange, workers, onSubmit, onCancel }) {
   } = useForm({
     resolver: zodResolver(config.schema),
     defaultValues: {
-      date: todayISO(),
       workerId: '',
-      ...Object.fromEntries(config.fields.map((f) => [f.name, f.defaultValue])),
+      ...Object.fromEntries(
+        config.fields.map((f) => [f.name, f.name === 'date' ? todayISO() : f.defaultValue])
+      ),
     },
   });
 
   const values = watch();
-  const previewValid = config.fields.every((f) => 
+  const previewValid = config.fields.every((f) =>
     f.type === 'date' ? !!values[f.name] : Number(values[f.name]) > 0
   );
-  const preview = previewValid
-    ? config.calcTotal(config.fields.reduce((acc, f) => ({ 
-        ...acc, 
-        [f.name]: f.type === 'date' ? values[f.name] : Number(values[f.name]) 
-      }), {}))
-    : 0;
+  const computedValues = config.fields.reduce(
+    (acc, f) => ({ ...acc, [f.name]: f.type === 'date' ? values[f.name] : Number(values[f.name]) }),
+    {}
+  );
+  const preview = previewValid ? config.calcTotal(computedValues) : 0;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -76,24 +98,10 @@ function EntryForm({ type, onTypeChange, workers, onSubmit, onCancel }) {
       </div>
 
       <div className="space-y-4">
+        {submitError && (
+          <div className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700">{submitError}</div>
+        )}
         <div className="grid grid-cols-2 gap-4">
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-farm-text">วันที่ทำงาน</span>
-            <Controller
-              control={control}
-              name="date"
-              render={({ field }) => (
-                <DatePicker
-                  selected={field.value ? new Date(field.value) : null}
-                  onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-                  dateFormat="dd/MM/yyyy"
-                  customInput={<CustomDateInput />}
-                  wrapperClassName="w-full"
-                />
-              )}
-            />
-            {errors.date && <span className="mt-1 block text-xs text-red-600">{errors.date.message}</span>}
-          </label>
           <Select label="คนงาน" {...register('workerId')} error={errors.workerId?.message}>
             <option value="">----- กรุณาเลือกคนงาน -----</option>
             {workers.map((w) => (
@@ -102,9 +110,6 @@ function EntryForm({ type, onTypeChange, workers, onSubmit, onCancel }) {
               </option>
             ))}
           </Select>
-        </div>
-
-        <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${1 + config.fields.length}, minmax(0,1fr))` }}>
           <Select label="ประเภทงาน" value={type} onChange={(e) => onTypeChange(e.target.value)}>
             {WORK_LOG_ORDER.map((key) => (
               <option key={key} value={key}>
@@ -112,22 +117,38 @@ function EntryForm({ type, onTypeChange, workers, onSubmit, onCancel }) {
               </option>
             ))}
           </Select>
-          {config.fields.map((field) => (
-            <Input 
-              key={field.name} 
-              type={field.type || "number"} 
-              step={field.type === 'date' ? undefined : "any"} 
-              label={field.label} 
-              {...register(field.name)} 
-              error={errors[field.name]?.message} 
-            />
-          ))}
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          {config.fields.map((field) =>
+            field.type === 'date' ? (
+              <DateField
+                key={field.name}
+                control={control}
+                name={field.name}
+                label={field.label}
+                error={errors[field.name]?.message}
+              />
+            ) : (
+              <Input
+                key={field.name}
+                type="number"
+                step="any"
+                label={field.label}
+                suffix={field.suffix}
+                {...register(field.name)}
+                error={errors[field.name]?.message}
+              />
+            )
+          )}
         </div>
 
         <div className="rounded-lg bg-farm-sidebar px-5 py-4 text-white">
-          <p className="text-xs text-white/60">{config.formulaLabel}</p>
-          <p className="mt-1 text-sm font-medium text-white/90">ค่าแรงรวม</p>
-          <p className="text-2xl font-bold">{formatNumber(preview)} บาท</p>
+          <p className="text-xs text-white/60">{previewValid ? config.summaryText(computedValues) : config.formulaLabel}</p>
+          <div className="mt-1 flex items-center justify-between">
+            <span className="text-sm font-medium text-white/90">ค่าแรงรวม</span>
+            <span className="text-2xl font-bold">{formatNumber(preview)} บาท</span>
+          </div>
         </div>
       </div>
 
@@ -163,6 +184,7 @@ export default function WorkLog() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [modalState, setModalState] = useState(null);
   const [entryType, setEntryType] = useState(WORK_LOG_ORDER[0]);
+  const [submitError, setSubmitError] = useState('');
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -175,17 +197,23 @@ export default function WorkLog() {
 
   function openNewEntry() {
     setEntryType(WORK_LOG_ORDER[0]);
+    setSubmitError('');
     setModalState('form');
   }
 
-  function handleSubmit(type, data) {
+  async function handleSubmit(type, data) {
     const config = WORK_LOG_TYPES[type];
     const numericData = { ...data };
     config.fields.forEach((f) => {
       numericData[f.name] = f.type === 'date' ? data[f.name] : Number(data[f.name]);
     });
-    addEntry(type, numericData);
-    setModalState('success');
+    setSubmitError('');
+    try {
+      await addEntry(type, numericData);
+      setModalState('success');
+    } catch (error) {
+      setSubmitError(error.response?.data?.message || 'บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+    }
   }
 
   return (
@@ -279,6 +307,7 @@ export default function WorkLog() {
             type={entryType}
             onTypeChange={setEntryType}
             workers={activeWorkers}
+            submitError={submitError}
             onSubmit={(data) => handleSubmit(entryType, data)}
             onCancel={() => setModalState(null)}
           />
