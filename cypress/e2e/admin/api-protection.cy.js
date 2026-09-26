@@ -56,7 +56,10 @@ describe('Admin-only API is protected from other roles', () => {
           expect(res.status).to.be.oneOf([403, 404]);
         });
 
-        cy.apiLogin(workerB.username, 'Temp1234').then((res) => {
+        // seedAdminFarmWorker() already activated workerB via cy.activateAccount(),
+        // which changes the temp password to 'NewPass123' - that's the real
+        // current password to check nothing changed, not the original temp one.
+        cy.apiLogin(workerB.username, 'NewPass123').then((res) => {
           expect(res.status).to.eq(200);
         });
       });

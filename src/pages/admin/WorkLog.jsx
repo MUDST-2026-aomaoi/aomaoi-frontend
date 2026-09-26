@@ -23,7 +23,7 @@ function formatNumber(n) {
   return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 0 });
 }
 
-function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCancel }) {
+function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, submitError, onSubmit, onCancel }) {
   const config = WORK_LOG_TYPES[type];
   const {
     register,
@@ -34,7 +34,7 @@ function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCance
   } = useForm({
     resolver: zodResolver(config.schema),
     defaultValues: {
-      workerId: '',
+      workerId,
       ...Object.fromEntries(
         config.fields.map((f) => [f.name, f.name === 'date' ? todayISO() : f.defaultValue])
       ),
@@ -73,7 +73,10 @@ function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCance
                 label="คนงาน"
                 dataTest="worklog-form-worker"
                 value={field.value}
-                onChange={field.onChange}
+                onChange={(v) => {
+                  field.onChange(v);
+                  onWorkerIdChange(v);
+                }}
                 error={errors.workerId?.message}
                 options={[
                   { value: '', label: 'เลือกคนงาน' },
@@ -164,6 +167,7 @@ export default function WorkLog() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [modalState, setModalState] = useState(null);
   const [entryType, setEntryType] = useState(WORK_LOG_ORDER[0]);
+  const [entryWorkerId, setEntryWorkerId] = useState('');
   const [submitError, setSubmitError] = useState('');
 
   const filtered = useMemo(() => {
@@ -177,6 +181,7 @@ export default function WorkLog() {
 
   function openNewEntry() {
     setEntryType(WORK_LOG_ORDER[0]);
+    setEntryWorkerId('');
     setSubmitError('');
     setModalState('form');
   }
@@ -279,6 +284,8 @@ export default function WorkLog() {
             key={entryType}
             type={entryType}
             onTypeChange={setEntryType}
+            workerId={entryWorkerId}
+            onWorkerIdChange={setEntryWorkerId}
             workers={activeWorkers}
             submitError={submitError}
             onSubmit={(data) => handleSubmit(entryType, data)}
