@@ -71,6 +71,7 @@ export default function WorkerLayout({ children }) {
         {/* Logout Section */}
         <div className="p-6">
           <button
+            data-test="logout-button"
             onClick={handleLogout}
             className="flex items-center gap-3 text-gray-500 transition-colors hover:text-red-500 font-medium"
           >
