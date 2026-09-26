@@ -101,16 +101,16 @@ function EditWorkerForm({ worker, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-4">
-        <Input label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
-        <Input label="ชื่อเล่น" {...register('nickname')} error={errors.nickname?.message} />
-        <Input label="Username" {...register('username')} error={errors.username?.message} />
-        <Input label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
+        <Input data-test="worker-form-fullname" label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
+        <Input data-test="worker-form-nickname" label="ชื่อเล่น" {...register('nickname')} error={errors.nickname?.message} />
+        <Input data-test="worker-form-username" label="Username" {...register('username')} error={errors.username?.message} />
+        <Input data-test="worker-form-phone" label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
       </div>
 
       <div className="mb-8">
         {!showPasswordChange ? (
           <div className="flex justify-end">
-            <button type="button" onClick={() => setShowPasswordChange(true)} className="text-sm font-medium text-farm-primary hover:underline">
+            <button type="button" data-test="worker-resetpw-toggle" onClick={() => setShowPasswordChange(true)} className="text-sm font-medium text-farm-primary hover:underline">
               + เปลี่ยนรหัสผ่านคนงาน
             </button>
           </div>
@@ -123,14 +123,15 @@ function EditWorkerForm({ worker, onSubmit, onCancel }) {
               </button>
             </div>
             <div className="flex gap-2">
-              <input 
-                type="text" 
+              <input
+                type="text"
+                data-test="worker-resetpw-input"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)" 
+                placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)"
                 className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-farm-primary focus:outline-none focus:ring-1 focus:ring-farm-primary"
               />
-              <Button type="button" variant="primary" onClick={handleResetPassword} disabled={isChangingPassword}>
+              <Button type="button" data-test="worker-resetpw-save" variant="primary" onClick={handleResetPassword} disabled={isChangingPassword}>
                 {isChangingPassword ? 'กำลังเปลี่ยน...' : 'บันทึกรหัสผ่าน'}
               </Button>
             </div>
@@ -148,10 +149,10 @@ function EditWorkerForm({ worker, onSubmit, onCancel }) {
       </div>
 
       <div className="flex w-full gap-4">
-        <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>
+        <Button type="button" data-test="worker-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           cancel
         </Button>
-        <Button type="submit" className="flex-1">
+        <Button type="submit" data-test="worker-form-submit" className="flex-1">
           confirm
         </Button>
       </div>
@@ -202,14 +203,14 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-4">
-        <Input label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
-        <Input label="ชื่อเล่น" {...register('nickname')} error={errors.nickname?.message} />
-        <Input label="Username" {...register('username')} error={errors.username?.message} />
-        <Input label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
+        <Input data-test="worker-form-fullname" label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
+        <Input data-test="worker-form-nickname" label="ชื่อเล่น" {...register('nickname')} error={errors.nickname?.message} />
+        <Input data-test="worker-form-username" label="Username" {...register('username')} error={errors.username?.message} />
+        <Input data-test="worker-form-phone" label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
       </div>
 
       <div className="mb-2">
-        <Input label="รหัสผ่านชั่วคราว" {...register('tempPassword')} error={errors.tempPassword?.message} />
+        <Input data-test="worker-form-temppw" label="รหัสผ่านชั่วคราว" {...register('tempPassword')} error={errors.tempPassword?.message} />
         <button
           type="button"
           onClick={() => setValue('tempPassword', randomPassword(), { shouldValidate: true })}
@@ -225,10 +226,10 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
       </div>
 
       <div className="flex w-full gap-4">
-        <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>
+        <Button type="button" data-test="worker-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           cancel
         </Button>
-        <Button type="submit" className="flex-1">
+        <Button type="submit" data-test="worker-form-submit" className="flex-1">
           confirm
         </Button>
       </div>
@@ -310,6 +311,7 @@ export default function Workers() {
         <div className="relative max-w-lg flex-1">
           <input
             type="text"
+            data-test="worker-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="ค้นหาชื่อ, username, เบอร์โทร"
@@ -323,6 +325,7 @@ export default function Workers() {
             value={workerFilter}
             onChange={setWorkerFilter}
             className="w-48"
+            dataTest="worker-name-filter"
             options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...workers.map((w) => ({ value: w.id, label: w.fullName }))]}
           />
 
@@ -330,6 +333,7 @@ export default function Workers() {
             value={statusFilter}
             onChange={setStatusFilter}
             className="w-48"
+            dataTest="worker-status-filter"
             options={[
               { value: 'all', label: 'สถานะทั้งหมด' },
               { value: 'active', label: 'Active' },
@@ -340,6 +344,7 @@ export default function Workers() {
 
           <Button
             variant="accent"
+            data-test="worker-add-btn"
             className="flex items-center gap-2"
             onClick={() =>
               setModal({
@@ -369,27 +374,28 @@ export default function Workers() {
           </thead>
           <tbody>
             {filtered.map((worker) => (
-              <tr key={worker.id} className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
+              <tr key={worker.id} data-test="worker-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
                 <td className="px-4 py-3 pl-6 text-left">
                   <div className="flex items-center justify-start gap-3">
                     <Avatar src={worker.avatar} name={worker.fullName} />
-                    <span className="font-semibold text-gray-800">{worker.fullName}</span>
+                    <span data-test="worker-row-name" className="font-semibold text-gray-800">{worker.fullName}</span>
                   </div>
                 </td>
                 <td className="px-4 py-3 font-medium text-gray-800">{worker.nickname}</td>
                 <td className="px-4 py-3 text-gray-800">@{worker.username}</td>
                 <td className="px-4 py-3 text-gray-800">{worker.phone}</td>
                 <td className="px-4 py-3">
-                  <span className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[worker.status]}`}>
+                  <span data-test="worker-row-status" className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[worker.status]}`}>
                     {STATUS_LABEL[worker.status]}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-gray-800">{formatDateLong(worker.joinedDate)}</td>
-                <td className="px-4 py-3 pr-6 text-center">
+                <td className="px-4 py-3 pr-6 text-center" data-test="worker-row-manage">
                   {worker.status !== 'inactive' ? (
                     <div className="flex items-center justify-center gap-4">
                       <button
                         type="button"
+                        data-test="worker-edit"
                         onClick={() => setModal({ mode: 'edit', worker })}
                         className="text-gray-700 transition-colors hover:text-black"
                       >
@@ -397,6 +403,7 @@ export default function Workers() {
                       </button>
                       <button
                         type="button"
+                        data-test="worker-delete"
                         onClick={() => setModal({ mode: 'delete', worker })}
                         className="text-red-500 transition-colors hover:text-red-700"
                       >
@@ -444,7 +451,7 @@ export default function Workers() {
             <Button variant="outline" className="flex-1" onClick={closeModal}>
               cancel
             </Button>
-            <Button variant="danger" className="flex-1" onClick={handleConfirmDelete}>
+            <Button variant="danger" data-test="worker-delete-confirm" className="flex-1" onClick={handleConfirmDelete}>
               confirm
             </Button>
           </div>

@@ -50,7 +50,7 @@ export default function Login() {
         {/* Form */}
         <form onSubmit={handleLogin} className="mt-10 flex flex-col gap-5">
           {errorMsg && (
-            <div className="bg-red-100 text-red-600 p-3 rounded-lg text-sm text-center font-medium">
+            <div data-test="login-error" className="bg-red-100 text-red-600 p-3 rounded-lg text-sm text-center font-medium">
               {errorMsg}
             </div>
           )}
@@ -62,6 +62,7 @@ export default function Login() {
               <User size={17} className="text-gray-400 shrink-0" />
               <input
                 type="text"
+                data-test="login-username"
                 placeholder="enter your username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -78,6 +79,7 @@ export default function Login() {
               <Lock size={17} className="text-gray-400 shrink-0" />
               <input
                 type={showPassword ? 'text' : 'password'}
+                data-test="login-password"
                 placeholder="enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -97,6 +99,7 @@ export default function Login() {
           {/* Submit Button */}
           <button
             type="submit"
+            data-test="login-submit"
             disabled={isLoading}
             className="mt-2 w-full py-3.5 bg-[#3B5323] hover:bg-[#2f4319] disabled:bg-gray-400 text-white font-bold text-[14px] tracking-widest rounded-2xl transition-colors"
           >

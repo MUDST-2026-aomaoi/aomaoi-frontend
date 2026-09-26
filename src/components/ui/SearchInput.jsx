@@ -1,10 +1,11 @@
 import { Search } from 'lucide-react';
 
-export function SearchInput({ value, onChange, placeholder = 'ค้นหา', className = '' }) {
+export function SearchInput({ value, onChange, placeholder = 'ค้นหา', className = '', dataTest }) {
   return (
     <div className={`relative ${className}`}>
       <input
         type="text"
+        data-test={dataTest}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}

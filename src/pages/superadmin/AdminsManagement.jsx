@@ -83,15 +83,16 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-4">
-        <Input label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
-        <Input label="Username" {...register('username')} error={errors.username?.message} />
-        <Input label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
+        <Input data-test="admin-form-fullname" label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
+        <Input data-test="admin-form-username" label="Username" {...register('username')} error={errors.username?.message} />
+        <Input data-test="admin-form-phone" label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
         <Controller
           control={control}
           name="farmId"
           render={({ field }) => (
             <Dropdown
               label="ฟาร์ม"
+              dataTest="admin-form-farm"
               value={field.value}
               onChange={field.onChange}
               error={errors.farmId?.message}
@@ -102,10 +103,10 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
       </div>
 
       <div className="flex w-full gap-4">
-        <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>
+        <Button type="button" data-test="admin-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           cancel
         </Button>
-        <Button type="submit" className="flex-1">
+        <Button type="submit" data-test="admin-form-submit" className="flex-1">
           confirm
         </Button>
       </div>
@@ -157,15 +158,16 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-4">
-        <Input label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
-        <Input label="Username" {...register('username')} error={errors.username?.message} />
-        <Input label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
+        <Input data-test="admin-form-fullname" label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
+        <Input data-test="admin-form-username" label="Username" {...register('username')} error={errors.username?.message} />
+        <Input data-test="admin-form-phone" label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
         <Controller
           control={control}
           name="farmId"
           render={({ field }) => (
             <Dropdown
               label="ฟาร์ม"
+              dataTest="admin-form-farm"
               value={field.value}
               onChange={field.onChange}
               error={errors.farmId?.message}
@@ -179,7 +181,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-2">
-        <Input label="รหัสผ่านชั่วคราว" {...register('tempPassword')} error={errors.tempPassword?.message} />
+        <Input data-test="admin-form-temppw" label="รหัสผ่านชั่วคราว" {...register('tempPassword')} error={errors.tempPassword?.message} />
         <button
           type="button"
           onClick={() => setValue('tempPassword', randomPassword(), { shouldValidate: true })}
@@ -195,10 +197,10 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
       </div>
 
       <div className="flex w-full gap-4">
-        <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>
+        <Button type="button" data-test="admin-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           cancel
         </Button>
-        <Button type="submit" className="flex-1">
+        <Button type="submit" data-test="admin-form-submit" className="flex-1">
           confirm
         </Button>
       </div>
@@ -281,13 +283,14 @@ export default function AdminsManagement() {
       <PageHeader title="Admins Management"  />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหาชื่อ, username, เบอร์โทร" className="max-w-lg flex-1" />
+        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหาชื่อ, username, เบอร์โทร" className="max-w-lg flex-1" dataTest="admin-search" />
 
         <div className="flex flex-wrap gap-4">
           <Dropdown
             value={farmFilter}
             onChange={setFarmFilter}
             className="w-48"
+            dataTest="admin-farm-filter"
             options={[{ value: 'all', label: 'ฟาร์มทั้งหมด' }, ...farms.map((f) => ({ value: f.id, label: f.name }))]}
           />
 
@@ -295,6 +298,7 @@ export default function AdminsManagement() {
             value={statusFilter}
             onChange={setStatusFilter}
             className="w-48"
+            dataTest="admin-status-filter"
             options={[
               { value: 'all', label: 'สถานะทั้งหมด' },
               { value: 'active', label: 'Active' },
@@ -305,6 +309,7 @@ export default function AdminsManagement() {
 
           <Button
             variant="accent"
+            data-test="admin-add-btn"
             className="flex items-center gap-2"
             onClick={() =>
               setModal({
@@ -334,11 +339,11 @@ export default function AdminsManagement() {
           </thead>
           <tbody>
             {filtered.map((admin) => (
-              <tr key={admin.id} className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
+              <tr key={admin.id} data-test="admin-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
                 <td className="px-4 py-3 text-left">
                   <div className="flex items-center justify-start gap-3 pl-2">
                     <Avatar src={admin.avatar} name={admin.fullName} />
-                    <span className="font-semibold text-gray-800">{admin.fullName}</span>
+                    <span data-test="admin-row-name" className="font-semibold text-gray-800">{admin.fullName}</span>
                   </div>
                 </td>
                 <td className="px-4 py-3 text-gray-800">{admin.username}</td>
@@ -349,16 +354,17 @@ export default function AdminsManagement() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[admin.status]}`}>
+                  <span data-test="admin-row-status" className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[admin.status]}`}>
                     {STATUS_LABEL[admin.status]}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-gray-800">{formatDateLong(admin.joinedDate)}</td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3" data-test="admin-row-manage">
                   {admin.status !== 'inactive' ? (
                     <div className="flex items-center justify-center gap-4">
                       <button
                         type="button"
+                        data-test="admin-edit"
                         onClick={() => setModal({ mode: 'edit', admin })}
                         className="text-gray-700 transition-colors hover:text-black"
                       >
@@ -366,6 +372,7 @@ export default function AdminsManagement() {
                       </button>
                       <button
                         type="button"
+                        data-test="admin-delete"
                         onClick={() => setModal({ mode: 'delete', admin })}
                         className="text-red-500 transition-colors hover:text-red-700"
                       >
@@ -413,7 +420,7 @@ export default function AdminsManagement() {
             <Button variant="outline" className="flex-1" onClick={closeModal}>
               cancel
             </Button>
-            <Button variant="danger" className="flex-1" onClick={handleConfirmDelete}>
+            <Button variant="danger" data-test="admin-delete-confirm" className="flex-1" onClick={handleConfirmDelete}>
               confirm
             </Button>
           </div>

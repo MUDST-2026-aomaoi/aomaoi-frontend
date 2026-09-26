@@ -64,8 +64,8 @@ function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
       </button>
 
       <div className="mb-4 space-y-4">
-        <Input label="ชื่อฟาร์ม" {...register('name')} error={errors.name?.message} />
-        <Input label="ที่ตั้ง" {...register('location')} error={errors.location?.message} />
+        <Input data-test="farm-form-name" label="ชื่อฟาร์ม" {...register('name')} error={errors.name?.message} />
+        <Input data-test="farm-form-location" label="ที่ตั้ง" {...register('location')} error={errors.location?.message} />
       </div>
 
       <div className="mb-6 flex items-start gap-2 rounded-md bg-[#FEF3C7] p-3 text-xs text-[#92400E]">
@@ -74,10 +74,10 @@ function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
       </div>
 
       <div className="flex w-full gap-4">
-        <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>
+        <Button type="button" data-test="farm-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           cancel
         </Button>
-        <Button type="submit" className="flex-1">
+        <Button type="submit" data-test="farm-form-submit" className="flex-1">
           confirm
         </Button>
       </div>
@@ -199,10 +199,11 @@ export default function AllFarms() {
       </div>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหา" className="max-w-lg flex-1" />
+        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหา" className="max-w-lg flex-1" dataTest="farm-search" />
 
         <Button
           variant="accent"
+          data-test="farm-add-btn"
           className="flex items-center gap-2"
           onClick={() => setModal({ mode: 'add', defaultValues: { name: '', location: '' } })}
         >
@@ -213,7 +214,7 @@ export default function AllFarms() {
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((farm) => (
-          <div key={farm.id} className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+          <div key={farm.id} data-test="farm-card" className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
             <div className="relative flex h-40 items-center justify-center overflow-hidden bg-linear-to-br from-farm-primary to-[#1F3C28]">
               {farm.image ? (
                 <img src={farm.image} alt={farm.name} className="h-full w-full object-cover" />
@@ -223,6 +224,7 @@ export default function AllFarms() {
               <div className="absolute right-3 top-3 flex gap-2">
                 <button
                   type="button"
+                  data-test="farm-edit"
                   onClick={() => setModal({ mode: 'edit', farm })}
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-gray-700 hover:bg-white"
                 >
@@ -230,6 +232,7 @@ export default function AllFarms() {
                 </button>
                 <button
                   type="button"
+                  data-test="farm-delete"
                   onClick={() => setModal({ mode: 'delete', farm })}
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-red-500 hover:bg-white"
                 >
@@ -238,7 +241,7 @@ export default function AllFarms() {
               </div>
             </div>
             <div className="p-5">
-              <h3 className="text-lg font-bold text-gray-900">{farm.name}</h3>
+              <h3 data-test="farm-name" className="text-lg font-bold text-gray-900">{farm.name}</h3>
               <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
                 <MapPin className="h-4 w-4" /> {farm.location}
               </p>
@@ -286,7 +289,7 @@ export default function AllFarms() {
             <Button variant="outline" className="flex-1" onClick={closeModal}>
               cancel
             </Button>
-            <Button variant="danger" className="flex-1" onClick={handleConfirmDelete}>
+            <Button variant="danger" data-test="farm-delete-confirm" className="flex-1" onClick={handleConfirmDelete}>
               confirm
             </Button>
           </div>

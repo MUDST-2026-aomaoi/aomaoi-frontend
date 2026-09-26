@@ -66,11 +66,11 @@ export default function AuditLogs() {
       <PageHeader title="System Audit Logs" />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search by action, user, or details..." className="max-w-lg flex-1" />
+        <SearchInput value={search} onChange={setSearch} placeholder="Search by action, user, or details..." className="max-w-lg flex-1" dataTest="audit-search" />
 
         <div className="flex flex-wrap items-start gap-4">
-          <DateInput value={dateFilter} onChange={setDateFilter} placeholder="กรองตามวันที่" className="w-48" />
-          <Button variant="subtle" onClick={handleRefresh} className="flex items-center gap-2">
+          <DateInput value={dateFilter} onChange={setDateFilter} placeholder="กรองตามวันที่" className="w-48" dataTest="audit-date-filter" />
+          <Button variant="subtle" data-test="audit-refresh" onClick={handleRefresh} className="flex items-center gap-2">
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </Button>
@@ -115,7 +115,7 @@ export default function AuditLogs() {
               </tr>
             ) : (
               filtered.map((log) => (
-                <tr key={log.id} className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
+                <tr key={log.id} data-test="audit-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
                   <td className="px-4 py-3 text-gray-800">
                     {formatDateLong(log.timestamp || log.createdAt)}
                   </td>
@@ -123,7 +123,7 @@ export default function AuditLogs() {
                     {log.performedBy || log.actionBy || '-'}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 border border-blue-200">
+                    <span data-test="audit-row-action" className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 border border-blue-200">
                       {log.action}
                     </span>
                   </td>

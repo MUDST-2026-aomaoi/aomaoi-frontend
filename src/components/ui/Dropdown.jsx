@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
-export function Dropdown({ value, onChange, options, className = '', label, error }) {
+export function Dropdown({ value, onChange, options, className = '', label, error, dataTest }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -21,6 +21,7 @@ export function Dropdown({ value, onChange, options, className = '', label, erro
       {label && <span className="mb-1 block text-sm font-medium text-farm-text">{label}</span>}
       <button
         type="button"
+        data-test={dataTest}
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-600 shadow-sm outline-none focus:border-[#708238]"
       >
@@ -34,6 +35,7 @@ export function Dropdown({ value, onChange, options, className = '', label, erro
             <button
               key={opt.value}
               type="button"
+              data-test={dataTest ? `${dataTest}-opt-${opt.value}` : undefined}
               onClick={() => {
                 onChange(opt.value);
                 setOpen(false);

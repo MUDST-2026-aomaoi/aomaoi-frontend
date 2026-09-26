@@ -62,7 +62,7 @@ function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCance
 
       <div className="space-y-4">
         {submitError && (
-          <div className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700">{submitError}</div>
+          <div data-test="worklog-submit-error" className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700">{submitError}</div>
         )}
         <div className="grid grid-cols-2 gap-4">
           <Controller
@@ -71,6 +71,7 @@ function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCance
             render={({ field }) => (
               <Dropdown
                 label="คนงาน"
+                dataTest="worklog-form-worker"
                 value={field.value}
                 onChange={field.onChange}
                 error={errors.workerId?.message}
@@ -83,6 +84,7 @@ function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCance
           />
           <Dropdown
             label="ประเภทงาน"
+            dataTest="worklog-form-type"
             value={type}
             onChange={onTypeChange}
             options={WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh }))}
@@ -99,6 +101,7 @@ function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCance
                 render={({ field: rhfField }) => (
                   <DateInput
                     label={field.label}
+                    dataTest={`worklog-form-${field.name}`}
                     value={rhfField.value}
                     onChange={rhfField.onChange}
                     error={errors[field.name]?.message}
@@ -112,6 +115,7 @@ function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCance
                 step="any"
                 label={field.label}
                 suffix={field.suffix}
+                data-test={`worklog-form-${field.name}`}
                 {...register(field.name)}
                 error={errors[field.name]?.message}
               />
@@ -120,19 +124,19 @@ function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCance
         </div>
 
         <div className="rounded-lg bg-farm-sidebar px-5 py-4 text-white">
-          <p className="text-xs text-white/60">{previewValid ? config.summaryText(computedValues) : config.formulaLabel}</p>
+          <p data-test="worklog-preview-summary" className="text-xs text-white/60">{previewValid ? config.summaryText(computedValues) : config.formulaLabel}</p>
           <div className="mt-1 flex items-center justify-between">
             <span className="text-sm font-medium text-white/90">ค่าแรงรวม</span>
-            <span className="text-2xl font-bold">{formatNumber(preview)} บาท</span>
+            <span data-test="worklog-preview-total" className="text-2xl font-bold">{formatNumber(preview)} บาท</span>
           </div>
         </div>
       </div>
 
       <div className="mt-6 flex w-full gap-4">
-        <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>
+        <Button type="button" data-test="worklog-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           cancel
         </Button>
-        <Button type="submit" className="flex-1">
+        <Button type="submit" data-test="worklog-form-submit" className="flex-1">
           confirm
         </Button>
       </div>
@@ -197,13 +201,14 @@ export default function WorkLog() {
       <PageHeader title="Work Activity Log" />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหา" className="max-w-lg flex-1" />
+        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหา" className="max-w-lg flex-1" dataTest="worklog-search" />
 
         <div className="flex flex-wrap gap-4">
           <Dropdown
             value={workerFilter}
             onChange={setWorkerFilter}
             className="w-48"
+            dataTest="worklog-worker-filter"
             options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...allWorkers.map((w) => ({ value: w.id, label: w.fullName }))]}
           />
 
@@ -211,13 +216,14 @@ export default function WorkLog() {
             value={typeFilter}
             onChange={setTypeFilter}
             className="w-48"
+            dataTest="worklog-type-filter"
             options={[
               { value: 'all', label: 'ประเภทงานทั้งหมด' },
               ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
             ]}
           />
 
-          <Button variant="accent" className="flex items-center gap-2" onClick={openNewEntry}>
+          <Button variant="accent" data-test="worklog-add-btn" className="flex items-center gap-2" onClick={openNewEntry}>
             <UserPlus className="h-5 w-5" />
             <span>บันทึกงานใหม่</span>
           </Button>
@@ -240,19 +246,19 @@ export default function WorkLog() {
             {filtered.map((entry) => {
               const config = WORK_LOG_TYPES[entry.type];
               return (
-                <tr key={entry.id} className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
+                <tr key={entry.id} data-test="worklog-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
                   <td className="px-6 py-4 text-left font-medium text-gray-800">
                     {getWorkerName(entry.workerId)}
                   </td>
                   <td className="px-4 py-4 text-gray-800">{formatDateLong(entry.date)}</td>
                   <td className="px-4 py-4">
-                    <span className={`inline-block min-w-17.5 rounded-full px-4 py-1.5 text-xs font-bold ${config.badgeClass}`}>
+                    <span data-test="worklog-row-type" className={`inline-block min-w-17.5 rounded-full px-4 py-1.5 text-xs font-bold ${config.badgeClass}`}>
                       {config.labelTh}
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-gray-800">{config.primaryQty(entry)}</td>
+                  <td className="px-4 py-4 text-gray-800" data-test="worklog-row-qty">{config.primaryQty(entry)}</td>
                   <td className="px-4 py-4 text-gray-800">{config.primaryUnit}</td>
-                  <td className="px-4 py-4 pr-6 text-right font-medium text-gray-800">{formatBaht(entry.total)}</td>
+                  <td className="px-4 py-4 pr-6 text-right font-medium text-gray-800" data-test="worklog-row-wages">{formatBaht(entry.total)}</td>
                 </tr>
               );
             })}

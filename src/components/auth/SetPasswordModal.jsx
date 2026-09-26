@@ -37,8 +37,9 @@ export default function SetPasswordModal({ onSuccess }) {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
         <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-[440px] mx-4 relative flex flex-col items-center py-16">
           {/* Close Button */}
-          <button 
-            onClick={onSuccess} 
+          <button
+            data-test="setpw-success-close"
+            onClick={onSuccess}
             className="absolute top-5 right-5 text-[#3B5323] hover:opacity-70 transition-opacity"
           >
             <X size={28} strokeWidth={2.5} />
@@ -50,7 +51,7 @@ export default function SetPasswordModal({ onSuccess }) {
           </div>
           
           {/* Success Text */}
-          <p className="text-gray-900 font-medium text-[17px] mb-2">
+          <p data-test="setpw-success" className="text-gray-900 font-medium text-[17px] mb-2">
             Add New Password Successfully!
           </p>
         </div>
@@ -76,6 +77,7 @@ export default function SetPasswordModal({ onSuccess }) {
             </label>
             <input
               type="password"
+              data-test="setpw-old"
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
               placeholder="enter your old password"
@@ -90,6 +92,7 @@ export default function SetPasswordModal({ onSuccess }) {
             </label>
             <input
               type="password"
+              data-test="setpw-new"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="enter your new password"
@@ -104,6 +107,7 @@ export default function SetPasswordModal({ onSuccess }) {
             </label>
             <input
               type="password"
+              data-test="setpw-confirm"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="enter your new password"
@@ -114,6 +118,7 @@ export default function SetPasswordModal({ onSuccess }) {
           {/* Submit Button */}
           <button
             type="submit"
+            data-test="setpw-submit"
             className="mt-2 w-full py-4 bg-[#3B5323] hover:bg-[#2f4319] text-white font-bold text-[14px] tracking-widest rounded-2xl transition-colors"
           >
             CREATE PASSWORD

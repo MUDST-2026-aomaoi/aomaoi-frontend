@@ -38,7 +38,7 @@ export function Sidebar() {
       </div>
 
       <div className="p-6">
-        <button type="button" onClick={() => { useAuthStore.getState().logout(); window.location.href = '/login'; }} className="flex items-center gap-3 text-white transition-colors hover:text-farm-sidebarText">
+        <button type="button" data-test="logout-button" onClick={() => { useAuthStore.getState().logout(); window.location.href = '/login'; }} className="flex items-center gap-3 text-white transition-colors hover:text-farm-sidebarText">
           <LogOut className="h-5 w-5" />
           <span>Log out</span>
         </button>

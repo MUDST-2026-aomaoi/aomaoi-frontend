@@ -4,11 +4,12 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { Calendar } from 'lucide-react';
 
-const CustomDateButton = forwardRef(({ value, onClick, placeholder }, ref) => (
+const CustomDateButton = forwardRef(({ value, onClick, placeholder, dataTest }, ref) => (
   <button
     type="button"
     onClick={onClick}
     ref={ref}
+    data-test={dataTest}
     className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-left text-sm text-gray-500 shadow-sm outline-none focus:border-[#708238]"
   >
     <span className={value ? '' : 'text-farm-text/40'}>{value || placeholder || 'เลือกวันที่'}</span>
@@ -17,7 +18,7 @@ const CustomDateButton = forwardRef(({ value, onClick, placeholder }, ref) => (
 ));
 CustomDateButton.displayName = 'CustomDateButton';
 
-export function DateInput({ value, onChange, label, error, placeholder, className = '', isClearable = false }) {
+export function DateInput({ value, onChange, label, error, placeholder, className = '', isClearable = false, dataTest }) {
   return (
     <label className={`block ${className}`}>
       {label && <span className="mb-1 block text-sm font-medium text-farm-text">{label}</span>}
@@ -25,7 +26,7 @@ export function DateInput({ value, onChange, label, error, placeholder, classNam
         selected={value ? new Date(value) : null}
         onChange={(date) => onChange(date ? format(date, 'yyyy-MM-dd') : '')}
         dateFormat="dd/MM/yyyy"
-        customInput={<CustomDateButton placeholder={placeholder} />}
+        customInput={<CustomDateButton placeholder={placeholder} dataTest={dataTest} />}
         wrapperClassName="w-full"
         isClearable={isClearable && !!value}
       />
