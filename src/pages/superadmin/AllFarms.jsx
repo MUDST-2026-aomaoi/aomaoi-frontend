@@ -2,11 +2,12 @@ import { useMemo, useRef, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Search, UserPlus, Edit, Trash2, X, AlertTriangle, MapPin, Sprout, ImagePlus, Info } from 'lucide-react';
+import { UserPlus, Edit, Trash2, X, AlertTriangle, MapPin, Sprout, ImagePlus, Info } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
+import { SearchInput } from '../../components/ui/SearchInput';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useFarmStore } from '../../store/useFarmStore';
@@ -198,16 +199,7 @@ export default function AllFarms() {
       </div>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="relative max-w-lg flex-1">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="ค้นหา"
-            className="w-full rounded-lg border border-gray-300 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-1 focus:ring-farm-primary"
-          />
-          <Search className="pointer-events-none absolute right-3 top-3 h-5 w-5 text-gray-400" />
-        </div>
+        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหา" className="max-w-lg flex-1" />
 
         <Button
           variant="accent"

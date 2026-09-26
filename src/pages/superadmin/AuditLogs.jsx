@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useAuditLogStore } from '../../store/useAuditLogStore';
 import { auditLogController } from '../../controller/auditLogController';
-import { Search, RefreshCw, AlertCircle } from 'lucide-react';
+import { RefreshCw, AlertCircle } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { DateInput } from '../../components/ui/DateInput';
+import { SearchInput } from '../../components/ui/SearchInput';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 
 export default function AuditLogs() {
@@ -64,25 +66,11 @@ export default function AuditLogs() {
       <PageHeader title="System Audit Logs" />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="relative max-w-lg flex-1">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by action, user, or details..."
-            className="w-full rounded-lg border border-gray-300 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-1 focus:ring-farm-primary"
-          />
-          <Search className="pointer-events-none absolute right-3 top-3 h-5 w-5 text-gray-400" />
-        </div>
+        <SearchInput value={search} onChange={setSearch} placeholder="Search by action, user, or details..." className="max-w-lg flex-1" />
 
-        <div className="flex flex-wrap gap-4">
-          <input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-farm-primary"
-          />
-          <Button variant="outline" onClick={handleRefresh} className="flex items-center gap-2">
+        <div className="flex flex-wrap items-start gap-4">
+          <DateInput value={dateFilter} onChange={setDateFilter} placeholder="กรองตามวันที่" className="w-48" />
+          <Button variant="subtle" onClick={handleRefresh} className="flex items-center gap-2">
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </Button>
@@ -109,10 +97,10 @@ export default function AuditLogs() {
         <table className="w-full border-collapse text-center text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Time</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Action By</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Action</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Target User</th>
+              <th className="px-4 py-3.5 font-medium">Time</th>
+              <th className="px-4 py-3.5 font-medium">Action By</th>
+              <th className="px-4 py-3.5 font-medium">Action</th>
+              <th className="px-4 py-3.5 font-medium">Target User</th>
               <th className="px-4 py-3.5 font-medium">Details</th>
             </tr>
           </thead>
@@ -127,19 +115,19 @@ export default function AuditLogs() {
               </tr>
             ) : (
               filtered.map((log) => (
-                <tr key={log.id} className="border-b border-gray-200 transition-colors last:border-0 hover:bg-gray-50">
-                  <td className="border-r border-gray-200 px-4 py-3 text-gray-800">
+                <tr key={log.id} className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-gray-800">
                     {formatDateLong(log.timestamp || log.createdAt)}
                   </td>
-                  <td className="border-r border-gray-200 px-4 py-3 font-semibold text-gray-800">
+                  <td className="px-4 py-3 font-semibold text-gray-800">
                     {log.performedBy || log.actionBy || '-'}
                   </td>
-                  <td className="border-r border-gray-200 px-4 py-3">
+                  <td className="px-4 py-3">
                     <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 border border-blue-200">
                       {log.action}
                     </span>
                   </td>
-                  <td className="border-r border-gray-200 px-4 py-3 text-gray-800">
+                  <td className="px-4 py-3 text-gray-800">
                     {log.targetUser || '-'}
                   </td>
                   <td className="px-4 py-3 text-left text-gray-600 max-w-xs truncate" title={log.details}>

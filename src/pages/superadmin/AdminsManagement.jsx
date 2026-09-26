@@ -1,15 +1,15 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Search, UserPlus, Edit, Trash2, X, AlertTriangle, ImagePlus, Info, Shuffle } from 'lucide-react';
+import { UserPlus, Edit, Trash2, X, AlertTriangle, ImagePlus, Info, Shuffle } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { Avatar } from '../../components/ui/Avatar';
 import { Dropdown } from '../../components/ui/Dropdown';
+import { SearchInput } from '../../components/ui/SearchInput';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useAdminStore } from '../../store/useAdminStore';
@@ -40,6 +40,7 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
   
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: zodResolver(adminSchema), defaultValues: admin });
@@ -85,13 +86,19 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
         <Input label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
         <Input label="Username" {...register('username')} error={errors.username?.message} />
         <Input label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
-        <Select label="ฟาร์ม" {...register('farmId')} error={errors.farmId?.message}>
-          {farms.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.name}
-            </option>
-          ))}
-        </Select>
+        <Controller
+          control={control}
+          name="farmId"
+          render={({ field }) => (
+            <Dropdown
+              label="ฟาร์ม"
+              value={field.value}
+              onChange={field.onChange}
+              error={errors.farmId?.message}
+              options={farms.map((f) => ({ value: f.id, label: f.name }))}
+            />
+          )}
+        />
       </div>
 
       <div className="flex w-full gap-4">
@@ -111,6 +118,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
   const fileInputRef = useRef(null);
   const {
     register,
+    control,
     handleSubmit,
     setValue,
     formState: { errors },
@@ -152,14 +160,22 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
         <Input label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
         <Input label="Username" {...register('username')} error={errors.username?.message} />
         <Input label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
-        <Select label="ฟาร์ม" {...register('farmId')} error={errors.farmId?.message}>
-          <option value="">----- กรุณาเลือกฟาร์ม -----</option>
-          {farms.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.name}
-            </option>
-          ))}
-        </Select>
+        <Controller
+          control={control}
+          name="farmId"
+          render={({ field }) => (
+            <Dropdown
+              label="ฟาร์ม"
+              value={field.value}
+              onChange={field.onChange}
+              error={errors.farmId?.message}
+              options={[
+                { value: '', label: 'เลือกฟาร์ม' },
+                ...farms.map((f) => ({ value: f.id, label: f.name })),
+              ]}
+            />
+          )}
+        />
       </div>
 
       <div className="mb-2">
@@ -265,16 +281,7 @@ export default function AdminsManagement() {
       <PageHeader title="Admins Management"  />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="relative max-w-lg flex-1">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="ค้นหาชื่อ, username, เบอร์โทร"
-            className="w-full rounded-lg border border-gray-300 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-1 focus:ring-farm-primary"
-          />
-          <Search className="pointer-events-none absolute right-3 top-3 h-5 w-5 text-gray-400" />
-        </div>
+        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหาชื่อ, username, เบอร์โทร" className="max-w-lg flex-1" />
 
         <div className="flex flex-wrap gap-4">
           <Dropdown
@@ -316,37 +323,37 @@ export default function AdminsManagement() {
         <table className="w-full border-collapse text-center text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Name</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Username</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Phone Number</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Farm</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Status</th>
-              <th className="border-r border-[#517339] px-4 py-3.5 font-medium">Start Date</th>
+              <th className="px-4 py-3.5 font-medium">Name</th>
+              <th className="px-4 py-3.5 font-medium">Username</th>
+              <th className="px-4 py-3.5 font-medium">Phone Number</th>
+              <th className="px-4 py-3.5 font-medium">Farm</th>
+              <th className="px-4 py-3.5 font-medium">Status</th>
+              <th className="px-4 py-3.5 font-medium">Start Date</th>
               <th className="px-4 py-3.5 font-medium">Manage</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((admin) => (
-              <tr key={admin.id} className="border-b border-gray-200 transition-colors last:border-0 hover:bg-gray-50">
-                <td className="border-r border-gray-200 px-4 py-3 text-left">
+              <tr key={admin.id} className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
+                <td className="px-4 py-3 text-left">
                   <div className="flex items-center justify-start gap-3 pl-2">
                     <Avatar src={admin.avatar} name={admin.fullName} />
                     <span className="font-semibold text-gray-800">{admin.fullName}</span>
                   </div>
                 </td>
-                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">{admin.username}</td>
-                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">{admin.phone}</td>
-                <td className="border-r border-gray-200 px-4 py-3">
+                <td className="px-4 py-3 text-gray-800">{admin.username}</td>
+                <td className="px-4 py-3 text-gray-800">{admin.phone}</td>
+                <td className="px-4 py-3">
                   <span className="inline-block rounded-full bg-farm-secondary/40 px-3 py-1 text-xs font-medium text-farm-text">
                     {getFarmName(admin.farmId)}
                   </span>
                 </td>
-                <td className="border-r border-gray-200 px-4 py-3">
+                <td className="px-4 py-3">
                   <span className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[admin.status]}`}>
                     {STATUS_LABEL[admin.status]}
                   </span>
                 </td>
-                <td className="border-r border-gray-200 px-4 py-3 text-gray-800">{formatDateLong(admin.joinedDate)}</td>
+                <td className="px-4 py-3 text-gray-800">{formatDateLong(admin.joinedDate)}</td>
                 <td className="px-4 py-3">
                   {admin.status !== 'inactive' ? (
                     <div className="flex items-center justify-center gap-4">

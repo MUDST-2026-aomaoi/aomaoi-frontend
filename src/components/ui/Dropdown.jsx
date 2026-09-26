@@ -22,7 +22,7 @@ export function Dropdown({ value, onChange, options, className = '', label, erro
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-600 focus:outline-none"
+        className="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-600 shadow-sm outline-none focus:border-[#708238]"
       >
         <span className="truncate">{selected?.label ?? ''}</span>
         <ChevronDown className={`h-4 w-4 shrink-0 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />

@@ -1,14 +1,13 @@
-import { forwardRef, useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { format } from 'date-fns';
-import { Search, UserPlus, X, Calendar } from 'lucide-react';
+import { UserPlus, X } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { Dropdown } from '../../components/ui/Dropdown';
+import { DateInput } from '../../components/ui/DateInput';
+import { SearchInput } from '../../components/ui/SearchInput';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
@@ -22,41 +21,6 @@ function todayISO() {
 
 function formatNumber(n) {
   return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 0 });
-}
-
-const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
-  <button
-    type="button"
-    onClick={onClick}
-    ref={ref}
-    className="flex w-full items-center justify-between rounded-lg border border-farm-secondary/50 bg-white px-3 py-2 text-left text-sm text-farm-text outline-none focus:border-farm-primary focus:ring-1 focus:ring-farm-primary"
-  >
-    <span>{value}</span>
-    <Calendar className="h-4 w-4 text-farm-text/40" />
-  </button>
-));
-CustomDateInput.displayName = 'CustomDateInput';
-
-function DateField({ control, name, label, error }) {
-  return (
-    <label className="block">
-      <span className="mb-1 block text-sm font-medium text-farm-text">{label}</span>
-      <Controller
-        control={control}
-        name={name}
-        render={({ field }) => (
-          <DatePicker
-            selected={field.value ? new Date(field.value) : null}
-            onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
-            dateFormat="dd/MM/yyyy"
-            customInput={<CustomDateInput />}
-            wrapperClassName="w-full"
-          />
-        )}
-      />
-      {error && <span className="mt-1 block text-xs text-red-600">{error}</span>}
-    </label>
-  );
 }
 
 function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCancel }) {
@@ -128,12 +92,18 @@ function EntryForm({ type, onTypeChange, workers, submitError, onSubmit, onCance
         <div className="grid grid-cols-3 gap-4">
           {config.fields.map((field) =>
             field.type === 'date' ? (
-              <DateField
+              <Controller
                 key={field.name}
                 control={control}
                 name={field.name}
-                label={field.label}
-                error={errors[field.name]?.message}
+                render={({ field: rhfField }) => (
+                  <DateInput
+                    label={field.label}
+                    value={rhfField.value}
+                    onChange={rhfField.onChange}
+                    error={errors[field.name]?.message}
+                  />
+                )}
               />
             ) : (
               <Input
@@ -227,16 +197,7 @@ export default function WorkLog() {
       <PageHeader title="Work Activity Log" />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="relative max-w-lg flex-1">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="ค้นหา"
-            className="w-full rounded-lg border border-gray-300 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-1 focus:ring-farm-primary"
-          />
-          <Search className="pointer-events-none absolute right-3 top-3 h-5 w-5 text-gray-400" />
-        </div>
+        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหา" className="max-w-lg flex-1" />
 
         <div className="flex flex-wrap gap-4">
           <Dropdown
