@@ -96,7 +96,7 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
               value={field.value}
               onChange={field.onChange}
               error={errors.farmId?.message}
-              options={farms.map((f) => ({ value: f.id, label: f.name }))}
+              options={farms.map((f) => ({ value: String(f.id), label: f.name }))}
             />
           )}
         />
@@ -173,7 +173,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
               error={errors.farmId?.message}
               options={[
                 { value: '', label: 'เลือกฟาร์ม' },
-                ...farms.map((f) => ({ value: f.id, label: f.name })),
+                ...farms.map((f) => ({ value: String(f.id), label: f.name })),
               ]}
             />
           )}
@@ -291,7 +291,7 @@ export default function AdminsManagement() {
             onChange={setFarmFilter}
             className="w-48"
             dataTest="admin-farm-filter"
-            options={[{ value: 'all', label: 'ฟาร์มทั้งหมด' }, ...farms.map((f) => ({ value: f.id, label: f.name }))]}
+            options={[{ value: 'all', label: 'ฟาร์มทั้งหมด' }, ...farms.map((f) => ({ value: String(f.id), label: f.name }))]}
           />
 
           <Dropdown
