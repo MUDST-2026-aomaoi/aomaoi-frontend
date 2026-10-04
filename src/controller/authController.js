@@ -28,6 +28,13 @@ export const useAuthStore = create(
         return response; // returns error message
       },
 
+      setFirstLoginDone: () => {
+        const user = get().currentUser;
+        if (user) {
+          set({ currentUser: { ...user, isFirstLogin: false } });
+        }
+      },
+
       logout: () => {
           set({ isAuthenticated: false, currentUser: null, token: null });
           // delete axios.defaults.headers.common['Authorization'];

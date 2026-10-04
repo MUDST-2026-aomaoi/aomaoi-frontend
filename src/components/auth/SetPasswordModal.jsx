@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Check, X } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../../controller/authController';
 
 export default function SetPasswordModal({ onSuccess }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const setFirstLoginDone = useAuthStore(state => state.setFirstLoginDone);
+
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -25,11 +31,20 @@ export default function SetPasswordModal({ onSuccess }) {
       // Assuming api wrapper handles the JWT token
       const { default: api } = await import('../../service/api');
       await api.post('/auth/change-password', { oldPassword, newPassword });
+      
+      // Update global state immediately
+      setFirstLoginDone();
       setIsSuccess(true);
     } catch (error) {
       console.error("Failed to change password", error);
       alert("Failed to change password");
     }
+  };
+
+  const handleClose = () => {
+    // Clear the router state (showSetPassword: true) so it doesn't reappear on refresh (F5)
+    navigate(location.pathname, { replace: true, state: {} });
+    onSuccess();
   };
 
   if (isSuccess) {
@@ -39,7 +54,7 @@ export default function SetPasswordModal({ onSuccess }) {
           {/* Close Button */}
           <button
             data-test="setpw-success-close"
-            onClick={onSuccess}
+            onClick={handleClose}
             className="absolute top-5 right-5 text-[#3B5323] hover:opacity-70 transition-opacity"
           >
             <X size={28} strokeWidth={2.5} />
