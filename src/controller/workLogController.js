@@ -16,7 +16,16 @@ export const useWorkLogStore = create((set, get) => ({
 
   addEntry: async (type, values) => {
     try {
-      const saved = await workLogService.addLog({ type, ...values });
+      const payload = { type, ...values };
+      // Handle single-day tasks: for tasks completed in a single day (like cutting grass),
+      // set both start date and end date to the same day to prevent nulls in database
+      if (payload.date && (!payload.startDate || !payload.endDate)) {
+        payload.startDate = payload.date;
+        payload.endDate = payload.date;
+      } else if (payload.startDate && !payload.endDate) {
+        payload.endDate = payload.startDate;
+      }
+      const saved = await workLogService.addLog(payload);
       set((state) => ({ entries: [saved, ...state.entries] }));
       return saved;
     } catch (error) {

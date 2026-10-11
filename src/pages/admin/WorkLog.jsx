@@ -13,7 +13,7 @@ import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
-import { formatDateLong, formatBaht } from '../../lib/format';
+import { formatDate, formatDateLong, formatBaht } from '../../lib/format';
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
@@ -255,7 +255,11 @@ export default function WorkLog() {
                   <td className="px-6 py-4 text-left font-medium text-gray-800">
                     {getWorkerName(entry.workerId)}
                   </td>
-                  <td className="px-4 py-4 text-gray-800">{formatDateLong(entry.date)}</td>
+                  <td className="px-4 py-4 text-gray-800">
+                    {entry.startDate && entry.endDate && entry.startDate !== entry.endDate
+                      ? `${formatDate(entry.startDate)} - ${formatDate(entry.endDate)}`
+                      : formatDateLong(entry.startDate || entry.date)}
+                  </td>
                   <td className="px-4 py-4">
                     <span data-test="worklog-row-type" className={`inline-block min-w-17.5 rounded-full px-4 py-1.5 text-xs font-bold ${config.badgeClass}`}>
                       {config.labelTh}

@@ -64,8 +64,10 @@ export default function WorkerBalance() {
     return myEntries
       .map(e => ({
         id: e.id,
-        rawDate: e.date,
-        displayDate: formatDate(e.date),
+        rawDate: e.startDate || e.date,
+        displayDate: e.startDate && e.endDate && e.startDate !== e.endDate
+          ? `${formatDate(e.startDate)} - ${formatDate(e.endDate)}`
+          : formatDate(e.startDate || e.date),
         typeLabel: WORK_LOG_TYPES[e.type].labelTh,
         quantity: WORK_LOG_TYPES[e.type].summaryText(e),
         balance: formatBaht(e.total)

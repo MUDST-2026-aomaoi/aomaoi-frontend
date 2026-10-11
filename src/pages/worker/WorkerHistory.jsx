@@ -61,8 +61,10 @@ export default function WorkerHistory() {
 
         return {
           id: e.id,
-          rawDate: e.date,
-          displayDate: formatDate(e.date),
+          rawDate: e.startDate || e.date,
+          displayDate: e.startDate && e.endDate && e.startDate !== e.endDate
+            ? `${formatDate(e.startDate)} - ${formatDate(e.endDate)}`
+            : formatDate(e.startDate || e.date),
           type: e.type,
           typeLabel: WORK_LOG_TYPES[e.type].labelTh,
           qty: qty,
