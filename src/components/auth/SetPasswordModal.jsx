@@ -12,19 +12,21 @@ export default function SetPasswordModal({ onSuccess }) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
     if (!oldPassword || !newPassword || !confirmPassword) {
-      alert("Please fill in all fields");
+      setErrorMessage("Please fill in all fields (กรุณากรอกข้อมูลให้ครบทุกช่อง)");
       return;
     }
     if (newPassword.length < 6) {
-      alert("Password must be at least 6 characters");
+      setErrorMessage("Password must be at least 6 characters (รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร)");
       return;
     }
     if (newPassword !== confirmPassword) {
-      alert("Passwords do not match");
+      setErrorMessage("Passwords do not match (รหัสผ่านใหม่ไม่ตรงกัน)");
       return;
     }
     try {
@@ -37,7 +39,8 @@ export default function SetPasswordModal({ onSuccess }) {
       setIsSuccess(true);
     } catch (error) {
       console.error("Failed to change password", error);
-      alert("Failed to change password");
+      const msg = error.response?.data?.message || "Failed to change password (เปลี่ยนรหัสผ่านไม่สำเร็จ)";
+      setErrorMessage(msg);
     }
   };
 
@@ -80,9 +83,15 @@ export default function SetPasswordModal({ onSuccess }) {
       {/* Modal Card */}
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-[520px] mx-4 px-12 py-14 relative">
         {/* Title */}
-        <h2 className="text-[30px] font-extrabold text-[#3B5323] text-center mb-10">
+        <h2 className="text-[30px] font-extrabold text-[#3B5323] text-center mb-6">
           Set New Password
         </h2>
+
+        {errorMessage && (
+          <div data-test="setpw-error" className="mb-6 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm font-medium text-red-600 text-center">
+            {errorMessage}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Old Password */}

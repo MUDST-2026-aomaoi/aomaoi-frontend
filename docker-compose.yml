@@ -1,8 +1,65 @@
+name: aomaoi
+
 services:
+  app:
+    build:
+      context: ../aomaoi-backend
+    container_name: aomaoi-app
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/aomaoi_db
+      SPRING_DATASOURCE_USERNAME: aomaoi_user
+      SPRING_DATASOURCE_PASSWORD: aomaoi_password
+      SPRING_DATA_REDIS_HOST: redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: aomaoi-postgres
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: aomaoi_db
+      POSTGRES_USER: aomaoi_user
+      POSTGRES_PASSWORD: aomaoi_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aomaoi_user -d aomaoi_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: aomaoi-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
   frontend:
-    build: .
+    build:
+      context: .
+      args:
+        VITE_API_BASE_URL: http://localhost:8081/api
     container_name: aomaoi-frontend
     ports:
-      # เปิดเว็บที่พอร์ต 3000 และชี้เข้าพอร์ต 80 ของ Nginx ข้างใน Container
-      - "3000:80"
+      - "80:80"
+    depends_on:
+      - app
     restart: unless-stopped
+
+volumes:
+  postgres_data:
+    name: aomaoi_postgres_data
+  redis_data:
+    name: aomaoi_redis_data
