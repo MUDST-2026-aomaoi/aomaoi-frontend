@@ -91,10 +91,10 @@ describe('Admin - worker management', () => {
       cy.getByTestID('worker-row').find('[data-test="worker-edit"]').click();
       cy.getByTestID('worker-resetpw-toggle').click();
 
-      cy.window().then((win) => cy.stub(win, 'alert').as('alert'));
       cy.getByTestID('worker-resetpw-input').type('Reset1234');
       cy.getByTestID('worker-resetpw-save').click();
-      cy.get('@alert').should('have.been.calledWith', 'เปลี่ยนรหัสผ่านสำเร็จ!');
+      cy.getByTestID('success-modal-message').should('contain', 'เปลี่ยนรหัสผ่านสำเร็จ');
+      cy.getByTestID('success-modal-close').click();
 
       cy.apiLogin(workerUsername, 'Reset1234').then((res) => {
         expect(res.status).to.eq(200);

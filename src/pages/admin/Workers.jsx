@@ -31,7 +31,7 @@ function randomPassword() {
   return Array.from({ length: 9 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-function EditWorkerForm({ worker, onSubmit, onCancel }) {
+function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) {
   const [avatarPreview, setAvatarPreview] = useState(worker?.avatar || null);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -60,9 +60,11 @@ function EditWorkerForm({ worker, onSubmit, onCancel }) {
     setIsChangingPassword(true);
     try {
       await workerService.resetWorkerPassword(worker.id, newPassword);
-      alert("เปลี่ยนรหัสผ่านสำเร็จ!");
       setShowPasswordChange(false);
       setNewPassword('');
+      if (onResetPasswordSuccess) {
+        onResetPasswordSuccess();
+      }
     } catch (err) {
       console.error("Failed to reset password", err);
       alert("ไม่สามารถเปลี่ยนรหัสผ่านได้: " + (err.response?.data?.message || err.message));
@@ -435,7 +437,14 @@ export default function Workers() {
 
       {modal?.mode === 'edit' && (
         <ModalShell onClose={closeModal} className="w-112.5">
-          <EditWorkerForm worker={modal.worker} onSubmit={handleEditSubmit} onCancel={closeModal} />
+          <EditWorkerForm
+            worker={modal.worker}
+            onSubmit={handleEditSubmit}
+            onCancel={closeModal}
+            onResetPasswordSuccess={() => {
+              setModal({ mode: 'success', action: 'reset-password' });
+            }}
+          />
         </ModalShell>
       )}
 
@@ -464,6 +473,7 @@ export default function Workers() {
           message={
             (modal.action === 'add' && 'เพิ่มคนงานสำเร็จ') ||
             (modal.action === 'edit' && 'แก้ไขข้อมูลสำเร็จ') ||
+            (modal.action === 'reset-password' && 'เปลี่ยนรหัสผ่านสำเร็จ') ||
             'ลบคนงานสำเร็จ'
           }
           submessage={modal.action === 'delete' ? `${modal.worker.fullName} ถูกปิดการใช้งานแล้ว` : undefined}

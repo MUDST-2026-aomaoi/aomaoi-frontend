@@ -18,12 +18,21 @@ const CustomDateButton = forwardRef(({ value, onClick, placeholder, dataTest }, 
 ));
 CustomDateButton.displayName = 'CustomDateButton';
 
+const parseLocalDate = (str) => {
+  if (!str) return null;
+  if (typeof str !== 'string') return new Date(str);
+  if (str.includes('T')) return new Date(str);
+  const parts = str.split('-').map(Number);
+  if (parts.length === 3) return new Date(parts[0], parts[1] - 1, parts[2]);
+  return new Date(str);
+};
+
 export function DateInput({ value, onChange, label, error, placeholder, className = '', isClearable = false, dataTest }) {
   return (
     <label className={`block ${className}`}>
       {label && <span className="mb-1 block text-sm font-medium text-farm-text">{label}</span>}
       <DatePicker
-        selected={value ? new Date(value) : null}
+        selected={parseLocalDate(value)}
         onChange={(date) => onChange(date ? format(date, 'yyyy-MM-dd') : '')}
         dateFormat="dd/MM/yyyy"
         customInput={<CustomDateButton placeholder={placeholder} dataTest={dataTest} />}
