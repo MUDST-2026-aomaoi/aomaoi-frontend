@@ -52,8 +52,14 @@ jobs:
           sleep 3
         done
 
+    - name: Create .env Configuration for Frontend
+      run: |
+        echo "VITE_API_BASE_URL=http://localhost:8081/api" > .env
+
     - name: Run Cypress E2E Tests
       uses: cypress-io/github-action@v6
+      env:
+        VITE_API_BASE_URL: http://localhost:8081/api
       with:
         start: npm run dev
         wait-on: 'http://localhost:5173'
