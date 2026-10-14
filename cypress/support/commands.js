@@ -82,7 +82,7 @@ Cypress.Commands.add('seedAdmin', (farm, { fullName, username, phone, tempPasswo
       method: 'POST',
       url: apiUrl('/admins'),
       headers: { Authorization: `Bearer ${token}` },
-      body: { fullName, username, phone, tempPassword, farmId: String(farm.id) },
+      body: { fullName, username, phone, tempPassword, farmId: farm.id },
     })
     .then((res) => res.body);
 });

@@ -7,12 +7,12 @@ export const adminRepository = {
   },
 
   add: async (adminData) => {
-    const response = await api.post('/admins', adminData);
+    const response = await api.post('/admins', { ...adminData, farmId: Number(adminData.farmId) });
     return response.data;
   },
 
   update: async (id, adminData) => {
-    const response = await api.put(`/admins/${id}`, adminData);
+    const response = await api.put(`/admins/${id}`, { ...adminData, farmId: Number(adminData.farmId) });
     return response.data;
   },
 

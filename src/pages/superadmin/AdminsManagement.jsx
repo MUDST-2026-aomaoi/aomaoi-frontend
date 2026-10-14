@@ -43,7 +43,10 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(adminSchema), defaultValues: admin });
+  } = useForm({
+    resolver: zodResolver(adminSchema),
+    defaultValues: { ...admin, farmId: admin?.farmId == null ? '' : String(admin.farmId) },
+  });
 
   function handleAvatarChange(e) {
     const file = e.target.files?.[0];
@@ -235,7 +238,7 @@ export default function AdminsManagement() {
     const term = search.trim().toLowerCase();
     return admins.filter((a) => {
       const matchesSearch = !term || [a.fullName, a.username, a.phone].some((field) => field.toLowerCase().includes(term));
-      const matchesFarm = farmFilter === 'all' || a.farmId === farmFilter;
+      const matchesFarm = farmFilter === 'all' || String(a.farmId) === farmFilter;
       const matchesStatus = statusFilter === 'all' || a.status === statusFilter;
       return matchesSearch && matchesFarm && matchesStatus;
     });
