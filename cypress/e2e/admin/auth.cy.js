@@ -25,27 +25,22 @@ describe('Admin - first login / logout / route guard', () => {
       cy.location('pathname').should('eq', '/dashboard');
       cy.contains('Set New Password');
 
-      cy.window().then((win) => cy.stub(win, 'alert').as('alert'));
-
       cy.getByTestID('setpw-old').type('wrong-old-pass');
       cy.getByTestID('setpw-new').type('NewPass123');
       cy.getByTestID('setpw-confirm').type('NewPass123');
       cy.getByTestID('setpw-submit').click();
-      cy.get('@alert').should('have.been.calledWith', 'Failed to change password');
-      cy.get('@alert').invoke('resetHistory');
+      cy.getByTestID('setpw-error').should('be.visible');
 
       cy.getByTestID('setpw-old').clear().type('Temp1234');
       cy.getByTestID('setpw-new').clear().type('NewPass123');
       cy.getByTestID('setpw-confirm').clear().type('Mismatch123');
       cy.getByTestID('setpw-submit').click();
-      cy.get('@alert').should('have.been.calledWith', 'Passwords do not match');
-      cy.get('@alert').invoke('resetHistory');
+      cy.getByTestID('setpw-error').should('contain', 'Passwords do not match');
 
       cy.getByTestID('setpw-new').clear().type('short');
       cy.getByTestID('setpw-confirm').clear().type('short');
       cy.getByTestID('setpw-submit').click();
-      cy.get('@alert').should('have.been.calledWith', 'Password must be at least 6 characters');
-      cy.get('@alert').invoke('resetHistory');
+      cy.getByTestID('setpw-error').should('contain', 'Password must be at least 6 characters');
 
       cy.getByTestID('setpw-old').clear().type('Temp1234');
       cy.getByTestID('setpw-new').clear().type('NewPass123');

@@ -1,0 +1,88 @@
+name: Frontend E2E Testing Pipeline
+
+on:
+  push:
+    branches: [ "main", "dev", "integrate", "feat/e2e-pipeline" ]
+  pull_request:
+    branches: [ "main", "integrate" ]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  e2e:
+    name: Cypress End-to-End Testing
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Start Backend and Database Services
+      run: |
+        docker compose -f docker-compose.e2e.yml up -d
+        echo "Waiting for Backend API to be ready at http://localhost:8081/api..."
+        for i in {1..30}; do
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/api/auth/login || true)
+          echo "Check $i: HTTP Status $STATUS"
+          if [[ "$STATUS" == "200" || "$STATUS" == "400" || "$STATUS" == "405" ]]; then
+            echo "Backend is ready and accepting requests!"
+            break
+          fi
+          sleep 3
+        done
+
+    - name: Create .env Configuration for Frontend
+      run: |
+        echo "VITE_API_BASE_URL=http://localhost:8081/api" > .env
+
+    - name: Run Cypress E2E Tests
+      uses: cypress-io/github-action@v6
+      env:
+        VITE_API_BASE_URL: http://localhost:8081/api
+      with:
+        start: npm run dev
+        wait-on: 'http://localhost:5173'
+        wait-on-timeout: 60
+        record: false
+
+    - name: Upload Cypress Screenshots (on failure)
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: cypress-screenshots
+        path: cypress/screenshots
+        if-no-files-found: ignore
+
+    - name: Upload Cypress Videos
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: cypress-videos
+        path: cypress/videos
+        if-no-files-found: ignore
+
+    - name: Tear Down Test Environment
+      if: always()
+      run: |
+        docker compose -f docker-compose.e2e.yml down -v
