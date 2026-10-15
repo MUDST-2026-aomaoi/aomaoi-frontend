@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aomaoi-frontend
+  labels:
+    app: aomaoi-frontend
+spec:
+  selector:
+    app: aomaoi-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aomaoi-frontend
+  labels:
+    app: aomaoi-frontend
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  progressDeadlineSeconds: 180
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: aomaoi-frontend
+  template:
+    metadata:
+      labels:
+        app: aomaoi-frontend
+    spec:
+      automountServiceAccountToken: false
+      # Optional: only needed when the GHCR package is private. A missing Secret is ignored.
+      imagePullSecrets:
+        - name: ghcr-pull
+      containers:
+        - name: frontend
+          image: ghcr.io/mudst-2026-aomaoi/aomaoi-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            failureThreshold: 6

@@ -1,0 +1,5 @@
+# Shared with the backend repo (k8s/data/namespace.yaml): both deploy into the same namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aomaoi-app

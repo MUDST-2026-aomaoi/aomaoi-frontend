@@ -1,0 +1,17 @@
+# The web app owns "/"; the backend Ingress owns the longer prefix /aomaoi-api, which wins on a match.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aomaoi-frontend
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aomaoi-frontend
+                port:
+                  number: 80
