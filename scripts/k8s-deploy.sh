@@ -9,6 +9,7 @@
 #   FRONTEND_IMAGE   full image reference        (default: ghcr.io/mudst-2026-aomaoi/aomaoi-frontend:latest)
 #   INGRESS_CLASS    IngressClass of your controller (default: nginx)
 #   KUBE_CONTEXT     kubectl context to use      (default: current context)
+#   ROLLOUT_TIMEOUT  seconds to wait for the rollout; raise on slow image pulls (default: 300)
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -17,6 +18,7 @@ NAMESPACE="${NAMESPACE:-aomaoi-app}"
 DEFAULT_IMAGE="ghcr.io/mudst-2026-aomaoi/aomaoi-frontend:latest"
 FRONTEND_IMAGE="${FRONTEND_IMAGE:-$DEFAULT_IMAGE}"
 INGRESS_CLASS="${INGRESS_CLASS:-nginx}"
+ROLLOUT_TIMEOUT="${ROLLOUT_TIMEOUT:-300}"
 
 KUBECTL=(kubectl)
 if [ -n "${KUBE_CONTEXT:-}" ]; then
@@ -43,7 +45,7 @@ k kustomize k8s \
         -e "s#ingressClassName: nginx#ingressClassName: $INGRESS_CLASS#" \
   | k apply -f -
 
-if ! k -n "$NAMESPACE" rollout status deployment/aomaoi-frontend --timeout=240s; then
+if ! k -n "$NAMESPACE" rollout status deployment/aomaoi-frontend --timeout="${ROLLOUT_TIMEOUT}s"; then
   k -n "$NAMESPACE" describe pods -l app=aomaoi-frontend >&2 || true
   k -n "$NAMESPACE" logs -l app=aomaoi-frontend --tail=80 >&2 || true
   exit 1
