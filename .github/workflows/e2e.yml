@@ -38,12 +38,12 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Start Backend and Database Services
+    - name: Start Isolated E2E Stack
       run: |
-        docker compose -f docker-compose.e2e.yml up -d
-        echo "Waiting for Backend API to be ready at http://localhost:8081/api..."
+        docker compose -f docker-compose.e2e.yml up --build -d
+        echo "Waiting for Backend API to be ready at http://localhost:8082/api..."
         for i in {1..30}; do
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/api/auth/login || true)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/api/auth/login || true)
           echo "Check $i: HTTP Status $STATUS"
           if [[ "$STATUS" == "200" || "$STATUS" == "400" || "$STATUS" == "405" ]]; then
             echo "Backend is ready and accepting requests!"
@@ -52,17 +52,11 @@ jobs:
           sleep 3
         done
 
-    - name: Create .env Configuration for Frontend
-      run: |
-        echo "VITE_API_BASE_URL=http://localhost:8081/api" > .env
-
     - name: Run Cypress E2E Tests
       uses: cypress-io/github-action@v6
-      env:
-        VITE_API_BASE_URL: http://localhost:8081/api
       with:
-        start: npm run dev -- --host 0.0.0.0 --port 3000
-        wait-on: 'http://localhost:3000'
+        command: npm run cypress:run -- --env e2eDatabaseTarget=disposable
+        wait-on: 'http://localhost:3001'
         wait-on-timeout: 60
         record: false
 

@@ -15,7 +15,7 @@ function seedWorkerWithLogs() {
   
   return cy.seedActiveAdminWithFarm().then(({ adminToken }) => {
     return cy.seedWorker(
-      { fullName, nickname: 'ประวัติ', username, phone: '0999999999', tempPassword: 'Password123' },
+      { fullName, nickname: uniqueFullName('ประวัติ'), username, phone: '0999999999', tempPassword: 'Password123' },
       adminToken
     ).then((worker) => {
       const today = getTodayString();
@@ -42,7 +42,7 @@ function seedWorkerWithDateLogs() {
   
   return cy.seedActiveAdminWithFarm().then(({ adminToken }) => {
     return cy.seedWorker(
-      { fullName, nickname: 'วันที่', username, phone: '0999999999', tempPassword: 'Password123' },
+      { fullName, nickname: uniqueFullName('วันที่'), username, phone: '0999999999', tempPassword: 'Password123' },
       adminToken
     ).then((worker) => {
       // สร้างข้อมูลจำลองแบบระบุวันที่ชัดเจน (วันที่ 10 และ วันที่ 20 ของเดือนปัจจุบัน)

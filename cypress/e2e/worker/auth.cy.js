@@ -7,7 +7,7 @@ function seedTestWorker() {
     return cy.seedWorker(
       {
         fullName: uniqueFullName('คนงานเทสต์'),
-        nickname: 'เทสต์',
+        nickname: uniqueFullName('เทสต์'),
         username,
         phone: '0999999999',
         tempPassword: 'Password123'

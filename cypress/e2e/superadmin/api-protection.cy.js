@@ -56,7 +56,7 @@ describe('Superadmin-only API is protected from other roles', () => {
         method: 'POST',
         url: `${Cypress.apiUrl}/farms`,
         headers: { Authorization: `Bearer ${adminToken}` },
-        body: { name: `Should Not Exist ${id}`, location: 'x' },
+        body: { name: `E2E Should Not Exist ${id}`, location: 'x' },
         failOnStatusCode: false,
       }).then((res) => {
         expect(res.status).to.eq(403);

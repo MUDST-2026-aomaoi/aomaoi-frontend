@@ -11,7 +11,7 @@ Worker/auth E2E is owned by a teammate — out of scope here. Only Part A + Part
 
 ## Test data strategy
 
-- DB starts with only `superadmin / 1234`. Every spec builds its own data through the API (`cy.request` to `http://localhost:8081/api`) in the order **farm → admin → worker → work log**.
+- DB starts with only `superadmin / 1234`. Every spec builds its own data through the API (`cy.request` to `http://localhost:8082/api`) in the order **farm → admin → worker → work log**.
 - Every run uses a unique `runId` (timestamp in base36), used only in usernames and farm names so the suite can be re-run without cleanup. Full names / nicknames contain **no digits** (zod rule `^[^0-9]*$`).
 - Seeded admins/workers get their temp password changed via `POST /auth/change-password` so `isFirstLogin = false` (the Set New Password modal would otherwise block the page). Only first-login tests keep a fresh account.
 - Tests that are not about the login form log in with `cy.session` + writing `localStorage['auth-storage']` in zustand-persist shape: `{"state":{"currentUser":{...},"token":"...","isAuthenticated":true},"version":0}`.

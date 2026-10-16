@@ -65,11 +65,11 @@ describe('Superadmin - farm management', () => {
     const idB = runId();
 
     cy.seedSuperadminToken().then((token) => {
-      cy.seedFarm(`${idA}-a Farm`, 'A', token);
-      cy.seedFarm(`${idB}-b Farm`, 'B', token);
+      cy.seedFarm(`E2E ${idA}-a Farm`, 'A', token);
+      cy.seedFarm(`E2E ${idB}-b Farm`, 'B', token);
     });
     cy.visit('/farms');
     cy.getByTestID('farm-search').type(`${idA}-a`);
-    cy.getByTestID('farm-card').should('have.length', 1).and('contain', `${idA}-a`);
+    cy.getByTestID('farm-card').should('have.length', 1).and('contain', `E2E ${idA}-a`);
   });
 });

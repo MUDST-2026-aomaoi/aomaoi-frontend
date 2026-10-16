@@ -15,7 +15,7 @@ function seedWorkerWithLogs() {
   
   return cy.seedActiveAdminWithFarm().then(({ adminToken }) => {
     return cy.seedWorker(
-      { fullName, nickname: 'บอร์ด', username, phone: '0999999999', tempPassword: 'Password123' },
+      { fullName, nickname: uniqueFullName('บอร์ด'), username, phone: '0999999999', tempPassword: 'Password123' },
       adminToken
     ).then((worker) => {
       const today = getTodayString();

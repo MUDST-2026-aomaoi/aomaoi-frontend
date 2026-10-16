@@ -4,7 +4,7 @@ Cypress.Commands.add('getByTestID', (id) => cy.get(`[data-test="${id}"]`));
 // Cypress 16 removed Cypress.env() as a way to read config-time env values
 // synchronously, so the backend base URL is exposed here as a plain property
 // instead (specs read it as `Cypress.apiUrl`).
-Cypress.apiUrl = 'http://localhost:8081/api';
+Cypress.apiUrl = 'http://localhost:8082/api';
 
 function apiUrl(path) {
   return `${Cypress.apiUrl}${path}`;

@@ -17,6 +17,18 @@ npm run build     # build production
 npm run lint      # ตรวจโค้ดด้วย oxlint
 ```
 
+## Cypress E2E
+
+E2E uses its own disposable PostgreSQL database (`aomaoi_test`), backend, and Docker frontend. The E2E frontend uses port 3001 and its backend uses port 8082, so it can run alongside the normal app on port 3000 and backend port 8081.
+
+```bash
+docker compose -f docker-compose.e2e.yml -f docker-compose.e2e.local.yml up --build -d
+npm run cypress:run -- --config baseUrl=http://localhost:3001 --env e2eDatabaseTarget=disposable
+docker compose -f docker-compose.e2e.yml -f docker-compose.e2e.local.yml down -v
+```
+
+Cypress checks the backend's E2E-readiness endpoint before running tests and refuses to proceed unless it confirms the isolated test database.
+
 ## โครงสร้างโปรเจกต์
 
 ```

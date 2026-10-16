@@ -4,36 +4,39 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: e2e-postgres
-    ports:
-      - "5434:5432"
     environment:
-      POSTGRES_DB: aomaoi_db
+      POSTGRES_DB: aomaoi_test
       POSTGRES_USER: aomaoi_user
       POSTGRES_PASSWORD: aomaoi_password
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U aomaoi_user -d aomaoi_db"]
+      test: ["CMD-SHELL", "pg_isready -U aomaoi_user -d aomaoi_test"]
       interval: 3s
       timeout: 3s
       retries: 10
-
-  redis:
-    image: redis:7-alpine
-    container_name: e2e-redis
-    ports:
-      - "6380:6379"
 
   backend:
     image: ghcr.io/mudst-2026-aomaoi/aomaoi-backend:latest
     container_name: e2e-backend
     ports:
-      - "8081:8080"
+      - "8082:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/aomaoi_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/aomaoi_test
       SPRING_DATASOURCE_USERNAME: aomaoi_user
       SPRING_DATASOURCE_PASSWORD: aomaoi_password
-      SPRING_DATA_REDIS_HOST: redis
+      SPRING_LIQUIBASE_CONTEXTS: demo
+      APP_SEED_ENABLED: "false"
+      APP_E2E_DOCKER_DATABASE: "true"
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_started
+
+  frontend:
+    build:
+      context: .
+      args:
+        VITE_API_BASE_URL: http://localhost:8082/api
+    container_name: e2e-frontend
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend

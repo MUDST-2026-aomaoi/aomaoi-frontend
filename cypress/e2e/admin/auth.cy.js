@@ -28,8 +28,14 @@ describe('Admin - first login / logout / route guard', () => {
       cy.getByTestID('setpw-old').type('wrong-old-pass');
       cy.getByTestID('setpw-new').type('NewPass123');
       cy.getByTestID('setpw-confirm').type('NewPass123');
+      cy.intercept('POST', '**/auth/change-password').as('changePassword');
       cy.getByTestID('setpw-submit').click();
-      cy.getByTestID('setpw-error').should('be.visible');
+      cy.wait('@changePassword', { responseTimeout: 30000 })
+        .its('response.statusCode')
+        .should('eq', 400);
+      cy.getByTestID('setpw-error')
+        .should('be.visible')
+        .and('contain', 'รหัสผ่านเดิมไม่ถูกต้อง');
 
       cy.getByTestID('setpw-old').clear().type('Temp1234');
       cy.getByTestID('setpw-new').clear().type('NewPass123');

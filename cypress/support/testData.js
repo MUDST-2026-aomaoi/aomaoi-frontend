@@ -13,7 +13,7 @@ export function letterSuffix(n = 5) {
 }
 
 export function uniqueFullName(prefixTh) {
-  return `${prefixTh} ${letterSuffix(6)}`;
+  return `EtoE ${prefixTh} ${letterSuffix(6)}`;
 }
 
 export function todayISO() {
