@@ -40,7 +40,7 @@ jobs:
 
     - name: Start Isolated E2E Stack
       run: |
-        docker compose -f docker-compose.e2e.yml up --build -d
+        docker compose up --build -d e2e-postgres e2e-backend e2e-frontend
         echo "Waiting for Backend API to be ready at http://localhost:8082/api..."
         for i in {1..30}; do
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/api/auth/login || true)
@@ -79,4 +79,4 @@ jobs:
     - name: Tear Down Test Environment
       if: always()
       run: |
-        docker compose -f docker-compose.e2e.yml down -v
+        docker compose down -v
