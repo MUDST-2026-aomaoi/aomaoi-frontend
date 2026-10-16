@@ -12,7 +12,7 @@ React 19 + Vite · React Router v7 · Zustand · Tailwind CSS v4 · react-hook-f
 
 ```bash
 npm install       # ติดตั้ง dependencies
-npm run dev       # dev server → http://localhost:5173
+npm run dev -- --port 3000  # dev server → http://localhost:3000
 npm run build     # build production
 npm run lint      # ตรวจโค้ดด้วย oxlint
 ```
