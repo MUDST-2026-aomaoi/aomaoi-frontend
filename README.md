@@ -19,15 +19,17 @@ npm run lint      # ตรวจโค้ดด้วย oxlint
 
 ## Cypress E2E
 
-E2E uses its own disposable PostgreSQL database (`aomaoi_test`), backend, and Docker frontend. The E2E frontend uses port 3001 and its backend uses port 8082, so it can run alongside the normal app on port 3000 and backend port 8081.
+From the sibling `aomaoi-backend` directory, one Compose command starts the regular app and the isolated E2E stack. The regular frontend/backend use ports 3000/8081; the E2E frontend/backend use 3001/8082. Cypress writes only to the disposable `aomaoi_test` database.
 
-```bash
-docker compose -f docker-compose.e2e.yml -f docker-compose.e2e.local.yml up --build -d
-npm run cypress:run -- --config baseUrl=http://localhost:3001 --env e2eDatabaseTarget=disposable
-docker compose -f docker-compose.e2e.yml -f docker-compose.e2e.local.yml down -v
+```powershell
+cd C:\aomaoi\aomaoi-backend
+docker compose up --build -d
+cd ..\aomaoi-frontend
+npm.cmd run cypress:run -- --config baseUrl=http://localhost:3001 --env e2eDatabaseTarget=disposable
 ```
 
-Cypress checks the backend's E2E-readiness endpoint before running tests and refuses to proceed unless it confirms the isolated test database.
+Cypress checks the backend's E2E-readiness endpoint before running tests and refuses to proceed unless it confirms the isolated test database. Run `docker compose down` from `aomaoi-backend` to stop both stacks while keeping the regular database volume. The separate frontend E2E Compose file is used by its CI workflow.
+If the old standalone E2E stack is already running, stop it once with `docker compose -f ..\aomaoi-frontend\docker-compose.e2e.yml down` from `aomaoi-backend` before starting the combined stack, because it uses the same ports.
 
 ## โครงสร้างโปรเจกต์
 
