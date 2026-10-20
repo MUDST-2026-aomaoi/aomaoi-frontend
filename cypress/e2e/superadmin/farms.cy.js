@@ -2,7 +2,7 @@ import { runId } from '../../support/testData';
 
 describe('Superadmin - farm management', () => {
   beforeEach(() => {
-    cy.loginSession('superadmin', '1234');
+    cy.loginSession(Cypress.superadminUsername, Cypress.superadminPassword);
     cy.visit('/farms');
   });
 

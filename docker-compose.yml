@@ -12,6 +12,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-aomaoi_password}
       SPRING_LIQUIBASE_ENABLED: "false"
       APP_SEED_ENABLED: "false"
+      E2E_SUPPORT_KEY: ${E2E_SUPPORT_KEY:-}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -45,6 +46,7 @@ services:
       SPRING_LIQUIBASE_CONTEXTS: demo
       APP_MIGRATION_JOB: "true"
       APP_SEED_ENABLED: "false"
+      E2E_SUPPORT_KEY: ${E2E_SUPPORT_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,59 +64,6 @@ services:
       - app
     restart: unless-stopped
 
-  e2e-postgres:
-    image: postgres:15-alpine
-    container_name: e2e-postgres
-    environment:
-      POSTGRES_DB: aomaoi_test
-      POSTGRES_USER: aomaoi_user
-      POSTGRES_PASSWORD: aomaoi_password
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U aomaoi_user -d aomaoi_test"]
-      interval: 3s
-      timeout: 3s
-      retries: 10
-    networks:
-      e2e:
-        aliases:
-          - postgres
-
-  e2e-backend:
-    image: ghcr.io/mudst-2026-aomaoi/aomaoi-backend:latest
-    container_name: e2e-backend
-    ports:
-      - "8082:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/aomaoi_test
-      SPRING_DATASOURCE_USERNAME: aomaoi_user
-      SPRING_DATASOURCE_PASSWORD: aomaoi_password
-      SPRING_LIQUIBASE_CONTEXTS: demo
-      APP_SEED_ENABLED: "false"
-      APP_E2E_DOCKER_DATABASE: "true"
-    depends_on:
-      e2e-postgres:
-        condition: service_healthy
-    networks:
-      - e2e
-    restart: unless-stopped
-
-  e2e-frontend:
-    build:
-      context: .
-      args:
-        VITE_API_BASE_URL: http://localhost:8082/api
-    container_name: e2e-frontend
-    ports:
-      - "3001:80"
-    depends_on:
-      - e2e-backend
-    networks:
-      - e2e
-    restart: unless-stopped
-
 volumes:
   postgres_data:
     name: aomaoi_postgres_data
-
-networks:
-  e2e:

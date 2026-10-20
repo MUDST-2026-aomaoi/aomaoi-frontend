@@ -3,8 +3,8 @@ import { runId } from '../../support/testData';
 describe('Superadmin - login / logout / route guard', () => {
   it('SA-AUTH-001 logs in as superadmin', () => {
     cy.visit('/login');
-    cy.getByTestID('login-username').type('superadmin');
-    cy.getByTestID('login-password').type('1234');
+    cy.getByTestID('login-username').type(Cypress.superadminUsername);
+    cy.getByTestID('login-password').type(Cypress.superadminPassword, { log: false });
     cy.getByTestID('login-submit').click();
 
     cy.location('pathname').should('eq', '/dashboard');
@@ -23,7 +23,7 @@ describe('Superadmin - login / logout / route guard', () => {
 
   it('SA-AUTH-002 rejects the wrong password', () => {
     cy.visit('/login');
-    cy.getByTestID('login-username').type('superadmin');
+    cy.getByTestID('login-username').type(Cypress.superadminUsername);
     cy.getByTestID('login-password').type('wrong-pass');
     cy.getByTestID('login-submit').click();
 
@@ -49,7 +49,7 @@ describe('Superadmin - login / logout / route guard', () => {
   });
 
   it('SA-AUTH-005 logout clears the session', () => {
-    cy.loginSession('superadmin', '1234');
+    cy.loginSession(Cypress.superadminUsername, Cypress.superadminPassword);
     cy.visit('/dashboard');
     cy.getByTestID('logout-button').click();
 
@@ -73,13 +73,13 @@ describe('Superadmin - login / logout / route guard', () => {
   });
 
   it('SA-GUARD-002 falls back to the dashboard on an unknown route', () => {
-    cy.loginSession('superadmin', '1234');
+    cy.loginSession(Cypress.superadminUsername, Cypress.superadminPassword);
     cy.visit('/some-unknown-page');
     cy.location('pathname').should('eq', '/dashboard');
   });
 
   it('SA-GUARD-003 blocks admin/worker pages for superadmin', () => {
-    cy.loginSession('superadmin', '1234');
+    cy.loginSession(Cypress.superadminUsername, Cypress.superadminPassword);
     ['/workers', '/work', '/history'].forEach((path) => {
       cy.visit(path);
       cy.location('pathname').should('eq', '/dashboard');
@@ -87,7 +87,7 @@ describe('Superadmin - login / logout / route guard', () => {
   });
 
   it('SA-GUARD-004 sidebar shows only superadmin menus', () => {
-    cy.loginSession('superadmin', '1234');
+    cy.loginSession(Cypress.superadminUsername, Cypress.superadminPassword);
     cy.visit('/dashboard');
     cy.contains('a', 'Dashboard');
     cy.contains('a', 'All Farms');

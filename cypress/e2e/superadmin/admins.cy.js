@@ -9,7 +9,7 @@ function seedFarmForTest() {
 
 describe('Superadmin - admin management', () => {
   beforeEach(() => {
-    cy.loginSession('superadmin', '1234');
+    cy.loginSession(Cypress.superadminUsername, Cypress.superadminPassword);
   });
 
   it('SA-ADMIN-001 adds an admin', () => {

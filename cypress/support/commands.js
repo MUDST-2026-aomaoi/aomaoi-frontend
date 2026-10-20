@@ -4,7 +4,7 @@ Cypress.Commands.add('getByTestID', (id) => cy.get(`[data-test="${id}"]`));
 // Cypress 16 removed Cypress.env() as a way to read config-time env values
 // synchronously, so the backend base URL is exposed here as a plain property
 // instead (specs read it as `Cypress.apiUrl`).
-Cypress.apiUrl = 'http://localhost:8082/api';
+Cypress.apiUrl = 'http://localhost:8081/api';
 
 function apiUrl(path) {
   return `${Cypress.apiUrl}${path}`;
@@ -59,7 +59,7 @@ Cypress.Commands.add('loginSession', (username, password) => {
 // ---- API seeding helpers (farm -> admin -> worker -> work log) ----
 
 Cypress.Commands.add('seedSuperadminToken', () => {
-  return cy.apiLogin('superadmin', '1234').then((res) => {
+  return cy.apiLogin(Cypress.superadminUsername, Cypress.superadminPassword).then((res) => {
     expect(res.status, 'superadmin login').to.eq(200);
     return res.body.token;
   });

@@ -2,7 +2,7 @@
 
 ระบบจัดการบัญชี/ค่าแรงคนงานสำหรับไร่อ้อย รองรับ 3 บทบาท คือ **Worker**, **Admin**, **Super Admin** — สร้างด้วย React + Vite + Tailwind CSS
 
-> โปรเจกต์นี้ยังไม่มี backend จริง ข้อมูลทั้งหมดเป็น mock data เก็บใน Zustand store (อยู่ใน memory ของ browser รีเฟรชแล้วหาย ยกเว้น login ที่ persist ลง localStorage)
+> Frontend เชื่อมต่อ AOMAOI Backend ผ่าน REST API และใช้ JWT สำหรับการเข้าสู่ระบบ
 
 ## เทคโนโลยีที่ใช้
 
@@ -10,26 +10,47 @@ React 19 + Vite · React Router v7 · Zustand · Tailwind CSS v4 · react-hook-f
 
 ## วิธีรัน
 
+ก่อนรันด้วย Vite ในเครื่อง ให้สร้าง `.env` จากตัวอย่างเพื่อกำหนด URL ของ backend:
+
+```powershell
+Copy-Item .env.example .env
+npm.cmd install
+npm.cmd run dev -- --port 3000
+```
+
+`VITE_API_BASE_URL` ชี้ไปที่ backend เช่น `http://localhost:8081/api` เมื่อรันผ่าน Docker Compose ตัวแปรนี้ถูกกำหนดตอน build image ให้แล้ว
+
 ```bash
-npm install       # ติดตั้ง dependencies
-npm run dev -- --port 3000  # dev server → http://localhost:3000
 npm run build     # build production
 npm run lint      # ตรวจโค้ดด้วย oxlint
 ```
 
 ## Cypress E2E
 
-From the sibling `aomaoi-backend` directory, one Compose command starts the regular app and the isolated E2E stack. The regular frontend/backend use ports 3000/8081; the E2E frontend/backend use 3001/8082. Cypress writes only to the disposable `aomaoi_test` database.
+ก่อนรัน E2E ให้เปิด Docker Compose จากโฟลเดอร์ `aomaoi-backend` ก่อน คำสั่งนี้จะ build และเปิดทั้งระบบ ได้แก่ PostgreSQL, Liquibase migration, backend และ frontend ไม่ต้องเปิด frontend หรือ backend แยกอีกชุด
+
+E2E ใช้ frontend `http://localhost:3000`, backend `http://localhost:8081` และฐานข้อมูลหลักร่วมกับแอป
+Cypress สร้างบัญชี superadmin ชั่วคราวและติดรหัสรอบให้ข้อมูลที่สร้างทั้งจาก UI และ API
+เมื่อจบแต่ละ spec จะลบเฉพาะข้อมูลของรอบนั้น รวมถึงเมื่อเทสไม่ผ่าน
+หากโปรเซสหยุดกลางทาง backend เก็บกวาดรอบที่ไม่มี heartbeat เกิน 15 นาที
+
+ตั้ง `E2E_SUPPORT_KEY` แบบสุ่มอย่างน้อย 32 ตัวอักษรใน backend `.env` ก่อนเปิด stack
+Cypress อ่านค่านี้จาก `../aomaoi-backend/.env` หรือ environment ของ Node โดยไม่ส่ง management key เข้า browser
 
 ```powershell
+# เปิดทั้งระบบจาก Compose ของ backend ก่อนเริ่ม E2E
 cd C:\aomaoi\aomaoi-backend
 docker compose up --build -d
+
+# จากนั้นติดตั้ง dependencies และรัน Cypress ใน frontend
 cd ..\aomaoi-frontend
-npm.cmd run cypress:run -- --config baseUrl=http://localhost:3001 --env e2eDatabaseTarget=disposable
+npm.cmd ci
+npm.cmd run cypress:run
 ```
 
-Cypress checks the backend's E2E-readiness endpoint before running tests and refuses to proceed unless it confirms the isolated test database. Run `docker compose down` from `aomaoi-backend` to stop both stacks while keeping the regular database volume. The separate frontend E2E Compose file is used by its CI workflow.
-If the old standalone E2E stack is already running, stop it once with `docker compose -f ..\aomaoi-frontend\docker-compose.e2e.yml down` from `aomaoi-backend` before starting the combined stack, because it uses the same ports.
+ดูรายละเอียดและข้อจำกัดใน `aomaoi-backend/docs/shared-e2e.md`
+ถ้ารัน Compose จาก frontend repo ให้กำหนด `E2E_SUPPORT_KEY` ค่าเดียวกันใน shell หรือ `.env` ของ repo นี้ด้วย
+CI ใช้ Compose ชุดหลักบน runner ของตัวเอง และใช้ backend image ล่าสุด จึงต้องเผยแพร่ backend ที่รองรับระบบนี้ก่อน
 
 ## โครงสร้างโปรเจกต์
 

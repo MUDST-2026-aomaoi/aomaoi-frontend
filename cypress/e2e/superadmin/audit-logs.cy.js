@@ -2,7 +2,7 @@ import { runId, uniqueFullName } from '../../support/testData';
 
 describe('Superadmin - audit log', () => {
   beforeEach(() => {
-    cy.loginSession('superadmin', '1234');
+    cy.loginSession(Cypress.superadminUsername, Cypress.superadminPassword);
   });
 
   it('SA-AUDIT-001 logs admin/worker actions with their real actor', () => {
