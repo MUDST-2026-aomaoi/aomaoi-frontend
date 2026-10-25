@@ -35,6 +35,8 @@ export const useAuthStore = create(
         }
       },
 
+      replaceToken: (token) => set({ token }),
+
       logout: () => {
           set({ isAuthenticated: false, currentUser: null, token: null });
           // delete axios.defaults.headers.common['Authorization'];

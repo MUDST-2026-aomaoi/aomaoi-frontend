@@ -13,6 +13,7 @@ services:
       SPRING_LIQUIBASE_ENABLED: "false"
       APP_SEED_ENABLED: "false"
       E2E_SUPPORT_KEY: ${E2E_SUPPORT_KEY:-}
+      JWT_SECRET: ${JWT_SECRET:?Set a private JWT_SECRET of at least 32 bytes}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -47,6 +48,7 @@ services:
       APP_MIGRATION_JOB: "true"
       APP_SEED_ENABLED: "false"
       E2E_SUPPORT_KEY: ${E2E_SUPPORT_KEY:-}
+      JWT_SECRET: ${JWT_SECRET:?Set a private JWT_SECRET of at least 32 bytes}
     depends_on:
       postgres:
         condition: service_healthy

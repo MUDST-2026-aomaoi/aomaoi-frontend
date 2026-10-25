@@ -7,6 +7,7 @@ export default function SetPasswordModal({ onSuccess }) {
   const navigate = useNavigate();
   const location = useLocation();
   const setFirstLoginDone = useAuthStore(state => state.setFirstLoginDone);
+  const replaceToken = useAuthStore(state => state.replaceToken);
 
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -32,7 +33,8 @@ export default function SetPasswordModal({ onSuccess }) {
     try {
       // Assuming api wrapper handles the JWT token
       const { default: api } = await import('../../service/api');
-      await api.post('/auth/change-password', { oldPassword, newPassword });
+      const response = await api.post('/auth/change-password', { oldPassword, newPassword });
+      replaceToken(response.data.token);
       
       // Update global state immediately
       setFirstLoginDone();
