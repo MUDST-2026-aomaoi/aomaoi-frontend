@@ -3,6 +3,7 @@ import { workLogService } from '../service/workLogService';
 
 export const useWorkLogStore = create((set, get) => ({
   entries: [],
+  myBalance: null,
   loaded: false,
 
   fetchEntries: async () => {
@@ -11,6 +12,15 @@ export const useWorkLogStore = create((set, get) => ({
       set({ entries: data, loaded: true });
     } catch (error) {
       console.error('Failed to fetch work logs:', error);
+    }
+  },
+
+  fetchMyBalance: async () => {
+    try {
+      const data = await workLogService.getMyBalance();
+      set({ myBalance: data });
+    } catch (error) {
+      console.error('Failed to fetch worker balance:', error);
     }
   },
 

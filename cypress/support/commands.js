@@ -129,6 +129,17 @@ Cypress.Commands.add('seedWorkLog', (payload, adminToken) => {
     .then((res) => res.body);
 });
 
+Cypress.Commands.add('seedSalaryAdvance', (payload, adminToken) => {
+  return cy
+    .request({
+      method: 'POST',
+      url: apiUrl('/salary-advances'),
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: payload,
+    })
+    .then((res) => res.body);
+});
+
 // Convenience: farm + a fully-activated admin of that farm, ready to seed
 // workers/work-logs under. Requires ../support/testData's runId/uniqueFullName.
 Cypress.Commands.add('seedActiveAdminWithFarm', () => {
