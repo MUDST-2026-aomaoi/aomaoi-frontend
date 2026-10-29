@@ -1,5 +1,5 @@
 import { useMemo, useEffect } from 'react';
-import { Clock, Wallet, ArrowDownToLine, ArrowRight } from 'lucide-react';
+import { Clock, Wallet, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useAuthStore } from '../../controller/authController';
@@ -115,17 +115,17 @@ export default function WorkerDashboard() {
       {/* 2. Top Cards */}
       <div className="grid grid-cols-4 gap-4">
         {/* My Balance */}
-        <div className="col-span-1 bg-[#3B4D36] rounded-xl p-5 text-white shadow-sm flex flex-col justify-between min-h-[142px]">
-          <div className="flex items-center gap-3.5 mb-1">
+        <div className="col-span-2 bg-[#3B4D36] rounded-xl p-5 text-white shadow-sm flex flex-col justify-between min-h-[142px]">
+          <div className="flex items-center gap-4 mb-1">
             <div className="bg-white text-[#91712A] p-2.5 rounded-lg shrink-0">
-              <Wallet size={24} />
+              <Wallet size={26} />
             </div>
             <div>
-              <h2 className="text-xl font-semibold leading-tight">My balance</h2>
+              <h2 className="text-2xl font-semibold leading-tight">My balance</h2>
               <p className="text-[13px] text-white/80 font-normal mt-0.5">Overview This month</p>
             </div>
           </div>
-          <div className="text-[36px] font-bold leading-none tracking-tight">{formatBaht(totalBalanceThisMonth)} <span className="text-[20px] font-semibold ml-1 tracking-normal">THB</span></div>
+          <div className="text-[42px] font-bold leading-none tracking-tight">{formatBaht(totalBalanceThisMonth)} <span className="text-[26px] font-semibold ml-1 tracking-normal">THB</span></div>
         </div>
 
         {/* Remaining Balance */}
@@ -146,18 +146,6 @@ export default function WorkerDashboard() {
             <p className="text-[13px] text-gray-400 font-normal mt-1">Overview today</p>
           </div>
           <div className="text-[36px] font-bold text-[#3B4D36] leading-none tracking-tight">{formatBaht(todayIncome)} <span className="text-[20px] font-semibold ml-1 tracking-normal">THB</span></div>
-        </div>
-
-        {/* Payment Status */}
-        <div className="col-span-1 bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center min-h-[142px]">
-          <h2 className="text-[15px] font-medium text-gray-400 mb-2">สถานะการจ่ายเงิน</h2>
-          <div className="bg-[#D1A344]/30 text-[#91712A] px-6 py-2 rounded-full font-semibold flex items-center gap-2 text-lg mb-2">
-            <div className="border-[2.5px] border-[#91712A] rounded-full p-0.5">
-              <ArrowDownToLine size={16} strokeWidth={3} />
-            </div>
-            รอจ่าย
-          </div>
-          <p className="text-gray-400 font-normal text-[12px]">รอบจ่ายถัดไป: 31 สิงหาคม 2569</p>
         </div>
       </div>
 
