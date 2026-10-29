@@ -7,5 +7,9 @@ export const workLogService = {
 
   addLog: async (logData) => {
     return await workLogRepository.add(logData);
+  },
+
+  getMyBalance: async () => {
+    return await workLogRepository.getMyBalance();
   }
 };

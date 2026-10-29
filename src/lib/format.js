@@ -1,5 +1,9 @@
 export function formatBaht(amount) {
-  return `฿${Number(amount).toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
+  const num = Number(amount);
+  if (num < 0) {
+    return `-฿${Math.abs(num).toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
+  }
+  return `฿${num.toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
 }
 
 function parseLocalDate(dateStr) {

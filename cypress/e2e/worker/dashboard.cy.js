@@ -24,7 +24,7 @@ function seedWorkerWithLogs() {
       cy.seedWorkLog({ type: 'spraying', workerId: String(worker.id), date: today, tanks: 5 }, adminToken);
       
       // Activate และ return กลับไปให้เทสต์ใช้
-      return cy.activateAccount(username, 'Password123').then(() => ({ worker, username, fullName }));
+      return cy.activateAccount(username, 'Password123').then(() => ({ worker, username, fullName, adminToken }));
     });
   });
 }
@@ -68,6 +68,88 @@ describe('Worker - Dashboard', () => {
       // กดปุ่ม More ตรง Recent Activity (มี class หรือ href ไปที่ /history)
       cy.get('a[href="/history"]').first().click();
       cy.location('pathname').should('eq', '/history');
+    });
+  });
+
+  it('WK-DASH-004 Displays positive remaining balance after partial salary advance', () => {
+    seedWorkerWithLogs().then(({ worker, username, adminToken }) => {
+      const today = getTodayString();
+      // รายได้รวม 1,150 บาท เบิกเงินสดล่วงหน้า 350 บาท -> คงเหลือ 800 บาท
+      cy.seedSalaryAdvance(
+        { workerId: worker.id, advanceDate: today, type: 'CASH', amount: 350 },
+        adminToken
+      );
+
+      cy.loginSession(username, 'NewPass123');
+      cy.visit('/dashboard');
+
+      cy.contains('My balance').should('be.visible');
+      cy.contains('฿1,150').should('be.visible');
+      cy.contains('RemainingBalance').should('be.visible');
+      cy.contains('฿800').should('be.visible');
+    });
+  });
+
+  it('WK-DASH-005 Displays negative remaining balance in red when salary advance exceeds earnings', () => {
+    seedWorkerWithLogs().then(({ worker, username, adminToken }) => {
+      const today = getTodayString();
+      // รายได้รวม 1,150 บาท เบิกของล่วงหน้า 1,250 บาท -> ติดลบ -100 บาท (ติดหนี้)
+      cy.seedSalaryAdvance(
+        { workerId: worker.id, advanceDate: today, type: 'GOODS', amount: 1250, itemName: 'ข้าวสาร 1 กระสอบ' },
+        adminToken
+      );
+
+      cy.loginSession(username, 'NewPass123');
+      cy.visit('/dashboard');
+
+      cy.contains('My balance').should('be.visible');
+      cy.contains('฿1,150').should('be.visible');
+      cy.contains('RemainingBalance').should('be.visible');
+      cy.contains('-฿100')
+        .should('be.visible')
+        .and('have.class', 'text-[#C80303]');
+    });
+  });
+
+  it('WK-DASH-006 Displays positive remaining balance after goods advance within earnings', () => {
+    seedWorkerWithLogs().then(({ worker, username, adminToken }) => {
+      const today = getTodayString();
+      // รายได้รวม 1,150 บาท เบิกสิ่งของล่วงหน้า 450 บาท (ยังไม่เกินรายได้) -> คงเหลือ 700 บาท (สีเขียว)
+      cy.seedSalaryAdvance(
+        { workerId: worker.id, advanceDate: today, type: 'GOODS', amount: 450, itemName: 'ปุ๋ยและอุปกรณ์' },
+        adminToken
+      );
+
+      cy.loginSession(username, 'NewPass123');
+      cy.visit('/dashboard');
+
+      cy.contains('My balance').should('be.visible');
+      cy.contains('฿1,150').should('be.visible');
+      cy.contains('RemainingBalance').should('be.visible');
+      cy.contains('฿700')
+        .should('be.visible')
+        .and('have.class', 'text-[#3B4D36]');
+    });
+  });
+
+  it('WK-DASH-007 Displays negative remaining balance in red when cash advance exceeds earnings', () => {
+    seedWorkerWithLogs().then(({ worker, username, adminToken }) => {
+      const today = getTodayString();
+      // รายได้รวม 1,150 บาท เบิกเงินสดล่วงหน้า 1,350 บาท (เกินรายได้) -> ติดลบ -200 บาท (สีแดง)
+      cy.seedSalaryAdvance(
+        { workerId: worker.id, advanceDate: today, type: 'CASH', amount: 1350 },
+        adminToken
+      );
+
+      cy.loginSession(username, 'NewPass123');
+      cy.visit('/dashboard');
+
+      cy.contains('My balance').should('be.visible');
+      cy.contains('฿1,150').should('be.visible');
+      cy.contains('RemainingBalance').should('be.visible');
+      cy.contains('-฿200')
+        .should('be.visible')
+        .and('have.class', 'text-[#C80303]');
     });
   });
 });
