@@ -26,8 +26,16 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: mudst-2026-aomaoi/aomaoi-backend
-        ref: ${{ github.ref_name == 'main' && 'main' || 'dev' }}
+        ref: main
+        fetch-depth: 0
         path: backend-source
+
+    - name: Use backend feat/phase-2 if not yet merged into main
+      working-directory: backend-source
+      run: |
+        if git show-ref --verify --quiet refs/remotes/origin/feat/phase-2 && ! git merge-base --is-ancestor origin/feat/phase-2 origin/main; then
+          git checkout feat/phase-2
+        fi
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
