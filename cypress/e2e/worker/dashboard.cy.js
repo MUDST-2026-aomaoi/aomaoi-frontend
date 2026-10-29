@@ -38,8 +38,10 @@ describe('Worker - Dashboard', () => {
       // 1. ตรวจสอบชื่อคนงานที่มุมซ้ายบน
       cy.contains(fullName).should('be.visible');
 
-      // 2. ตรวจสอบสถานะการจ่ายเงิน (ที่เพิ่งลบ Hardcode เปลี่ยนเป็น Dynamic ไป!)
-      cy.contains('รอจ่าย').should('be.visible');
+      // 2. ตรวจสอบการ์ดสรุปยอดเงินหลักทั้ง 3 ใบ
+      cy.contains('My balance').should('be.visible');
+      cy.contains('RemainingBalance').should('be.visible');
+      cy.contains("Today's income").should('be.visible');
 
       // 3. ตรวจสอบยอดเงินรวม (2 ร่อง ร่องละ 100 วา = 400 บาท) + (5 ถัง ถังละ 150 บาท = 750 บาท) รวม 1,150 บาท
       cy.contains('1,150').should('be.visible');

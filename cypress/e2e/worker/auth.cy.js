@@ -28,8 +28,9 @@ describe('Worker - Authentication Flow', () => {
       // Verify redirection to unified dashboard
       cy.location('pathname').should('eq', '/dashboard');
       
-      // Verify worker-specific elements are visible (using the hardcoded text we kept!)
-      cy.contains('สถานะการจ่ายเงิน'); 
+      // Verify worker-specific elements are visible
+      cy.contains('My balance');
+      cy.contains('RemainingBalance');
     });
   });
 
