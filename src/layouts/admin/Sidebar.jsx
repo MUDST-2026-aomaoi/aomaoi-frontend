@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutGrid, Users, FileText, LogOut } from 'lucide-react';
+import { LayoutGrid, Users, FileText, Wallet, LogOut } from 'lucide-react';
 import logo from '../../assets/sugarcane-logo.png';
 import { useAuthStore } from '../../controller/authController';
 
@@ -33,6 +33,11 @@ export function Sidebar() {
           <NavLink to="/work" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
             <FileText className="h-5 w-5" />
             <span>Work Log</span>
+          </NavLink>
+
+          <NavLink to="/advance-salary" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
+            <Wallet className="h-5 w-5" />
+            <span>Advance Salary</span>
           </NavLink>
         </nav>
       </div>

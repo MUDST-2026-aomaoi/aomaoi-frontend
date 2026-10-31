@@ -6,6 +6,7 @@ import Dashboard from './pages/admin/Dashboard';
 import Workers from './pages/admin/Workers';
 import WorkLog from './pages/admin/WorkLog';
 import Overview from './pages/admin/Overview';
+import AdvanceSalary from './pages/admin/AdvanceSalary';
 
 import { SuperAdminLayout } from './layouts/superadmin/SuperAdminLayout';
 import SuperAdminDashboard from './pages/superadmin/Dashboard';
@@ -75,6 +76,7 @@ function App() {
         <Route element={<AuthGuard allowedRoles={['admin']}><AdminLayout /></AuthGuard>}>
           <Route path="/workers" element={<Workers />} />
           <Route path="/work" element={<WorkLog />} />
+          <Route path="/advance-salary" element={<AdvanceSalary />} />
           <Route path="/overview" element={<Overview />} />
         </Route>
 
