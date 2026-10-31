@@ -7,6 +7,7 @@ import Workers from './pages/admin/Workers';
 import WorkLog from './pages/admin/WorkLog';
 import Overview from './pages/admin/Overview';
 import AdvanceSalary from './pages/admin/AdvanceSalary';
+import FinancialBalance from './pages/admin/FinancialBalance';
 
 import { SuperAdminLayout } from './layouts/superadmin/SuperAdminLayout';
 import SuperAdminDashboard from './pages/superadmin/Dashboard';
@@ -77,6 +78,7 @@ function App() {
           <Route path="/workers" element={<Workers />} />
           <Route path="/work" element={<WorkLog />} />
           <Route path="/advance-salary" element={<AdvanceSalary />} />
+          <Route path="/financial-balance" element={<FinancialBalance />} />
           <Route path="/overview" element={<Overview />} />
         </Route>
 
