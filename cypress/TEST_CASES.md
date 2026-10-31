@@ -122,7 +122,33 @@ Wage formulas: cutting = rows × wa/row × 2, planting = furrows × wa/furrow ×
 | AD-WORKLOG-008 | Server calculates wages itself | Admin token, worker exists | `POST /api/work-logs` for each type | cutting 3×100, planting 4×20, watering 2026-09-01→05 × 350, spraying 3 | Response `total` = 600 / 200 / 1750 / 450; watering `days` = 5 |
 | AD-WORKLOG-009 | Filter work log by type and worker | Logs of 2 types for 2 workers | 1) Filter type ตัดอ้อย<br>2) Filter worker | — | Only matching rows shown |
 
-## B4. Admin-only API is protected from other roles
+## B4. Advance salary
+
+Spec: `cypress/e2e/admin/advance-salary.cy.js`. Page `/advance-salary`; `POST /api/salary-advances`.
+
+| ID | Title | Preconditions | Steps | Input Data | Expected Result |
+|---|---|---|---|---|---|
+| AD-ADVANCE-001 | Record a cash advance | Admin, worker exists | 1) Open `/advance-salary`<br>2) Pick worker<br>3) Type amount (cash is default)<br>4) Click บันทึกการเบิก | amount `500` | "บันทึกการเบิกสำเร็จ"; new row with badge เงินสด, empty detail, amount 500 |
+| AD-ADVANCE-002 | Record a goods advance | Admin, worker exists | 1) Pick worker<br>2) Click สิ่งของ<br>3) Type item name and amount<br>4) Save | item `ข้าวสาร`, amount `300` | New row with badge สิ่งของ, detail ข้าวสาร, amount 300 |
+| AD-ADVANCE-003 | Goods needs an item name | Goods selected, worker picked | Type amount, leave item empty, save | amount `300` | Error "กรุณากรอกชื่อสินค้า"; nothing saved |
+| AD-ADVANCE-004 | Worker and positive amount required | Form empty | Click บันทึกการเบิก | — | Errors "กรุณาเลือกคนงาน" and "ต้องมากกว่า 0"; nothing saved |
+| AD-ADVANCE-005 | Item field only for goods | Form open | Toggle สิ่งของ then เงินสด | — | Item field hidden for cash, visible for goods |
+| AD-ADVANCE-006 | Clear form | Worker, goods, item and amount filled | Click ล้างฟอร์ม | — | Amount empty, item field hidden (cash), worker cleared |
+| AD-ADVANCE-007 | API validates type vs item name | Admin token, worker exists | `POST /api/salary-advances` three times | GOODS without `itemName`; CASH with `itemName`; valid CASH | HTTP 400; HTTP 400; HTTP 201 |
+
+## B5. Financial balance
+
+Spec: `cypress/e2e/admin/financial-balance.cy.js`. Page `/financial-balance`; `GET /api/worker-balances`. Cutting 3 rows × 100 wa = 600 baht earnings.
+
+| ID | Title | Preconditions | Steps | Input Data | Expected Result |
+|---|---|---|---|---|---|
+| AD-BALANCE-001 | Balance row is correct | Worker with 600 earnings and a 200 cash advance | Open `/financial-balance` | — | Row shows earnings 600, advances 200, remaining 400, status ปกติ |
+| AD-BALANCE-002 | In-debt worker flagged | Worker with 600 earnings and a 1,000 goods advance | Open `/financial-balance` | — | Remaining -400 in red; status "ติดหนี้" with 400; total outstanding debt tile shows 400 |
+| AD-BALANCE-003 | Balance follows a UI advance | Worker with 600 earnings | 1) Record 250 cash advance on `/advance-salary`<br>2) Open `/financial-balance` | amount `250` | Advances 250, remaining 350 |
+| AD-BALANCE-004 | Search and status filter | One in-debt worker | 1) Search by nickname<br>2) Search an unknown name<br>3) Filter ปกติ, then ติดหนี้ | — | Nickname search shows the worker; unknown shows "ไม่พบรายการ"; ปกติ filter shows none; ติดหนี้ shows the worker |
+| AD-BALANCE-005 | API access and totals | Worker with 600 earnings | `GET /api/worker-balances` without token, then with admin token | — | HTTP 401; HTTP 200 with the worker's `totalEarnings` 600 and `inDebt` false |
+
+## B6. Admin-only API is protected from other roles
 
 | ID | Title | Preconditions | Steps | Input Data | Expected Result |
 |---|---|---|---|---|---|
