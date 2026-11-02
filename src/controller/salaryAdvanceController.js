@@ -3,6 +3,7 @@ import { salaryAdvanceService } from '../service/salaryAdvanceService';
 
 export const useSalaryAdvanceStore = create((set) => ({
   advances: [],
+  myAdvances: [],
 
   fetchAdvances: async () => {
     try {
@@ -10,6 +11,15 @@ export const useSalaryAdvanceStore = create((set) => ({
       set({ advances: data });
     } catch (error) {
       console.error('Failed to fetch salary advances:', error);
+    }
+  },
+
+  fetchMyAdvances: async () => {
+    try {
+      const data = await salaryAdvanceService.getMyAdvances();
+      set({ myAdvances: data });
+    } catch (error) {
+      console.error('Failed to fetch my salary advances:', error);
     }
   },
 
