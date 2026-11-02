@@ -141,13 +141,27 @@ export default function WorkerDashboard() {
     <div className="flex flex-col gap-4 w-full pb-2">
       
       {/* 1. แถบแจ้งเตือนด้านบน */}
-      <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 text-base font-normal text-farm-text shadow-sm">
-        <div className="text-[#91712A]">
-          <Clock size={22} strokeWidth={2.5} />
+      <div className="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-base font-normal text-farm-text shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="text-[#91712A]">
+            <Clock size={22} strokeWidth={2.5} />
+          </div>
+          <span>
+            บันทึกงานล่าสุด: {recentActivities[0] ? formatDate(recentActivities[0].date) : 'ไม่มีข้อมูล'} · ทำงานแล้ว {new Set(myEntriesThisMonth.map(e => e.date)).size} วันในเดือนนี้
+          </span>
         </div>
-        <span>
-          บันทึกงานล่าสุด: {recentActivities[0] ? formatDate(recentActivities[0].date) : 'ไม่มีข้อมูล'} · ทำงานแล้ว {new Set(myEntriesThisMonth.map(e => e.date)).size} วันในเดือนนี้
-        </span>
+        {isInDebt && (
+          <span
+            data-test="worker-debt-badge"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#F47E7E] text-white shrink-0 shadow-sm"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EF0202]"></span>
+            </span>
+            ติดหนี้
+          </span>
+        )}
       </div>
 
       {/* 2. Top Cards (3 กล่องตาม Figma 544:1026) */}

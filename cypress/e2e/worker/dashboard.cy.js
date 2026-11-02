@@ -107,6 +107,7 @@ describe('Worker - Dashboard', () => {
 
       cy.getByTestID('worker-total-earning').should('contain', '฿1,150');
       cy.getByTestID('worker-total-advance').should('contain', '฿1,250');
+      cy.getByTestID('worker-debt-badge').should('be.visible').and('contain', 'ติดหนี้');
       cy.getByTestID('worker-remaining-balance')
         .should('contain', '-฿100')
         .and('have.class', 'text-[#C80303]');
