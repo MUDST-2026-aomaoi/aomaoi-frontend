@@ -189,35 +189,42 @@ export default function WorkerHistory() {
       {/* ตาราง */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
         <div className="overflow-x-auto w-full">
-          <table className="w-full text-center border-collapse min-w-[800px]">
-            <thead className="bg-gray-200 border-b border-gray-200">
+          <table className="w-full table-fixed text-center border-collapse min-w-[800px]">
+            <colgroup>
+              <col className="w-1/5" />
+              <col className="w-1/5" />
+              <col className="w-1/5" />
+              <col className="w-1/5" />
+              <col className="w-1/5" />
+            </colgroup>
+            <thead className="bg-[#E8E8E8] border-b border-gray-200">
               <tr>
-                <th className="py-4 px-8 text-left text-[#5A5248] font-bold text-[15px]">Date</th>
-                <th className="py-4 px-6 text-[#5A5248] font-bold text-[15px]">Work Type</th>
-                <th className="py-4 px-6 text-[#5A5248] font-bold text-[15px]">Qty</th>
-                <th className="py-4 px-6 text-[#5A5248] font-bold text-[15px]">Unit</th>
-                <th className="py-4 px-8 text-right text-[#5A5248] font-bold text-[15px]">Wages</th>
+                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">วันที่</th>
+                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">ประเภทงาน</th>
+                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">จำนวน</th>
+                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">หน่วย</th>
+                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">ค่าแรง</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-200">
               {filteredData.length > 0 ? (
                 filteredData.map((item) => (
                   <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-8 text-left font-medium text-farm-text text-[14px] whitespace-nowrap">
+                    <td className="py-4 px-6 text-center font-medium text-farm-text text-[14px] whitespace-nowrap">
                       {item.displayDate}
                     </td>
-                    <td className="py-4 px-6">
-                      <span className={`px-5 py-1.5 rounded-full text-[13px] font-bold ${item.badgeStyle}`}>
+                    <td className="py-4 px-6 text-center">
+                      <span className={`inline-block min-w-[88px] px-4 py-1.5 rounded-full text-[13px] font-bold ${item.badgeStyle}`}>
                         {item.typeLabel}
                       </span>
                     </td>
-                    <td className="py-4 px-6 font-medium text-farm-text text-[15px]">
+                    <td className="py-4 px-6 text-center font-medium text-farm-text text-[15px]">
                       {item.qty}
                     </td>
-                    <td className="py-4 px-6 font-medium text-farm-text text-[14px]">
+                    <td className="py-4 px-6 text-center font-medium text-farm-text text-[14px]">
                       {item.unit}
                     </td>
-                    <td className="py-4 px-8 text-right font-medium text-farm-text text-[15px] whitespace-nowrap">
+                    <td className="py-4 px-6 text-center font-medium text-farm-text text-[15px] whitespace-nowrap">
                       {formatBaht(item.total)} <span className="ml-1">บาท</span>
                     </td>
                   </tr>

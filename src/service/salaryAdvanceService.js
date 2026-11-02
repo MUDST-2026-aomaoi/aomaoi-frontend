@@ -7,6 +7,11 @@ export const salaryAdvanceService = {
     return advances.filter((a) => !a.cancelledAt);
   },
 
+  getMyAdvances: async () => {
+    const advances = await salaryAdvanceRepository.getMine();
+    return advances.filter((a) => !a.cancelledAt);
+  },
+
   addAdvance: async ({ workerId, advanceDate, type, amount, itemName }) => {
     const payload = {
       workerId: Number(workerId),

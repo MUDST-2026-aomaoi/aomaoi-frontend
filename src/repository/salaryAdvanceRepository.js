@@ -6,6 +6,11 @@ export const salaryAdvanceRepository = {
     return response.data;
   },
 
+  getMine: async () => {
+    const response = await api.get('/salary-advances/me');
+    return response.data;
+  },
+
   add: async (advanceData) => {
     const response = await api.post('/salary-advances', advanceData);
     return response.data;

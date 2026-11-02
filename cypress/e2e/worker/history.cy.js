@@ -65,6 +65,11 @@ describe('Worker - History', () => {
 
       // ตรวจสอบหัวตารางหรือ Title ของหน้า
       cy.contains('History').should('be.visible');
+      cy.contains('th', 'วันที่').should('be.visible');
+      cy.contains('th', 'ประเภทงาน').should('be.visible');
+      cy.contains('th', 'จำนวน').should('be.visible');
+      cy.contains('th', 'หน่วย').should('be.visible');
+      cy.contains('th', 'ค่าแรง').should('be.visible');
 
       // ตรวจสอบว่ามีข้อมูลงานที่บอทสร้างไว้โชว์ขึ้นมา 
       cy.contains('ปลูกอ้อย').should('be.visible');

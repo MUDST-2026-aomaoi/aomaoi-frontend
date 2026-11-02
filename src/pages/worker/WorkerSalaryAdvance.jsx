@@ -1,0 +1,236 @@
+import { useState, useMemo, forwardRef, useEffect, useRef } from 'react';
+import { Search, Calendar, ChevronDown } from 'lucide-react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
+import { useSalaryAdvanceStore } from '../../store/useSalaryAdvanceStore';
+import { formatDate, formatBaht } from '../../lib/format';
+
+const CustomDateInput = forwardRef(({ value, onClick, placeholder, dataTest }, ref) => (
+  <div className="relative w-full cursor-pointer" onClick={onClick} ref={ref}>
+    <input
+      type="text"
+      readOnly
+      value={value}
+      placeholder={placeholder}
+      data-test={dataTest}
+      className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm focus:border-[#708238] cursor-pointer"
+    />
+    <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+  </div>
+));
+CustomDateInput.displayName = 'CustomDateInput';
+
+const ADVANCE_OPTIONS = [
+  { value: '', label: 'ประเภทการเบิกทั้งหมด' },
+  { value: 'CASH', label: 'เงินสด' },
+  { value: 'GOODS', label: 'สิ่งของ' },
+];
+
+const ADVANCE_BADGE = {
+  CASH: {
+    label: 'เงินสด',
+    className: 'bg-[#A2C73E]/40 text-black',
+  },
+  GOODS: {
+    label: 'สิ่งของ',
+    className: 'bg-[#FFEA76]/40 text-black',
+  },
+};
+
+export default function WorkerSalaryAdvance() {
+  const myAdvances = useSalaryAdvanceStore((s) => s.myAdvances);
+  const fetchMyAdvances = useSalaryAdvanceStore((s) => s.fetchMyAdvances);
+
+  useEffect(() => {
+    fetchMyAdvances();
+  }, [fetchMyAdvances]);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const preparedData = useMemo(() => {
+    return [...myAdvances]
+      .map((item) => {
+        const badge = ADVANCE_BADGE[item.type] || ADVANCE_BADGE.CASH;
+        return {
+          id: item.id,
+          rawDate: item.advanceDate,
+          displayDate: formatDate(item.advanceDate),
+          itemName: item.itemName || '',
+          type: item.type,
+          typeLabel: badge.label,
+          badgeClass: badge.className,
+          amount: Number(item.amount || 0),
+        };
+      })
+      .sort((a, b) => b.rawDate.localeCompare(a.rawDate) || Number(b.id) - Number(a.id));
+  }, [myAdvances]);
+
+  const filteredData = useMemo(() => {
+    const keyword = searchTerm.trim().toLowerCase();
+    return preparedData.filter((item) => {
+      const matchSearch =
+        !keyword ||
+        item.itemName.toLowerCase().includes(keyword) ||
+        item.typeLabel.toLowerCase().includes(keyword);
+      const matchType = filterType ? item.type === filterType : true;
+      const matchStartDate = startDate ? item.rawDate >= format(startDate, 'yyyy-MM-dd') : true;
+      const matchEndDate = endDate ? item.rawDate <= format(endDate, 'yyyy-MM-dd') : true;
+      return matchSearch && matchType && matchStartDate && matchEndDate;
+    });
+  }, [preparedData, searchTerm, filterType, startDate, endDate]);
+
+  const selectedOptionLabel =
+    ADVANCE_OPTIONS.find((opt) => opt.value === filterType)?.label || 'ประเภทการเบิกทั้งหมด';
+
+  return (
+    <div className="flex flex-col w-full pb-20">
+      {/* Subtitle ใต้ Header */}
+      <p className="text-gray-400 font-medium text-[18px] mb-8 mt-[-20px]">
+        Here is the salary advance of overall data
+      </p>
+
+      {/* แถบค้นหาและฟิลเตอร์ */}
+      <div className="flex flex-wrap items-center gap-4 mb-6">
+        {/* Search */}
+        <div className="relative flex-1 min-w-[280px] max-w-[360px]">
+          <input
+            type="text"
+            placeholder="search your activity"
+            data-test="worker-advance-search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-5 pr-12 py-2.5 bg-white border border-gray-200 rounded-lg text-farm-text outline-none text-sm placeholder:text-gray-400 shadow-sm focus:border-[#708238]"
+          />
+          <Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        </div>
+
+        {/* Dropdown ประเภทการเบิก */}
+        <div className="relative w-[210px]" ref={dropdownRef}>
+          <div
+            data-test="worker-advance-type-filter"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg outline-none text-sm shadow-sm cursor-pointer flex items-center justify-between transition-colors focus:border-[#708238]"
+          >
+            <span className={filterType === '' ? 'text-gray-400' : 'text-gray-600'}>
+              {selectedOptionLabel}
+            </span>
+          </div>
+          <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+
+          {isDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+              {ADVANCE_OPTIONS.map((opt) => (
+                <div
+                  key={opt.value}
+                  data-test={`worker-advance-type-option-${opt.value || 'all'}`}
+                  onClick={() => {
+                    setFilterType(opt.value);
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`px-4 py-2.5 text-sm cursor-pointer transition-colors hover:bg-gray-50 ${
+                    filterType === opt.value ? 'bg-gray-50 text-farm-text font-bold' : 'text-gray-600'
+                  }`}
+                >
+                  {opt.label}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Date Range */}
+        <div className="flex items-center gap-3">
+          <div className="w-[180px]">
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              customInput={<CustomDateInput placeholder="search your date" dataTest="worker-advance-start-date" />}
+              dateFormat="dd/MM/yyyy"
+            />
+          </div>
+
+          <span className="text-farm-text font-bold text-[14px] px-1">ถึง</span>
+
+          <div className="w-[180px]">
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              customInput={<CustomDateInput placeholder="search your date" dataTest="worker-advance-end-date" />}
+              dateFormat="dd/MM/yyyy"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ตาราง */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
+        <div className="overflow-x-auto w-full">
+          <table data-test="worker-advance-table" className="w-full table-fixed text-center border-collapse min-w-[800px]">
+            <colgroup>
+              <col className="w-1/4" />
+              <col className="w-1/4" />
+              <col className="w-1/4" />
+              <col className="w-1/4" />
+            </colgroup>
+            <thead className="bg-[#E8E8E8] border-b border-gray-200">
+              <tr>
+                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">วันที่</th>
+                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">ชื่อสินค้า</th>
+                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">ประเภทการเบิก</th>
+                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">จำนวนเงิน</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredData.length > 0 ? (
+                filteredData.map((item) => (
+                  <tr key={item.id} data-test="worker-advance-row" className="hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-6 text-center font-medium text-farm-text text-[14px] whitespace-nowrap">
+                      {item.displayDate}
+                    </td>
+                    <td className="py-4 px-6 text-center font-medium text-farm-text text-[14px]">
+                      {item.itemName || '-'}
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      <span
+                        data-test="worker-advance-row-type"
+                        className={`inline-block min-w-[88px] px-4 py-1 rounded-full text-[13px] font-medium ${item.badgeClass}`}
+                      >
+                        {item.typeLabel}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-center font-medium text-farm-text text-[15px] whitespace-nowrap">
+                      {formatBaht(item.amount)} <span className="ml-1">บาท</span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="py-12 text-center text-gray-400 font-medium">
+                    ไม่พบรายการเบิกที่ตรงกับเงื่อนไข
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

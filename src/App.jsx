@@ -18,6 +18,7 @@ import AuditLogs from './pages/superadmin/AuditLogs';
 import WorkerLayout from './layouts/worker/WorkerLayout';
 import WorkerDashboard from './pages/worker/WorkerDashboard';
 import WorkerHistory from './pages/worker/WorkerHistory';
+import WorkerSalaryAdvance from './pages/worker/WorkerSalaryAdvance';
 import Login from './pages/auth/Login';
 import { useAuthStore } from './controller/authController';
 
@@ -71,6 +72,7 @@ function App() {
         {/* Worker-Only Routes */}
         <Route element={<AuthGuard allowedRoles={['worker']}><WorkerLayout /></AuthGuard>}>
           <Route path="/history" element={<WorkerHistory />} />
+          <Route path="/salary-advance" element={<WorkerSalaryAdvance />} />
         </Route>
 
         {/* Admin-Only Routes */}

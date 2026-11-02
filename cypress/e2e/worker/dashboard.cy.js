@@ -35,16 +35,16 @@ describe('Worker - Dashboard', () => {
       cy.loginSession(username, 'NewPass123');
       cy.visit('/dashboard');
 
-      // 1. ตรวจสอบชื่อคนงานที่มุมซ้ายบน
+      // 1. ตรวจสอบชื่อคนงานที่มุมขวาบน
       cy.contains(fullName).should('be.visible');
 
-      // 2. ตรวจสอบการ์ดสรุปยอดเงินหลักทั้ง 3 ใบ
-      cy.contains('My balance').should('be.visible');
+      // 2. ตรวจสอบการ์ดสรุปยอดเงินหลักทั้ง 3 ใบตามดีไซน์ใหม่
+      cy.contains('Total Earning').should('be.visible');
+      cy.contains('Total SalaryAdvance').should('be.visible');
       cy.contains('RemainingBalance').should('be.visible');
-      cy.contains("Today's income").should('be.visible');
 
       // 3. ตรวจสอบยอดเงินรวม (2 ร่อง ร่องละ 100 วา = 400 บาท) + (5 ถัง ถังละ 150 บาท = 750 บาท) รวม 1,150 บาท
-      cy.contains('1,150').should('be.visible');
+      cy.getByTestID('worker-total-earning').should('contain', '฿1,150');
     });
   });
 
@@ -85,10 +85,11 @@ describe('Worker - Dashboard', () => {
       cy.loginSession(username, 'NewPass123');
       cy.visit('/dashboard');
 
-      cy.contains('My balance').should('be.visible');
-      cy.contains('฿1,150').should('be.visible');
-      cy.contains('RemainingBalance').should('be.visible');
-      cy.contains('฿800').should('be.visible');
+      cy.getByTestID('worker-total-earning').should('contain', '฿1,150');
+      cy.getByTestID('worker-total-advance').should('contain', '฿350');
+      cy.getByTestID('worker-remaining-balance')
+        .should('contain', '฿800')
+        .and('have.class', 'text-[#2E5119]');
     });
   });
 
@@ -104,11 +105,10 @@ describe('Worker - Dashboard', () => {
       cy.loginSession(username, 'NewPass123');
       cy.visit('/dashboard');
 
-      cy.contains('My balance').should('be.visible');
-      cy.contains('฿1,150').should('be.visible');
-      cy.contains('RemainingBalance').should('be.visible');
-      cy.contains('-฿100')
-        .should('be.visible')
+      cy.getByTestID('worker-total-earning').should('contain', '฿1,150');
+      cy.getByTestID('worker-total-advance').should('contain', '฿1,250');
+      cy.getByTestID('worker-remaining-balance')
+        .should('contain', '-฿100')
         .and('have.class', 'text-[#C80303]');
     });
   });
@@ -125,12 +125,11 @@ describe('Worker - Dashboard', () => {
       cy.loginSession(username, 'NewPass123');
       cy.visit('/dashboard');
 
-      cy.contains('My balance').should('be.visible');
-      cy.contains('฿1,150').should('be.visible');
-      cy.contains('RemainingBalance').should('be.visible');
-      cy.contains('฿700')
-        .should('be.visible')
-        .and('have.class', 'text-[#3B4D36]');
+      cy.getByTestID('worker-total-earning').should('contain', '฿1,150');
+      cy.getByTestID('worker-total-advance').should('contain', '฿450');
+      cy.getByTestID('worker-remaining-balance')
+        .should('contain', '฿700')
+        .and('have.class', 'text-[#2E5119]');
     });
   });
 
@@ -146,12 +145,34 @@ describe('Worker - Dashboard', () => {
       cy.loginSession(username, 'NewPass123');
       cy.visit('/dashboard');
 
-      cy.contains('My balance').should('be.visible');
-      cy.contains('฿1,150').should('be.visible');
-      cy.contains('RemainingBalance').should('be.visible');
-      cy.contains('-฿200')
-        .should('be.visible')
+      cy.getByTestID('worker-total-earning').should('contain', '฿1,150');
+      cy.getByTestID('worker-total-advance').should('contain', '฿1,350');
+      cy.getByTestID('worker-remaining-balance')
+        .should('contain', '-฿200')
         .and('have.class', 'text-[#C80303]');
+    });
+  });
+
+  it('WK-DASH-008 Filters Tasks card by period (รายเดือน / รายวัน / รายปี)', () => {
+    seedWorkerWithLogs().then(({ username }) => {
+      cy.loginSession(username, 'NewPass123');
+      cy.visit('/dashboard');
+
+      // ค่าเริ่มต้นคือ รายเดือน -> ยอดรวมใน Donut Chart คือ ฿1,150
+      cy.getByTestID('worker-tasks-period').should('contain', 'รายเดือน');
+      cy.getByTestID('worker-tasks-total').should('contain', '฿1,150');
+
+      // สลับเป็น รายวัน -> งานที่บันทึกวันนี้รวม ฿1,150
+      cy.getByTestID('worker-tasks-period').click();
+      cy.getByTestID('worker-tasks-period-opt-day').click();
+      cy.getByTestID('worker-tasks-period').should('contain', 'รายวัน');
+      cy.getByTestID('worker-tasks-total').should('contain', '฿1,150');
+
+      // สลับเป็น รายปี -> งานในปีนี้รวม ฿1,150
+      cy.getByTestID('worker-tasks-period').click();
+      cy.getByTestID('worker-tasks-period-opt-year').click();
+      cy.getByTestID('worker-tasks-period').should('contain', 'รายปี');
+      cy.getByTestID('worker-tasks-total').should('contain', '฿1,150');
     });
   });
 });

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, History, LogOut } from 'lucide-react';
+import { LayoutDashboard, History, Wallet, LogOut } from 'lucide-react';
 import logo from '../../assets/sugarcane-logo.png';
 import SetPasswordModal from '../../components/auth/SetPasswordModal';
 import { useAuthStore } from '../../controller/authController';
@@ -34,7 +34,11 @@ export default function WorkerLayout({ children }) {
     return `${linkBase} ${isActive ? linkActive : linkInactive}`;
   };
 
-  const pageTitle = location.pathname.includes('/history') ? 'History' : 'Dashboard';
+  const pageTitle = location.pathname.includes('/salary-advance')
+    ? 'Salary Advance'
+    : location.pathname.includes('/history')
+      ? 'History'
+      : 'Dashboard';
 
   return (
     <div className="flex h-screen bg-[#F9FAFB] text-farm-text font-sans relative">
@@ -64,6 +68,10 @@ export default function WorkerLayout({ children }) {
             <Link to="/history" className={getNavClass('/history')}>
               <History className="h-5 w-5" />
               <span>History</span>
+            </Link>
+            <Link to="/salary-advance" data-test="nav-worker-salary-advance" className={getNavClass('/salary-advance')}>
+              <Wallet className="h-5 w-5" />
+              <span>Salary Advance</span>
             </Link>
           </nav>
         </div>
