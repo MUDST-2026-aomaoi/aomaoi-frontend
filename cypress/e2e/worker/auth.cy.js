@@ -29,8 +29,9 @@ describe('Worker - Authentication Flow', () => {
       cy.location('pathname').should('eq', '/dashboard');
       
       // Verify worker-specific elements are visible
-      cy.contains('My balance');
-      cy.contains('RemainingBalance');
+      cy.contains('Total Earning').should('be.visible');
+      cy.contains('Total SalaryAdvance').should('be.visible');
+      cy.contains('RemainingBalance').should('be.visible');
     });
   });
 
