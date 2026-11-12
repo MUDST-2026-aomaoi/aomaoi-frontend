@@ -55,7 +55,7 @@ const PERIOD_OPTIONS = [
 ];
 
 function PeriodSelect({ value, onChange }) {
-  return <Dropdown value={value} onChange={onChange} options={PERIOD_OPTIONS} className="w-32" />;
+  return <Dropdown value={value} onChange={onChange} options={PERIOD_OPTIONS} className="w-full sm:w-32" />;
 }
 
 export default function Dashboard() {
@@ -146,18 +146,18 @@ export default function Dashboard() {
     <div>
       <PageHeader title="Dashboard" />
 
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-8">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 2xl:grid-cols-8">
         <div className="col-span-2 flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
           <p className="mb-1 font-medium text-gray-600">ยอดชำระรวม</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-4xl font-bold text-[#205e2e]">{formatNumber(totalAllTime)}</h3>
+            <h3 className="text-2xl font-bold text-[#205e2e] sm:text-4xl">{formatNumber(totalAllTime)}</h3>
             <span className="font-medium text-gray-400">บาท</span>
           </div>
         </div>
         <div className="col-span-2 flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
           <p className="mb-1 font-medium text-gray-600">ยอดชำระเดือนนี้</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-4xl font-bold text-gray-700">{formatNumber(totalThisMonth)}</h3>
+            <h3 className="text-2xl font-bold text-gray-700 sm:text-4xl">{formatNumber(totalThisMonth)}</h3>
             <span className="font-medium text-gray-400">บาท</span>
           </div>
         </div>
@@ -191,16 +191,16 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-7">
-          <div className="mb-6 flex items-center justify-between">
-            <h3 className="text-lg font-bold text-gray-900">Payroll Overview</h3>
-            <div className="flex gap-2">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:gap-6 2xl:grid-cols-12">
+        <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-7">
+          <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <h3 className="whitespace-nowrap text-lg font-bold text-gray-900">Payroll Overview</h3>
+            <div className="flex flex-col gap-2 sm:flex-row">
               <PeriodSelect value={trendPeriod} onChange={setTrendPeriod} />
               <Dropdown
                 value={trendTypeFilter}
                 onChange={setTrendTypeFilter}
-                className="w-44"
+                className="w-full sm:w-44"
                 options={[
                   { value: 'all', label: 'ประเภทงานทั้งหมด' },
                   ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
@@ -209,7 +209,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="h-64 w-full">
+          <div className="h-56 w-full sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={monthlyTrend} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                 <defs>
@@ -237,14 +237,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="flex flex-col rounded-xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-5">
-          <div className="mb-2 flex items-center justify-between">
+        <div className="flex min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-5">
+          <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <h3 className="text-lg font-bold text-gray-900">Payroll Breakdown by Task</h3>
             <PeriodSelect value={breakdownPeriod} onChange={setBreakdownPeriod} />
           </div>
 
-          <div className="flex flex-1 items-center justify-center gap-10">
-            <div className="relative h-50 w-50">
+          <div className="flex flex-1 flex-col items-center justify-center gap-6 sm:flex-row sm:gap-10">
+            <div className="relative h-50 w-50 shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -272,7 +272,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex w-full flex-col gap-4 sm:w-auto">
               {breakdown.map((entry) => (
                 <div key={entry.key} className="flex items-start gap-2">
                   <div className="mt-1 h-4 w-4 shrink-0 rounded-full" style={{ backgroundColor: entry.color }} />
@@ -288,14 +288,15 @@ export default function Dashboard() {
       </div>
 
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-gray-100 p-5">
+        <div className="flex items-center justify-between border-b border-gray-100 p-4 sm:p-5">
           <h3 className="text-xl font-bold text-gray-900">Work Activity Log</h3>
           <Link to="/work" data-test="dashboard-worklog-more" className="flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-gray-900">
             More <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
-        <table className="w-full text-center text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-160 text-center text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
               <th className="px-4 py-3.5 pl-6 text-left text-xs font-semibold uppercase tracking-wide">Name</th>
@@ -336,6 +337,7 @@ export default function Dashboard() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
