@@ -12,23 +12,25 @@ import { SuccessModal } from '../../components/ui/SuccessModal';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useSalaryAdvanceStore } from '../../store/useSalaryAdvanceStore';
 import { useWorkerStore } from '../../store/useWorkerStore';
+import { getLocale, t as tr } from '../../i18n';
+import { tError } from '../../i18n/backendMessages';
 
 const ADVANCE_TYPES = {
-  CASH: { labelTh: 'เงินสด', badgeClass: 'bg-[#dcfce7] text-[#166534]' },
-  GOODS: { labelTh: 'สิ่งของ', badgeClass: 'bg-[#fef08a] text-[#854d0e]' },
+  CASH: { get labelTh() { return tr('advance.cash'); }, badgeClass: 'bg-[#dcfce7] text-[#166534]' },
+  GOODS: { get labelTh() { return tr('advance.goods'); }, badgeClass: 'bg-[#fef08a] text-[#854d0e]' },
 };
 
-const schema = z
+const makeSchema = (t) => z
   .object({
-    workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),
-    advanceDate: z.string().min(1, 'กรุณาเลือกวันที่'),
+    workerId: z.string().min(1, t('wl.err.workerRequired')),
+    advanceDate: z.string().min(1, t('wl.err.dateRequired')),
     type: z.enum(['CASH', 'GOODS']),
-    itemName: z.string().max(255, 'ชื่อสินค้ายาวเกินไป'),
-    amount: z.coerce.number({ message: 'กรุณากรอกจำนวนเงิน' }).positive('ต้องมากกว่า 0'),
+    itemName: z.string().max(255, t('adv.err.itemTooLong')),
+    amount: z.coerce.number({ message: t('adv.err.amountRequired') }).positive(t('wl.err.positive')),
   })
   .refine((v) => v.type !== 'GOODS' || v.itemName.trim() !== '', {
     path: ['itemName'],
-    message: 'กรุณากรอกชื่อสินค้า',
+    message: t('adv.err.itemRequired'),
   });
 
 function todayISO() {
@@ -41,14 +43,15 @@ function emptyValues() {
 
 function formatShortDate(dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return new Date(y, m - 1, d).toLocaleDateString(getLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 function formatAmount(n) {
-  return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 2 });
+  return Number(n).toLocaleString(getLocale(), { maximumFractionDigits: 2 });
 }
 
 export default function AdvanceSalary() {
+  const t = useT();
   const allWorkers = useWorkerStore((s) => s.workers);
   const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
   const advances = useSalaryAdvanceStore((s) => s.advances);
@@ -66,7 +69,7 @@ export default function AdvanceSalary() {
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(schema), defaultValues: emptyValues() });
+  } = useForm({ resolver: zodResolver(makeSchema(t)), defaultValues: emptyValues() });
 
   const type = watch('type');
 
@@ -99,17 +102,17 @@ export default function AdvanceSalary() {
       reset(emptyValues());
       setShowSuccess(true);
     } catch (error) {
-      setSubmitError(error.response?.data?.message || 'บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+      setSubmitError(tError(error, t('wlog.saveFailed')));
     }
   }
 
   return (
     <div>
-      <PageHeader title="Advance Salary" />
+      <PageHeader title={t('adv.pageTitle')} />
 
       <div className="grid gap-6 lg:grid-cols-[2fr_3fr]">
         <Card className="p-4 sm:p-6">
-          <h2 className="mb-4 text-lg font-bold text-farm-text sm:mb-6">เพิ่มรายการเบิก</h2>
+          <h2 className="mb-4 text-lg font-bold text-farm-text sm:mb-6">{t('adv.formTitle')}</h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {submitError && (
               <div data-test="advance-submit-error" className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700">
@@ -122,13 +125,13 @@ export default function AdvanceSalary() {
               name="workerId"
               render={({ field }) => (
                 <Dropdown
-                  label="เลือกคนงาน"
+                  label={t('wlog.pickWorker')}
                   dataTest="advance-form-worker"
                   value={field.value}
                   onChange={field.onChange}
                   error={errors.workerId?.message}
                   options={[
-                    { value: '', label: 'เลือกคนงาน' },
+                    { value: '', label: t('wlog.pickWorker') },
                     ...activeWorkers.map((w) => ({ value: String(w.id), label: w.fullName })),
                   ]}
                 />
@@ -140,7 +143,7 @@ export default function AdvanceSalary() {
               name="advanceDate"
               render={({ field }) => (
                 <DateInput
-                  label="วันที่เบิก"
+                  label={t('adv.date')}
                   dataTest="advance-form-date"
                   value={field.value}
                   onChange={field.onChange}
@@ -151,8 +154,8 @@ export default function AdvanceSalary() {
 
             {type === 'GOODS' && (
               <Input
-                label="ชื่อสินค้า"
-                placeholder="เช่น ข้าวสาร"
+                label={t('adv.item')}
+                placeholder={t('adv.itemPlaceholder')}
                 data-test="advance-form-item"
                 {...register('itemName')}
                 error={errors.itemName?.message}
@@ -163,7 +166,7 @@ export default function AdvanceSalary() {
               type="number"
               step="any"
               min="0"
-              label="จำนวนเงิน (บาท)"
+              label={t('adv.amount')}
               placeholder="0"
               data-test="advance-form-amount"
               {...register('amount')}
@@ -187,26 +190,26 @@ export default function AdvanceSalary() {
 
             <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:gap-4">
               <Button type="submit" variant="accent" data-test="advance-save-btn" className="flex-1" disabled={isSubmitting}>
-                บันทึกการเบิก
+                {t('adv.save')}
               </Button>
               <Button type="button" variant="subtle" data-test="advance-reset-btn" className="flex-1" onClick={handleReset}>
-                ล้างฟอร์ม
+                {t('adv.reset')}
               </Button>
             </div>
           </form>
         </Card>
 
         <Card className="min-w-0 p-4 sm:p-6">
-          <h2 className="mb-4 text-lg font-bold text-farm-text sm:mb-6">รายการเบิกล่าสุด</h2>
-          <div tabIndex={0} role="region" aria-label="รายการเบิกล่าสุด" className="max-h-[32rem] overflow-auto rounded-lg border border-gray-200">
+          <h2 className="mb-4 text-lg font-bold text-farm-text sm:mb-6">{t('adv.recent')}</h2>
+          <div tabIndex={0} role="region" aria-label={t('adv.recent')} className="max-h-[32rem] overflow-auto rounded-lg border border-gray-200">
             <table className="w-full min-w-[560px] border-collapse text-center text-xs sm:text-sm">
               <thead className="sticky top-0 bg-[#3F5C2B] text-white">
                 <tr>
-                  <th className="px-3 py-3 sm:px-4 font-medium">วันที่</th>
-                  <th className="px-3 py-3 sm:px-4 text-left font-medium">ชื่อคนงาน</th>
-                  <th className="px-3 py-3 sm:px-4 font-medium">ประเภท</th>
-                  <th className="px-3 py-3 sm:px-4 font-medium">รายละเอียด</th>
-                  <th className="px-3 py-3 sm:px-4 text-right font-medium">มูลค่า (บาท)</th>
+                  <th className="px-3 py-3 sm:px-4 font-medium">{t('col.date')}</th>
+                  <th className="px-3 py-3 sm:px-4 text-left font-medium">{t('adv.col.worker')}</th>
+                  <th className="px-3 py-3 sm:px-4 font-medium">{t('adv.col.type')}</th>
+                  <th className="px-3 py-3 sm:px-4 font-medium">{t('adv.col.detail')}</th>
+                  <th className="px-3 py-3 sm:px-4 text-right font-medium">{t('adv.col.value')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -241,7 +244,7 @@ export default function AdvanceSalary() {
                 {sorted.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-8 text-gray-400">
-                      ไม่พบรายการ
+                      {t('common.noItems')}
                     </td>
                   </tr>
                 )}
@@ -251,7 +254,7 @@ export default function AdvanceSalary() {
         </Card>
       </div>
 
-      {showSuccess && <SuccessModal onClose={() => setShowSuccess(false)} message="บันทึกการเบิกสำเร็จ" />}
+      {showSuccess && <SuccessModal onClose={() => setShowSuccess(false)} message={t('adv.savedOk')} />}
     </div>
   );
 }

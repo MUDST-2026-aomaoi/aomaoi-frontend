@@ -13,18 +13,20 @@ import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToo
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { workerService } from '../../service/workerService';
+import { tError } from '../../i18n/backendMessages';
 import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
+import { useT } from '../../i18n';
 
-const workerSchema = z.object({
-  fullName: z.string().min(1, 'กรุณากรอกชื่อ-นามสกุล').regex(/^[^0-9]*$/, 'ชื่อ-นามสกุลต้องไม่มีตัวเลข'),
-  nickname: z.string().min(1, 'กรุณากรอกชื่อเล่น').regex(/^[^0-9]*$/, 'ชื่อเล่นต้องไม่มีตัวเลข'),
-  username: z.string().min(3, 'ต้องมีอย่างน้อย 3 ตัวอักษร'),
-  phone: z.string().regex(/^[0-9]{10}$/, 'เบอร์โทรต้องเป็นตัวเลข 10 หลัก'),
+const makeWorkerSchema = (t) => z.object({
+  fullName: z.string().min(1, t('form.err.fullName')).regex(/^[^0-9]*$/, t('form.err.fullNameDigits')),
+  nickname: z.string().min(1, t('form.err.nickname')).regex(/^[^0-9]*$/, t('form.err.nicknameDigits')),
+  username: z.string().min(3, t('form.err.min3')),
+  phone: z.string().regex(/^[0-9]{10}$/, t('form.err.phone')),
 });
 
-const addWorkerSchema = workerSchema.extend({
-  tempPassword: z.string().min(6, 'ต้องมีอย่างน้อย 6 ตัวอักษร'),
+const makeAddWorkerSchema = (t) => makeWorkerSchema(t).extend({
+  tempPassword: z.string().min(6, t('form.err.min6')),
 });
 
 function randomPassword() {
@@ -33,6 +35,7 @@ function randomPassword() {
 }
 
 function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) {
+  const t = useT();
   const [avatarPreview, setAvatarPreview] = useState(worker?.avatar || null);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -43,7 +46,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(workerSchema), defaultValues: worker });
+  } = useForm({ resolver: zodResolver(makeWorkerSchema(t)), defaultValues: worker });
 
   function handleAvatarChange(e) {
     const file = e.target.files?.[0];
@@ -55,7 +58,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
 
   const handleResetPassword = async () => {
     if (newPassword.length < 6) {
-      alert("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร");
+      alert(t('setpw.err.minLength'));
       return;
     }
     setIsChangingPassword(true);
@@ -68,7 +71,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
       }
     } catch (err) {
       console.error("Failed to reset password", err);
-      alert("ไม่สามารถเปลี่ยนรหัสผ่านได้: " + (err.response?.data?.message || err.message));
+      alert(t('wk.err.resetFailed') + ': ' + tError(err));
     } finally {
       setIsChangingPassword(false);
     }
@@ -77,7 +80,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
   return (
     <form onSubmit={handleSubmit((data) => onSubmit({ ...data, avatar: avatarPreview ?? undefined }))}>
       <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">Edit Worker</h3>
+        <h3 className="text-lg font-bold text-farm-primary">{t('wk.editTitle')}</h3>
         <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
           <X className="h-5 w-5" />
         </button>
@@ -104,23 +107,23 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input data-test="worker-form-fullname" label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
-        <Input data-test="worker-form-nickname" label="ชื่อเล่น" {...register('nickname')} error={errors.nickname?.message} />
-        <Input data-test="worker-form-username" label="Username" {...register('username')} error={errors.username?.message} />
-        <Input data-test="worker-form-phone" label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
+        <Input data-test="worker-form-fullname" label={t('form.fullName')} {...register('fullName')} error={errors.fullName?.message} />
+        <Input data-test="worker-form-nickname" label={t('form.nickname')} {...register('nickname')} error={errors.nickname?.message} />
+        <Input data-test="worker-form-username" label={t('form.username')} {...register('username')} error={errors.username?.message} />
+        <Input data-test="worker-form-phone" label={t('form.phone')} {...register('phone')} error={errors.phone?.message} />
       </div>
 
       <div className="mb-8">
         {!showPasswordChange ? (
           <div className="flex justify-end">
             <button type="button" data-test="worker-resetpw-toggle" onClick={() => setShowPasswordChange(true)} className="text-sm font-medium text-farm-primary hover:underline">
-              + เปลี่ยนรหัสผ่านคนงาน
+              {t('wk.changePassword')}
             </button>
           </div>
         ) : (
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h4 className="text-sm font-bold text-gray-700">เปลี่ยนรหัสผ่านคนงาน</h4>
+              <h4 className="text-sm font-bold text-gray-700">{t('wk.changePasswordTitle')}</h4>
               <button type="button" onClick={() => setShowPasswordChange(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="h-4 w-4" />
               </button>
@@ -131,11 +134,11 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
                 data-test="worker-resetpw-input"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)"
+                placeholder={t('wk.newPasswordPlaceholder')}
                 className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-farm-primary focus:outline-none focus:ring-1 focus:ring-farm-primary"
               />
               <Button type="button" data-test="worker-resetpw-save" variant="primary" onClick={handleResetPassword} disabled={isChangingPassword}>
-                {isChangingPassword ? 'กำลังเปลี่ยน...' : 'บันทึกรหัสผ่าน'}
+                {isChangingPassword ? t('common.changing') : t('common.savePassword')}
               </Button>
             </div>
             <div className="mt-2 flex gap-2">
@@ -144,7 +147,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
                 onClick={() => setNewPassword(randomPassword())}
                 className="flex items-center gap-1 text-xs font-medium text-farm-primary hover:underline"
               >
-                <Shuffle size={12} /> สุ่มรหัสผ่าน
+                <Shuffle size={12} /> {t('form.randomPasswordShort')}
               </button>
             </div>
           </div>
@@ -153,10 +156,10 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
 
       <div className="flex w-full gap-4">
         <Button type="button" data-test="worker-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
-          cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" data-test="worker-form-submit" className="flex-1">
-          confirm
+          {t('common.confirm')}
         </Button>
       </div>
     </form>
@@ -164,6 +167,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
 }
 
 function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
+  const t = useT();
   const [avatarPreview, setAvatarPreview] = useState(null);
   const fileInputRef = useRef(null);
   const {
@@ -171,7 +175,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(addWorkerSchema), defaultValues });
+  } = useForm({ resolver: zodResolver(makeAddWorkerSchema(t)), defaultValues });
 
   function handleAvatarChange(e) {
     const file = e.target.files?.[0];
@@ -184,7 +188,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
   return (
     <form onSubmit={handleSubmit((data) => onSubmit({ ...data, avatar: avatarPreview ?? undefined }))}>
       <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">Add New Worker</h3>
+        <h3 className="text-lg font-bold text-farm-primary">{t('wk.addTitle')}</h3>
         <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
           <X className="h-5 w-5" />
         </button>
@@ -206,34 +210,34 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input data-test="worker-form-fullname" label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
-        <Input data-test="worker-form-nickname" label="ชื่อเล่น" {...register('nickname')} error={errors.nickname?.message} />
-        <Input data-test="worker-form-username" label="Username" {...register('username')} error={errors.username?.message} />
-        <Input data-test="worker-form-phone" label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
+        <Input data-test="worker-form-fullname" label={t('form.fullName')} {...register('fullName')} error={errors.fullName?.message} />
+        <Input data-test="worker-form-nickname" label={t('form.nickname')} {...register('nickname')} error={errors.nickname?.message} />
+        <Input data-test="worker-form-username" label={t('form.username')} {...register('username')} error={errors.username?.message} />
+        <Input data-test="worker-form-phone" label={t('form.phone')} {...register('phone')} error={errors.phone?.message} />
       </div>
 
       <div className="mb-2">
-        <Input data-test="worker-form-temppw" label="รหัสผ่านชั่วคราว" {...register('tempPassword')} error={errors.tempPassword?.message} />
+        <Input data-test="worker-form-temppw" label={t('form.tempPassword')} {...register('tempPassword')} error={errors.tempPassword?.message} />
         <button
           type="button"
           onClick={() => setValue('tempPassword', randomPassword(), { shouldValidate: true })}
           className="mt-1 flex items-center gap-1 text-xs font-medium text-farm-primary hover:underline"
         >
-          <Shuffle size={12} /> สุ่มรหัสผ่านใหม่
+          <Shuffle size={12} /> {t('form.randomPassword')}
         </button>
       </div>
 
       <div className="mb-6 mt-3 flex items-start gap-2 rounded-md bg-[#FEF3C7] p-3 text-xs text-[#92400E]">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
-        <p>ส่งข้อมูลนี้ให้คนงานทางที่สะดวก ระบบจะบังคับเปลี่ยนรหัสผ่านตอนเข้าสู่ระบบครั้งแรก</p>
+        <p>{t('wk.tempPwNote')}</p>
       </div>
 
       <div className="flex w-full gap-4">
         <Button type="button" data-test="worker-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
-          cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" data-test="worker-form-submit" className="flex-1">
-          confirm
+          {t('common.confirm')}
         </Button>
       </div>
     </form>
@@ -241,6 +245,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
 }
 
 export default function Workers() {
+  const t = useT();
   const workers = useWorkerStore((s) => s.workers);
   const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
   const addWorker = useWorkerStore((s) => s.addWorker);
@@ -280,7 +285,7 @@ export default function Workers() {
       setModal({ mode: 'success', action: 'add' });
     } catch (error) {
       console.error("Failed to add worker", error);
-      alert("Failed to add worker: " + (error.response?.data?.message || error.message));
+      alert(t('wk.err.addFailed') + ': ' + tError(error));
     }
   }
 
@@ -291,7 +296,7 @@ export default function Workers() {
       setModal({ mode: 'success', action: 'edit' });
     } catch (error) {
       console.error(error);
-      alert('Failed to update worker');
+      alert(t('wk.err.updateFailed'));
     }
   }
 
@@ -302,18 +307,18 @@ export default function Workers() {
       setModal({ mode: 'success', action: 'delete', worker: modal.worker });
     } catch (error) {
       console.error(error);
-      alert('Failed to delete worker');
+      alert(t('wk.err.deleteFailed'));
     }
   }
 
   return (
     <div>
-      <PageHeader title="Worker Management" />
+      <PageHeader title={t('wk.pageTitle')} />
 
       <TableToolbar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="ค้นหาชื่อ, username, เบอร์โทร"
+        searchPlaceholder={t('wk.search')}
         searchTestId="worker-search"
         action={
           <Button
@@ -328,7 +333,7 @@ export default function Workers() {
             }
           >
             <UserPlus className="h-5 w-5" />
-            <span>เพิ่มคนงานใหม่</span>
+            <span>{t('wk.addBtn')}</span>
           </Button>
         }
       >
@@ -337,7 +342,7 @@ export default function Workers() {
           onChange={setWorkerFilter}
           className={TOOLBAR_FILTER_CLASS}
           dataTest="worker-name-filter"
-          options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...workers.map((w) => ({ value: w.id, label: w.fullName }))]}
+          options={[{ value: 'all', label: t('common.allWorkers') }, ...workers.map((w) => ({ value: w.id, label: w.fullName }))]}
         />
         <Dropdown
           value={statusFilter}
@@ -345,7 +350,7 @@ export default function Workers() {
           className={TOOLBAR_FILTER_CLASS}
           dataTest="worker-status-filter"
           options={[
-            { value: 'all', label: 'สถานะทั้งหมด' },
+            { value: 'all', label: t('common.allStatuses') },
             { value: 'active', label: 'Active' },
             { value: 'pending', label: 'Pending' },
             { value: 'inactive', label: 'Inactive' },
@@ -353,17 +358,17 @@ export default function Workers() {
         />
       </TableToolbar>
 
-      <div tabIndex={0} role="region" aria-label="รายชื่อคนงาน" className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div tabIndex={0} role="region" aria-label={t('wk.tableLabel')} className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
         <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
           <thead className="sticky top-0 z-10 bg-[#3F5C2B] text-white">
             <tr>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 pl-4 sm:pl-6 text-left font-medium">Name</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Nickname</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Username</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Phone Number</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Status</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Start Date</th>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 pr-4 sm:pr-6 font-medium">Manage</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 pl-4 sm:pl-6 text-left font-medium">{t('col.name')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.nickname')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.username')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.phone')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.status')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.startDate')}</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 pr-4 sm:pr-6 font-medium">{t('col.manage')}</th>
             </tr>
           </thead>
           <tbody>
@@ -413,7 +418,7 @@ export default function Workers() {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className="py-8 text-gray-400">
-                  ไม่พบคนงานที่ตรงกับเงื่อนไข
+                  {t('wk.empty')}
                 </td>
               </tr>
             )}
@@ -446,14 +451,14 @@ export default function Workers() {
             <X className="h-5 w-5" />
           </button>
           <AlertTriangle className="mb-4 h-16 w-16 stroke-[1.5] text-red-600" />
-          <p className="mb-1 font-medium text-gray-800">ยืนยันการลบคนงาน "{modal.worker.fullName}"?</p>
-          <p className="mb-8 text-sm font-medium text-red-600">ประวัติการทำงานจะยังอยู่ แต่จะไม่สามารถเข้าสู่ระบบได้อีก</p>
+          <p className="mb-1 font-medium text-gray-800">{t('wk.deleteConfirm', { name: modal.worker.fullName })}</p>
+          <p className="mb-8 text-sm font-medium text-red-600">{t('wk.deleteNote')}</p>
           <div className="flex w-full gap-4">
             <Button variant="outline" className="flex-1" onClick={closeModal}>
-              cancel
+              {t('common.cancel')}
             </Button>
             <Button variant="danger" data-test="worker-delete-confirm" className="flex-1" onClick={handleConfirmDelete}>
-              confirm
+              {t('common.confirm')}
             </Button>
           </div>
         </ModalShell>
@@ -463,12 +468,12 @@ export default function Workers() {
         <SuccessModal
           onClose={closeModal}
           message={
-            (modal.action === 'add' && 'เพิ่มคนงานสำเร็จ') ||
-            (modal.action === 'edit' && 'แก้ไขข้อมูลสำเร็จ') ||
-            (modal.action === 'reset-password' && 'เปลี่ยนรหัสผ่านสำเร็จ') ||
-            'ลบคนงานสำเร็จ'
+            (modal.action === 'add' && t('wk.addedOk')) ||
+            (modal.action === 'edit' && t('common.editedOk')) ||
+            (modal.action === 'reset-password' && t('common.passwordChangedOk')) ||
+            t('wk.deletedOk')
           }
-          submessage={modal.action === 'delete' ? `${modal.worker.fullName} ถูกปิดการใช้งานแล้ว` : undefined}
+          submessage={modal.action === 'delete' ? t('wk.deactivated', { name: modal.worker.fullName }) : undefined}
         />
       )}
     </div>

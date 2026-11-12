@@ -17,7 +17,7 @@ export function Modal({ open, onClose, title, children, className = '' }) {
             type="button"
             onClick={onClose}
             className="rounded p-1 text-farm-text/60 hover:bg-farm-bg"
-            aria-label="ปิด"
+            aria-label={t('common.close')}
           >
             <X size={18} />
           </button>

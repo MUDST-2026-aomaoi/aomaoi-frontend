@@ -6,8 +6,10 @@ import { useWorkerStore } from '../../store/useWorkerStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { WORK_LOG_TYPES } from '../../config/workLogTypes';
 import { formatBaht, formatDate } from '../../lib/format';
+import { useT } from '../../i18n';
 
 export default function Overview() {
+  const t = useT();
   const workers = useWorkerStore((s) => s.workers);
   const getWorkerName = useWorkerStore((s) => s.getWorkerName);
   const entries = useWorkLogStore((s) => s.entries);
@@ -23,7 +25,7 @@ export default function Overview() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="ภาพรวม" />
+      <PageHeader title={t('ov.pageTitle')} />
 
       <Card>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -31,10 +33,10 @@ export default function Overview() {
             value={workerFilter}
             onChange={setWorkerFilter}
             className="w-56"
-            options={[{ value: 'all', label: 'คนงานทั้งหมด' }, ...workers.map((w) => ({ value: w.id, label: w.fullName }))]}
+            options={[{ value: 'all', label: t('fb.allWorkers') }, ...workers.map((w) => ({ value: w.id, label: w.fullName }))]}
           />
           <p className="text-sm text-farm-text/70">
-            รวมทั้งหมด: <span className="font-semibold text-farm-primary">{formatBaht(total)}</span>
+            {t('ov.total')} <span className="font-semibold text-farm-primary">{formatBaht(total)}</span>
           </p>
         </div>
 
@@ -42,11 +44,11 @@ export default function Overview() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-farm-secondary/30 text-farm-text/60">
-                <th className="py-2 pr-4 font-medium">วันที่</th>
-                <th className="py-2 pr-4 font-medium">ประเภทงาน</th>
-                <th className="py-2 pr-4 font-medium">คนงาน</th>
-                <th className="py-2 pr-4 font-medium">รายละเอียด</th>
-                <th className="py-2 pr-4 text-right font-medium">ค่าแรง</th>
+                <th className="py-2 pr-4 font-medium">{t('col.date')}</th>
+                <th className="py-2 pr-4 font-medium">{t('wlog.workType')}</th>
+                <th className="py-2 pr-4 font-medium">{t('common.worker')}</th>
+                <th className="py-2 pr-4 font-medium">{t('adv.col.detail')}</th>
+                <th className="py-2 pr-4 text-right font-medium">{t('col.wages')}</th>
               </tr>
             </thead>
             <tbody>
@@ -62,7 +64,7 @@ export default function Overview() {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={5} className="py-6 text-center text-farm-text/50">
-                    ยังไม่มีรายการ
+                    {t('common.noItemsYet')}
                   </td>
                 </tr>
               )}

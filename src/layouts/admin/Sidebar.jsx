@@ -2,12 +2,14 @@ import { NavLink } from 'react-router-dom';
 import { LayoutGrid, Users, FileText, Wallet, Scale, LogOut, X } from 'lucide-react';
 import logo from '../../assets/sugarcane-logo.png';
 import { useAuthStore } from '../../controller/authController';
+import { useT } from '../../i18n';
 
 const linkBase = 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors';
 const linkActive = 'bg-farm-sidebarActive text-white border-l-4 border-farm-sidebarAccent -ml-6 pl-9 rounded-none';
 const linkInactive = 'text-farm-sidebarText hover:text-white';
 
 export function Sidebar({ open = false, onClose }) {
+  const t = useT();
   return (
     <>
       {open && (
@@ -29,7 +31,7 @@ export function Sidebar({ open = false, onClose }) {
           <h1 className="flex-1 text-2xl font-bold text-farm-sidebarAccent">Sugarcane</h1>
           <button
             type="button"
-            aria-label="Close menu"
+            aria-label={t('nav.closeMenu')}
             onClick={onClose}
             className="rounded-lg p-1 text-farm-sidebarText transition-colors hover:text-white md:hidden"
           >
@@ -38,31 +40,31 @@ export function Sidebar({ open = false, onClose }) {
         </div>
 
         <div className="flex-1 px-6 py-4">
-          <p className="mb-4 text-sm text-farm-sidebarText">Menu</p>
+          <p className="mb-4 text-sm text-farm-sidebarText">{t('nav.menu')}</p>
           <nav className="flex flex-col gap-2" onClick={onClose}>
             <NavLink to="/dashboard" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
               <LayoutGrid className="h-5 w-5" />
-              <span>Dashboard</span>
+              <span>{t('nav.dashboard')}</span>
             </NavLink>
 
             <NavLink to="/workers" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
               <Users className="h-5 w-5" />
-              <span>Workers</span>
+              <span>{t('nav.workers')}</span>
             </NavLink>
 
             <NavLink to="/work" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
               <FileText className="h-5 w-5" />
-              <span>Work Log</span>
+              <span>{t('nav.workLog')}</span>
             </NavLink>
 
             <NavLink to="/advance-salary" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
               <Wallet className="h-5 w-5" />
-              <span>Advance Salary</span>
+              <span>{t('nav.advanceSalary')}</span>
             </NavLink>
 
             <NavLink to="/financial-balance" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkInactive}`}>
               <Scale className="h-5 w-5" />
-              <span>Financial Balance</span>
+              <span>{t('nav.financialBalance')}</span>
             </NavLink>
           </nav>
         </div>
@@ -70,7 +72,7 @@ export function Sidebar({ open = false, onClose }) {
         <div className="p-6">
           <button type="button" data-test="logout-button" onClick={() => { useAuthStore.getState().logout(); window.location.href = '/login'; }} className="flex items-center gap-3 text-white transition-colors hover:text-farm-sidebarText">
             <LogOut className="h-5 w-5" />
-            <span>Log out</span>
+            <span>{t('nav.logout')}</span>
           </button>
         </div>
       </aside>

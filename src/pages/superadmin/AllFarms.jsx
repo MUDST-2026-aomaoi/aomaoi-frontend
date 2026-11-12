@@ -14,6 +14,7 @@ import { useFarmStore } from '../../store/useFarmStore';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useWorkerStore } from '../../store/useWorkerStore';
+import { useT } from '../../i18n';
 
 function formatNumber(n) {
   return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 0 });
@@ -25,6 +26,7 @@ const farmSchema = z.object({
 });
 
 function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
+  const t = useT();
   const [imagePreview, setImagePreview] = useState(defaultValues.image ?? null);
   const fileInputRef = useRef(null);
   const {
@@ -75,10 +77,10 @@ function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
 
       <div className="flex w-full gap-4">
         <Button type="button" data-test="farm-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
-          cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" data-test="farm-form-submit" className="flex-1">
-          confirm
+          {t('common.confirm')}
         </Button>
       </div>
     </form>
@@ -86,6 +88,7 @@ function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
 }
 
 export default function AllFarms() {
+  const t = useT();
   const farms = useFarmStore((s) => s.farms);
   const addFarm = useFarmStore((s) => s.addFarm);
   const updateFarm = useFarmStore((s) => s.updateFarm);
@@ -291,10 +294,10 @@ export default function AllFarms() {
           <p className="mb-8 text-sm font-medium text-red-600">ข้อมูลย้อนหลังจะยังอยู่ แต่ฟาร์มนี้จะไม่แสดงในระบบอีก</p>
           <div className="flex w-full gap-4">
             <Button variant="outline" className="flex-1" onClick={closeModal}>
-              cancel
+              {t('common.cancel')}
             </Button>
             <Button variant="danger" data-test="farm-delete-confirm" className="flex-1" onClick={handleConfirmDelete}>
-              confirm
+              {t('common.confirm')}
             </Button>
           </div>
         </ModalShell>

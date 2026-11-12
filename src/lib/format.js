@@ -49,3 +49,8 @@ export function formatDateLong(dateStr) {
 export function monthShort(monthIndex) {
   return new Date(2000, monthIndex, 1).toLocaleDateString(getLocale(), { month: 'short' });
 }
+
+/** Year as shown to the user: Buddhist era in Thai, Gregorian in English. */
+export function displayYear(year) {
+  return getLocale() === 'th-TH' ? year + 543 : year;
+}

@@ -6,14 +6,16 @@ import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToo
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerBalanceStore } from '../../store/useWorkerBalanceStore';
 import { formatAmount } from '../../lib/format';
+import { useT } from '../../i18n';
 
-const STATUS_OPTIONS = [
-  { value: 'all', label: 'สถานะทั้งหมด' },
-  { value: 'debt', label: 'ติดหนี้' },
-  { value: 'ok', label: 'ปกติ' },
+const statusOptions = (t) => [
+  { value: 'all', label: t('common.allStatuses') },
+  { value: 'debt', label: t('fb.debt') },
+  { value: 'ok', label: t('fb.ok') },
 ];
 
 function SummaryTile({ label, value, tone = 'text-gray-700', dataTest }) {
+  const t = useT();
   // Same sizing as the Dashboard stat cards. Unit wraps under the number on very narrow screens.
   return (
     <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
@@ -22,13 +24,14 @@ function SummaryTile({ label, value, tone = 'text-gray-700', dataTest }) {
         <h3 data-test={dataTest} className={`text-2xl font-bold sm:text-3xl ${tone}`}>
           {value}
         </h3>
-        <span className="text-sm font-medium text-gray-400">บาท</span>
+        <span className="text-sm font-medium text-gray-400">{t('common.baht')}</span>
       </div>
     </div>
   );
 }
 
 export default function FinancialBalance() {
+  const t = useT();
   const balances = useWorkerBalanceStore((s) => s.balances);
   const loaded = useWorkerBalanceStore((s) => s.loaded);
   const error = useWorkerBalanceStore((s) => s.error);
@@ -44,10 +47,10 @@ export default function FinancialBalance() {
 
   const workerOptions = useMemo(
     () => [
-      { value: 'all', label: 'คนงานทั้งหมด' },
+      { value: 'all', label: t('fb.allWorkers') },
       ...balances.map((b) => ({ value: String(b.workerId), label: b.nickname ? `${b.fullName} (${b.nickname})` : b.fullName })),
     ],
-    [balances]
+    [balances, t]
   );
 
   const filtered = useMemo(() => {
@@ -75,18 +78,18 @@ export default function FinancialBalance() {
 
   return (
     <div>
-      <PageHeader title="Financial Balance" />
+      <PageHeader title={t('fb.pageTitle')} />
 
       <div className="mb-6 grid grid-cols-3 gap-3 sm:gap-4">
-        <SummaryTile label="รายได้รวม" value={formatAmount(totals.earnings)} tone="text-[#205e2e]" dataTest="balance-total-earnings" />
-        <SummaryTile label="เบิกล่วงหน้ารวม" value={formatAmount(totals.advances)} dataTest="balance-total-advances" />
-        <SummaryTile label="หนี้คงค้างรวม" value={formatAmount(totals.debt)} tone="text-red-600" dataTest="balance-total-debt" />
+        <SummaryTile label={t('fb.totalEarnings')} value={formatAmount(totals.earnings)} tone="text-[#205e2e]" dataTest="balance-total-earnings" />
+        <SummaryTile label={t('fb.totalAdvances')} value={formatAmount(totals.advances)} dataTest="balance-total-advances" />
+        <SummaryTile label={t('fb.totalDebt')} value={formatAmount(totals.debt)} tone="text-red-600" dataTest="balance-total-debt" />
       </div>
 
       <TableToolbar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="ค้นหาชื่อหรือชื่อเล่น"
+        searchPlaceholder={t('fb.search')}
         searchTestId="balance-search"
       >
         <Dropdown
@@ -101,7 +104,7 @@ export default function FinancialBalance() {
           onChange={setStatusFilter}
           className={TOOLBAR_FILTER_CLASS}
           dataTest="balance-status-filter"
-          options={STATUS_OPTIONS}
+          options={statusOptions(t)}
         />
       </TableToolbar>
 
@@ -111,16 +114,16 @@ export default function FinancialBalance() {
         </div>
       )}
 
-      <div tabIndex={0} role="region" aria-label="ยอดคงเหลือคนงาน" className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div tabIndex={0} role="region" aria-label={t('fb.tableLabel')} className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
         <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
           <thead className="sticky top-0 z-10 bg-[#3F5C2B] text-white">
             <tr>
-              <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">Name</th>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">Nickname</th>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">Earnings</th>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">Advances</th>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">Balance</th>
-              <th className="px-3 py-3 pr-4 sm:px-4 sm:py-3.5 sm:pr-6 font-medium">Status</th>
+              <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">{t('col.name')}</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">{t('col.nickname')}</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">{t('fb.col.earnings')}</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">{t('fb.col.advances')}</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">{t('fb.col.balance')}</th>
+              <th className="px-3 py-3 pr-4 sm:px-4 sm:py-3.5 sm:pr-6 font-medium">{t('col.status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -151,9 +154,9 @@ export default function FinancialBalance() {
                 </td>
                 <td className="px-3 py-3 pr-4 sm:px-4 sm:py-4 sm:pr-6" data-test="balance-row-status">
                   {b.inDebt ? (
-                    <span className={`inline-block rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE.inactive}`}>ติดหนี้ {formatAmount(b.outstandingDebt)}</span>
+                    <span className={`inline-block rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE.inactive}`}>{t('fb.debtAmount', { amount: formatAmount(b.outstandingDebt) })}</span>
                   ) : (
-                    <span className={`inline-block min-w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE.active}`}>ปกติ</span>
+                    <span className={`inline-block min-w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE.active}`}>{t('fb.ok')}</span>
                   )}
                 </td>
               </tr>
@@ -161,7 +164,7 @@ export default function FinancialBalance() {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-8 text-gray-400">
-                  {loaded ? 'ไม่พบรายการ' : 'กำลังโหลด...'}
+                  {loaded ? t('common.noItems') : t('common.loading')}
                 </td>
               </tr>
             )}

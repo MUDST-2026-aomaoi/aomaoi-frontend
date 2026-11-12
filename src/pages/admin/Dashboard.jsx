@@ -8,13 +8,13 @@ import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
-import { formatDate, formatDateLong, formatBaht } from '../../lib/format';
+import { formatDate, formatDateLong, formatBaht, monthShort, displayYear } from '../../lib/format';
+import { getLocale, periodOptions } from '../../i18n';
 
-const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const RADIAN = Math.PI / 180;
 
 function formatNumber(n) {
-  return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 0 });
+  return Number(n).toLocaleString(getLocale(), { maximumFractionDigits: 0 });
 }
 
 function formatCompactBaht(n) {
@@ -49,17 +49,13 @@ function renderPercentLabel({ cx, cy, midAngle, innerRadius, outerRadius, percen
   );
 }
 
-const PERIOD_OPTIONS = [
-  { value: 'month', label: 'รายเดือน' },
-  { value: 'day', label: 'รายวัน' },
-  { value: 'year', label: 'รายปี' },
-];
-
 function PeriodSelect({ value, onChange }) {
-  return <Dropdown value={value} onChange={onChange} options={PERIOD_OPTIONS} className="min-w-0 flex-1 sm:w-32 sm:flex-none" />;
+  const t = useT();
+  return <Dropdown value={value} onChange={onChange} options={periodOptions(t)} className="min-w-0 flex-1 sm:w-32 sm:flex-none" />;
 }
 
 export default function Dashboard() {
+  const t = useT();
   const workers = useWorkerStore((s) => s.workers);
   const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
   const getWorkerName = useWorkerStore((s) => s.getWorkerName);
@@ -92,7 +88,7 @@ export default function Dashboard() {
         const total = typedEntries
           .filter((e) => new Date(e.date).toDateString() === d.toDateString())
           .reduce((sum, e) => sum + e.total, 0);
-        return { name: `${d.getDate()} ${THAI_MONTHS_SHORT[d.getMonth()]}`, value: total };
+        return { name: `${d.getDate()} ${monthShort(d.getMonth())}`, value: total };
       });
     }
 
@@ -102,7 +98,7 @@ export default function Dashboard() {
         const total = typedEntries
           .filter((e) => new Date(e.date).getFullYear() === year)
           .reduce((sum, e) => sum + e.total, 0);
-        return { name: String(year + 543), value: total };
+        return { name: String(displayYear(year)), value: total };
       });
     }
 
@@ -114,9 +110,9 @@ export default function Dashboard() {
           return ed.getFullYear() === d.getFullYear() && ed.getMonth() === d.getMonth();
         })
         .reduce((sum, e) => sum + e.total, 0);
-      return { name: THAI_MONTHS_SHORT[d.getMonth()], value: total };
+      return { name: monthShort(d.getMonth()), value: total };
     });
-  }, [entries, trendTypeFilter, trendPeriod]);
+  }, [entries, trendTypeFilter, trendPeriod, t]);
 
   const breakdownEntries = useMemo(() => {
     if (breakdownPeriod === 'day') return entriesToday;
@@ -133,7 +129,7 @@ export default function Dashboard() {
         const value = breakdownEntries.filter((e) => e.type === key).reduce((sum, e) => sum + e.total, 0);
         return { key, name: config.labelTh, color: config.chartColor, value };
       }).filter((d) => d.value > 0),
-    [breakdownEntries]
+    [breakdownEntries, t]
   );
 
   const recentActivity = useMemo(
@@ -143,35 +139,35 @@ export default function Dashboard() {
 
   return (
     <div>
-      <PageHeader title="Dashboard" />
+      <PageHeader title={t('nav.dashboard')} />
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">ยอดชำระรวม</p>
+          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">{t('dash.totalPaid')}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="truncate text-2xl font-bold text-[#205e2e] sm:text-3xl">{formatNumber(totalAllTime)}</h3>
-            <span className="text-sm font-medium text-gray-400">บาท</span>
+            <span className="text-sm font-medium text-gray-400">{t('common.baht')}</span>
           </div>
         </div>
         <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">ยอดชำระเดือนนี้</p>
+          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">{t('dash.paidThisMonth')}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="truncate text-2xl font-bold text-gray-700 sm:text-3xl">{formatNumber(totalThisMonth)}</h3>
-            <span className="text-sm font-medium text-gray-400">บาท</span>
+            <span className="text-sm font-medium text-gray-400">{t('common.baht')}</span>
           </div>
         </div>
         <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">งานทั้งหมด</p>
+          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">{t('dash.totalJobs')}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-gray-700 sm:text-3xl">{entries.length}</h3>
-            <span className="text-sm font-medium text-gray-400">รายการ</span>
+            <span className="text-sm font-medium text-gray-400">{t('common.items')}</span>
           </div>
         </div>
         <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">งานวันนี้</p>
+          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">{t('dash.jobsToday')}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-[#568A3B] sm:text-3xl">{entriesToday.length}</h3>
-            <span className="text-sm font-medium text-gray-400">รายการ</span>
+            <span className="text-sm font-medium text-gray-400">{t('common.items')}</span>
           </div>
         </div>
       </div>
@@ -179,7 +175,7 @@ export default function Dashboard() {
       <div className="mb-6 grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
         <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
-            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Overview</h3>
+            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">{t('dash.payrollOverview')}</h3>
             <div className="flex w-full min-w-0 gap-2 sm:w-auto">
               <PeriodSelect value={trendPeriod} onChange={setTrendPeriod} />
               <Dropdown
@@ -187,7 +183,7 @@ export default function Dashboard() {
                 onChange={setTrendTypeFilter}
                 className="min-w-0 flex-1 sm:w-44 sm:flex-none"
                 options={[
-                  { value: 'all', label: 'ประเภทงานทั้งหมด' },
+                  { value: 'all', label: t('worker.allTypes') },
                   ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
                 ]}
               />
@@ -206,7 +202,7 @@ export default function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" vertical stroke="#f0f0f0" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} tickFormatter={formatCompactBaht} width={64} />
-                <Tooltip formatter={(value) => [`${formatNumber(value)} บาท`, 'ยอดรวม']} />
+                <Tooltip formatter={(value) => [`${formatNumber(value)} ${t('common.baht')}`, t('dash.tooltipTotal')]} />
                 <Area
                   type="monotone"
                   dataKey="value"
@@ -224,7 +220,7 @@ export default function Dashboard() {
 
         <div className="flex min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Breakdown by Task</h3>
+            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">{t('dash.breakdownByTask')}</h3>
             <PeriodSelect value={breakdownPeriod} onChange={setBreakdownPeriod} />
           </div>
 
@@ -251,9 +247,9 @@ export default function Dashboard() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-sm font-semibold text-gray-800">รวม</span>
+                <span className="text-sm font-semibold text-gray-800">{t('common.total')}</span>
                 <span className="text-xl font-bold leading-none text-gray-900">{formatNumber(breakdownTotal)}</span>
-                <span className="text-sm font-semibold text-gray-800">บาท</span>
+                <span className="text-sm font-semibold text-gray-800">{t('common.baht')}</span>
               </div>
             </div>
 
@@ -267,7 +263,7 @@ export default function Dashboard() {
                   <div className="flex min-w-0 flex-1 items-center justify-between gap-2 px-2.5 py-2">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-gray-800">{entry.name}</p>
-                      <p className="truncate text-xs text-gray-500">{formatNumber(entry.value)} บาท</p>
+                      <p className="truncate text-xs text-gray-500">{formatNumber(entry.value)} {t('common.baht')}</p>
                     </div>
                     <span className="shrink-0 text-sm font-bold text-gray-800">
                       {breakdownTotal > 0 ? Math.round((entry.value / breakdownTotal) * 100) : 0}%
@@ -282,22 +278,22 @@ export default function Dashboard() {
 
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4 sm:px-6 sm:py-5">
-          <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Work Activity Log</h3>
+          <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">{t('wlog.pageTitle')}</h3>
           <Link to="/work" data-test="dashboard-worklog-more" className="flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-gray-900">
             More <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
-        <div tabIndex={0} role="region" aria-label="Work Activity Log" className="overflow-x-auto">
+        <div tabIndex={0} role="region" aria-label={t('wlog.pageTitle')} className="overflow-x-auto">
         <table className="w-full min-w-[640px] border-collapse text-center text-xs sm:text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
-              <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">Name</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Date</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Work Type</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Qty</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Unit</th>
-              <th className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-3.5 sm:pr-6 font-medium">Wages</th>
+              <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">{t('col.name')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.date')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.workType')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.qty')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.unit')}</th>
+              <th className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-3.5 sm:pr-6 font-medium">{t('col.wages')}</th>
             </tr>
           </thead>
           <tbody>
@@ -329,7 +325,7 @@ export default function Dashboard() {
             {recentActivity.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-8 text-gray-400">
-                  ยังไม่มีรายการ
+                  {t('common.noItemsYet')}
                 </td>
               </tr>
             )}

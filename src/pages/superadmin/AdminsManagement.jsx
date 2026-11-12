@@ -17,6 +17,7 @@ import { useFarmStore } from '../../store/useFarmStore';
 import { adminService } from '../../service/adminService';
 import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
+import { useT } from '../../i18n';
 
 const adminSchema = z.object({
   fullName: z.string().min(1, 'กรุณากรอกชื่อ-นามสกุล').regex(/^[^0-9]*$/, 'ชื่อ-นามสกุลต้องไม่มีตัวเลข'),
@@ -35,6 +36,7 @@ function randomPassword() {
 }
 
 function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
+  const t = useT();
   const [avatarPreview, setAvatarPreview] = useState(admin?.avatar || null);
   const fileInputRef = useRef(null);
   
@@ -107,10 +109,10 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
 
       <div className="flex w-full gap-4">
         <Button type="button" data-test="admin-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
-          cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" data-test="admin-form-submit" className="flex-1">
-          confirm
+          {t('common.confirm')}
         </Button>
       </div>
     </form>
@@ -118,6 +120,7 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
 }
 
 function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
+  const t = useT();
   const [avatarPreview, setAvatarPreview] = useState(null);
   const fileInputRef = useRef(null);
   const {
@@ -201,10 +204,10 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
 
       <div className="flex w-full gap-4">
         <Button type="button" data-test="admin-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
-          cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" data-test="admin-form-submit" className="flex-1">
-          confirm
+          {t('common.confirm')}
         </Button>
       </div>
     </form>
@@ -212,6 +215,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
 }
 
 export default function AdminsManagement() {
+  const t = useT();
   const admins = useAdminStore((s) => s.admins);
   const addAdmin = useAdminStore((s) => s.addAdmin);
   const updateAdmin = useAdminStore((s) => s.updateAdmin);
@@ -422,10 +426,10 @@ export default function AdminsManagement() {
           <p className="mb-8 text-sm font-medium text-red-600">ประวัติจะยังอยู่ แต่จะไม่สามารถเข้าสู่ระบบได้อีก</p>
           <div className="flex w-full gap-4">
             <Button variant="outline" className="flex-1" onClick={closeModal}>
-              cancel
+              {t('common.cancel')}
             </Button>
             <Button variant="danger" data-test="admin-delete-confirm" className="flex-1" onClick={handleConfirmDelete}>
-              confirm
+              {t('common.confirm')}
             </Button>
           </div>
         </ModalShell>
