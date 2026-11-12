@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/Button';
 import { DateInput } from '../../components/ui/DateInput';
 import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
-import { getLocale } from '../../i18n';
+import { getLocale, useT } from '../../i18n';
 
 export default function AuditLogs() {
   const t = useT();

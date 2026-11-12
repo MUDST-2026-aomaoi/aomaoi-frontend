@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useT } from '../../i18n';
 
 export function Modal({ open, onClose, title, children, className = '' }) {
+  const t = useT();
 
   if (!open) return null;
 

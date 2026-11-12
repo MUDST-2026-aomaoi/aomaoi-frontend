@@ -8,9 +8,9 @@ describe('Superadmin - login / logout / route guard', () => {
     cy.getByTestID('login-submit').click();
 
     cy.location('pathname').should('eq', '/dashboard');
-    cy.contains('All Farms');
-    cy.contains('All Admins');
-    cy.contains('Audit Logs');
+    cy.contains('ฟาร์มทั้งหมด');
+    cy.contains('แอดมินทั้งหมด');
+    cy.contains('บันทึกระบบ');
     cy.window()
       .its('localStorage')
       .invoke('getItem', 'auth-storage')
@@ -89,11 +89,11 @@ describe('Superadmin - login / logout / route guard', () => {
   it('SA-GUARD-004 sidebar shows only superadmin menus', () => {
     cy.loginSession(Cypress.superadminUsername, Cypress.superadminPassword);
     cy.visit('/dashboard');
-    cy.contains('a', 'Dashboard');
-    cy.contains('a', 'All Farms');
-    cy.contains('a', 'All Admins');
-    cy.contains('a', 'Audit Logs');
-    cy.contains('a', 'Workers').should('not.exist');
-    cy.contains('a', 'Work Log').should('not.exist');
+    cy.contains('a', 'แดชบอร์ด');
+    cy.contains('a', 'ฟาร์มทั้งหมด');
+    cy.contains('a', 'แอดมินทั้งหมด');
+    cy.contains('a', 'บันทึกระบบ');
+    cy.contains('a', 'คนงาน').should('not.exist');
+    cy.contains('a', 'บันทึกงาน').should('not.exist');
   });
 });

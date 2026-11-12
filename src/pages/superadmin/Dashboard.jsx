@@ -8,7 +8,7 @@ import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { useAuthStore } from '../../controller/authController';
 import { monthShort } from '../../lib/format';
-import { getLocale, periodOptions } from '../../i18n';
+import { getLocale, periodOptions, useT } from '../../i18n';
 
 const RADIAN = Math.PI / 180;
 const FARM_LINE_COLORS = ['#3b82f6', '#ef4444', '#22c55e'];

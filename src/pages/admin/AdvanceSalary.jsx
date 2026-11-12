@@ -12,7 +12,7 @@ import { SuccessModal } from '../../components/ui/SuccessModal';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useSalaryAdvanceStore } from '../../store/useSalaryAdvanceStore';
 import { useWorkerStore } from '../../store/useWorkerStore';
-import { getLocale, t as tr } from '../../i18n';
+import { getLocale, t as tr, useT } from '../../i18n';
 import { tError } from '../../i18n/backendMessages';
 
 const ADVANCE_TYPES = {

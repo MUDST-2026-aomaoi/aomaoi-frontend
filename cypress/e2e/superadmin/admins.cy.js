@@ -60,7 +60,7 @@ describe('Superadmin - admin management', () => {
       cy.getByTestID('admin-form-farm').click();
       cy.getByTestID(`admin-form-farm-opt-${farm.id}`).click();
 
-      cy.on('window:alert', (msg) => expect(msg).to.match(/^Failed to add admin/));
+      cy.on('window:alert', (msg) => expect(msg).to.match(/^เพิ่ม Admin ไม่สำเร็จ/));
       cy.getByTestID('admin-form-submit').click();
 
       cy.visit('/admins');
@@ -100,7 +100,7 @@ describe('Superadmin - admin management', () => {
 
       cy.getByTestID('success-modal-message').should('contain', 'ลบ Admin สำเร็จ');
       cy.getByTestID('success-modal-close').click();
-      cy.getByTestID('admin-row-status').should('contain', 'Inactive');
+      cy.getByTestID('admin-row-status').should('contain', 'ปิดใช้งาน');
       cy.getByTestID('admin-row-manage').should('contain', '-');
     });
   });

@@ -9,7 +9,7 @@ import { useWorkerStore } from '../../store/useWorkerStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
 import { formatDate, formatDateLong, formatBaht, monthShort, displayYear } from '../../lib/format';
-import { getLocale, periodOptions } from '../../i18n';
+import { getLocale, periodOptions, useT } from '../../i18n';
 
 const RADIAN = Math.PI / 180;
 
