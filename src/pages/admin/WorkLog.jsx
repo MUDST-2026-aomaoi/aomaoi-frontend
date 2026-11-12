@@ -7,7 +7,8 @@ import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { DateInput } from '../../components/ui/DateInput';
-import { SearchInput } from '../../components/ui/SearchInput';
+import { Avatar } from '../../components/ui/Avatar';
+import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
@@ -94,7 +95,7 @@ function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, su
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {config.fields.map((field) =>
             field.type === 'date' ? (
               <Controller
@@ -205,46 +206,47 @@ export default function WorkLog() {
     <div>
       <PageHeader title="Work Activity Log" />
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหา" className="max-w-lg flex-1" dataTest="worklog-search" />
-
-        <div className="flex flex-wrap gap-4">
-          <Dropdown
-            value={workerFilter}
-            onChange={setWorkerFilter}
-            className="w-48"
-            dataTest="worklog-worker-filter"
-            options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...allWorkers.map((w) => ({ value: w.id, label: w.fullName }))]}
-          />
-
-          <Dropdown
-            value={typeFilter}
-            onChange={setTypeFilter}
-            className="w-48"
-            dataTest="worklog-type-filter"
-            options={[
-              { value: 'all', label: 'ประเภทงานทั้งหมด' },
-              ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
-            ]}
-          />
-
-          <Button variant="accent" data-test="worklog-add-btn" className="flex items-center gap-2" onClick={openNewEntry}>
+      <TableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="ค้นหาชื่อคนงาน"
+        searchTestId="worklog-search"
+        action={
+          <Button variant="accent" data-test="worklog-add-btn" className="flex w-full items-center justify-center gap-2 sm:w-auto" onClick={openNewEntry}>
             <UserPlus className="h-5 w-5" />
             <span>บันทึกงานใหม่</span>
           </Button>
-        </div>
-      </div>
+        }
+      >
+        <Dropdown
+          value={workerFilter}
+          onChange={setWorkerFilter}
+          className={TOOLBAR_FILTER_CLASS}
+          dataTest="worklog-worker-filter"
+          options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...allWorkers.map((w) => ({ value: w.id, label: w.fullName }))]}
+        />
+        <Dropdown
+          value={typeFilter}
+          onChange={setTypeFilter}
+          className={TOOLBAR_FILTER_CLASS}
+          dataTest="worklog-type-filter"
+          options={[
+            { value: 'all', label: 'ประเภทงานทั้งหมด' },
+            ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
+          ]}
+        />
+      </TableToolbar>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="w-full border-collapse text-center text-sm">
-          <thead className="bg-[#3F5C2B] text-white">
+      <div tabIndex={0} role="region" aria-label="บันทึกงาน" className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+        <table className="w-full min-w-[640px] border-collapse text-center text-xs sm:text-sm">
+          <thead className="sticky top-0 z-10 bg-[#3F5C2B] text-white">
             <tr>
-              <th className="px-6 py-3.5 text-left font-medium">Name</th>
-              <th className="px-4 py-3.5 font-medium">Date</th>
-              <th className="px-4 py-3.5 font-medium">Work Type</th>
-              <th className="px-4 py-3.5 font-medium">Qty</th>
-              <th className="px-4 py-3.5 font-medium">Unit</th>
-              <th className="px-4 py-3.5 pr-6 text-right font-medium">Wages</th>
+              <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">Name</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Date</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Work Type</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Qty</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Unit</th>
+              <th className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-3.5 sm:pr-6 font-medium">Wages</th>
             </tr>
           </thead>
           <tbody>
@@ -252,22 +254,25 @@ export default function WorkLog() {
               const config = WORK_LOG_TYPES[entry.type];
               return (
                 <tr key={entry.id} data-test="worklog-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
-                  <td className="px-6 py-4 text-left font-medium text-gray-800">
-                    {getWorkerName(entry.workerId)}
+                  <td className="px-4 py-3 text-left font-medium sm:px-6 sm:py-4 text-gray-800">
+                    <div className="flex items-center gap-3">
+                      <Avatar src={allWorkers.find((w) => String(w.id) === String(entry.workerId))?.avatar} name={getWorkerName(entry.workerId)} />
+                      <span>{getWorkerName(entry.workerId)}</span>
+                    </div>
                   </td>
-                  <td className="px-4 py-4 text-gray-800">
+                  <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">
                     {entry.startDate && entry.endDate && entry.startDate !== entry.endDate
                       ? `${formatDate(entry.startDate)} - ${formatDate(entry.endDate)}`
                       : formatDateLong(entry.startDate || entry.date)}
                   </td>
-                  <td className="px-4 py-4">
+                  <td className="px-3 py-3 sm:px-4 sm:py-4">
                     <span data-test="worklog-row-type" className={`inline-block min-w-17.5 rounded-full px-4 py-1.5 text-xs font-bold ${config.badgeClass}`}>
                       {config.labelTh}
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-gray-800" data-test="worklog-row-qty">{config.primaryQty(entry)}</td>
-                  <td className="px-4 py-4 text-gray-800">{config.primaryUnit}</td>
-                  <td className="px-4 py-4 pr-6 text-right font-medium text-gray-800" data-test="worklog-row-wages">{formatBaht(entry.total)}</td>
+                  <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800" data-test="worklog-row-qty">{config.primaryQty(entry)}</td>
+                  <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">{config.primaryUnit}</td>
+                  <td className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-4 sm:pr-6 font-medium text-gray-800" data-test="worklog-row-wages">{formatBaht(entry.total)}</td>
                 </tr>
               );
             })}
@@ -283,7 +288,7 @@ export default function WorkLog() {
       </div>
 
       {modalState === 'form' && (
-        <ModalShell onClose={() => setModalState(null)} className="w-112.5">
+        <ModalShell onClose={() => setModalState(null)} className="w-full sm:w-112.5">
           <EntryForm
             key={entryType}
             type={entryType}

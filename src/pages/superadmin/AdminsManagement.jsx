@@ -9,7 +9,7 @@ import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { Avatar } from '../../components/ui/Avatar';
 import { Dropdown } from '../../components/ui/Dropdown';
-import { SearchInput } from '../../components/ui/SearchInput';
+import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useAdminStore } from '../../store/useAdminStore';
@@ -285,35 +285,16 @@ export default function AdminsManagement() {
     <div>
       <PageHeader title="Admins Management"  />
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหาชื่อ, username, เบอร์โทร" className="max-w-lg flex-1" dataTest="admin-search" />
-
-        <div className="flex flex-wrap gap-4">
-          <Dropdown
-            value={farmFilter}
-            onChange={setFarmFilter}
-            className="w-48"
-            dataTest="admin-farm-filter"
-            options={[{ value: 'all', label: 'ฟาร์มทั้งหมด' }, ...farms.map((f) => ({ value: String(f.id), label: f.name }))]}
-          />
-
-          <Dropdown
-            value={statusFilter}
-            onChange={setStatusFilter}
-            className="w-48"
-            dataTest="admin-status-filter"
-            options={[
-              { value: 'all', label: 'สถานะทั้งหมด' },
-              { value: 'active', label: 'Active' },
-              { value: 'pending', label: 'Pending' },
-              { value: 'inactive', label: 'Inactive' },
-            ]}
-          />
-
+      <TableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="ค้นหาชื่อ, username, เบอร์โทร"
+        searchTestId="admin-search"
+        action={
           <Button
             variant="accent"
             data-test="admin-add-btn"
-            className="flex items-center gap-2"
+            className="flex w-full items-center justify-center gap-2 sm:w-auto"
             onClick={() =>
               setModal({
                 mode: 'add',
@@ -324,11 +305,31 @@ export default function AdminsManagement() {
             <UserPlus className="h-5 w-5" />
             <span>เพิ่ม Admin ใหม่</span>
           </Button>
-        </div>
-      </div>
+        }
+      >
+        <Dropdown
+          value={farmFilter}
+          onChange={setFarmFilter}
+          className={TOOLBAR_FILTER_CLASS}
+          dataTest="admin-farm-filter"
+          options={[{ value: 'all', label: 'ฟาร์มทั้งหมด' }, ...farms.map((f) => ({ value: String(f.id), label: f.name }))]}
+        />
+        <Dropdown
+          value={statusFilter}
+          onChange={setStatusFilter}
+          className={TOOLBAR_FILTER_CLASS}
+          dataTest="admin-status-filter"
+          options={[
+            { value: 'all', label: 'สถานะทั้งหมด' },
+            { value: 'active', label: 'Active' },
+            { value: 'pending', label: 'Pending' },
+            { value: 'inactive', label: 'Inactive' },
+          ]}
+        />
+      </TableToolbar>
 
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="w-full border-collapse text-center text-sm">
+        <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
               <th className="px-4 py-3.5 font-medium">Name</th>
@@ -343,26 +344,26 @@ export default function AdminsManagement() {
           <tbody>
             {filtered.map((admin) => (
               <tr key={admin.id} data-test="admin-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
-                <td className="px-4 py-3 text-left">
+                <td className="px-4 py-3 sm:py-4 text-left">
                   <div className="flex items-center justify-start gap-3 pl-2">
                     <Avatar src={admin.avatar} name={admin.fullName} />
                     <span data-test="admin-row-name" className="font-semibold text-gray-800">{admin.fullName}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-gray-800">{admin.username}</td>
-                <td className="px-4 py-3 text-gray-800">{admin.phone}</td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 sm:py-4 text-gray-800">{admin.username}</td>
+                <td className="px-4 py-3 sm:py-4 text-gray-800">{admin.phone}</td>
+                <td className="px-4 py-3 sm:py-4">
                   <span className="inline-block rounded-full bg-farm-secondary/40 px-3 py-1 text-xs font-medium text-farm-text">
                     {getFarmName(admin.farmId)}
                   </span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 sm:py-4">
                   <span data-test="admin-row-status" className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[admin.status]}`}>
                     {STATUS_LABEL[admin.status]}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-gray-800">{formatDateLong(admin.joinedDate)}</td>
-                <td className="px-4 py-3" data-test="admin-row-manage">
+                <td className="px-4 py-3 sm:py-4 text-gray-800">{formatDateLong(admin.joinedDate)}</td>
+                <td className="px-4 py-3 sm:py-4" data-test="admin-row-manage">
                   {admin.status !== 'inactive' ? (
                     <div className="flex items-center justify-center gap-4">
                       <button
@@ -400,19 +401,19 @@ export default function AdminsManagement() {
       </div>
 
       {modal?.mode === 'add' && (
-        <ModalShell onClose={closeModal} className="w-112.5">
+        <ModalShell onClose={closeModal} className="sm:w-112.5">
           <AddAdminForm defaultValues={modal.defaultValues} farms={farms} onSubmit={handleAddSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 
       {modal?.mode === 'edit' && (
-        <ModalShell onClose={closeModal} className="w-112.5">
+        <ModalShell onClose={closeModal} className="sm:w-112.5">
           <EditAdminForm admin={modal.admin} farms={farms} onSubmit={handleEditSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 
       {modal?.mode === 'delete' && (
-        <ModalShell onClose={closeModal} className="flex w-100 flex-col items-center text-center">
+        <ModalShell onClose={closeModal} className="flex flex-col items-center text-center sm:w-100">
           <button type="button" onClick={closeModal} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
             <X className="h-5 w-5" />
           </button>

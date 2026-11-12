@@ -1,13 +1,33 @@
+import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { SuperAdminSidebar } from './SuperAdminSidebar';
+import { SidebarContext } from '../admin/SidebarContext';
 
 export function SuperAdminLayout({ children }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const onKeyDown = (e) => e.key === 'Escape' && setSidebarOpen(false);
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [sidebarOpen]);
+
+  const sidebarContext = {
+    open: sidebarOpen,
+    openSidebar: () => setSidebarOpen(true),
+  };
+
   return (
-    <div className="flex h-screen bg-farm-bg">
-      <SuperAdminSidebar />
-      <main className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
-        {children || <Outlet />}
-      </main>
-    </div>
+    <SidebarContext.Provider value={sidebarContext}>
+      <div className="relative flex h-dvh overflow-hidden bg-farm-bg">
+        <SuperAdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <main className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
+            {children || <Outlet />}
+          </main>
+        </div>
+      </div>
+    </SidebarContext.Provider>
   );
 }

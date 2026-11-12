@@ -162,53 +162,53 @@ export default function SuperAdminDashboard() {
     <div>
       <PageHeader title="Dashboard" />
 
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
           <p className="mb-1 font-medium text-gray-600">ยอดชำระรวม</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-4xl font-bold text-[#205e2e]">{formatNumber(totalAllTime)}</h3>
+            <h3 className="text-2xl font-bold sm:text-4xl text-[#205e2e]">{formatNumber(totalAllTime)}</h3>
             <span className="font-medium text-gray-400">บาท</span>
           </div>
         </div>
-        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
           <p className="mb-1 font-medium text-gray-600">ยอดชำระเดือนนี้</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-4xl font-bold text-gray-700">{formatNumber(totalThisMonth)}</h3>
+            <h3 className="text-2xl font-bold sm:text-4xl text-gray-700">{formatNumber(totalThisMonth)}</h3>
             <span className="font-medium text-gray-400">บาท</span>
           </div>
         </div>
-        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
           <p className="mb-1 font-medium text-gray-600">All Farms</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-4xl font-bold text-gray-700">{farms.length}</h3>
+            <h3 className="text-2xl font-bold sm:text-4xl text-gray-700">{farms.length}</h3>
             <span className="font-medium text-gray-400">ฟาร์ม</span>
           </div>
         </div>
-        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
           <p className="mb-1 font-medium text-gray-600">All Admin</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-4xl font-bold text-gray-700">{admins.length}</h3>
+            <h3 className="text-2xl font-bold sm:text-4xl text-gray-700">{admins.length}</h3>
             <span className="font-medium text-gray-400">คน</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-7">
-          <div className="mb-6 flex items-center justify-between">
-            <h3 className="text-lg font-bold text-gray-900">Payroll Overview</h3>
-            <div className="flex gap-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
+        <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
+            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Overview</h3>
+            <div className="flex w-full min-w-0 gap-2 sm:w-auto">
               <PeriodSelect value={trendPeriod} onChange={setTrendPeriod} />
               <Dropdown
                 value={trendFarmFilter}
                 onChange={setTrendFarmFilter}
-                className="w-44"
+                className="min-w-0 flex-1 sm:w-44 sm:flex-none"
                 options={[{ value: 'all', label: 'ฟาร์มทั้งหมด' }, ...farms.map((f) => ({ value: f.id, label: f.name }))]}
               />
             </div>
           </div>
 
-          <div className="h-64 w-full">
+          <div className="h-56 w-full sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={monthlyTrend} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical stroke="#f0f0f0" />
@@ -235,7 +235,7 @@ export default function SuperAdminDashboard() {
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-6">
+          <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
             {visibleTrendFarms.map((f) => (
               <div key={f.id} className="flex items-center gap-2 text-xs text-gray-600">
                 <span
@@ -248,13 +248,13 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
 
-        <div className="flex flex-col rounded-xl border border-gray-100 bg-white p-6 shadow-sm lg:col-span-5">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-lg font-bold text-gray-900">Payroll Breakdown by Farms</h3>
+        <div className="flex min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Breakdown by Farms</h3>
             <PeriodSelect value={breakdownPeriod} onChange={setBreakdownPeriod} />
           </div>
 
-          <div className="flex flex-1 items-center justify-center gap-10">
+          <div className="flex flex-1 flex-col items-center justify-center gap-6 min-[1400px]:flex-row min-[1400px]:gap-8">
             <div className="relative h-50 w-50 shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -281,13 +281,18 @@ export default function SuperAdminDashboard() {
                 <p className="text-xs text-gray-600">บาท</p>
               </div>
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="grid w-full grid-cols-2 gap-2 min-[1400px]:w-auto min-[1400px]:min-w-56">
               {breakdown.map((entry) => (
-                <div key={entry.key} className="flex items-start gap-2">
-                  <span className="mt-1 h-4 w-4 shrink-0 rounded-full" style={{ background: entry.color }} />
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">{entry.name}</p>
-                    <p className="text-sm text-gray-500">{formatNumber(entry.value)} บาท</p>
+                <div key={entry.key} className="flex min-w-0 items-stretch overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
+                  <div className="w-1.5 shrink-0" style={{ backgroundColor: entry.color }} />
+                  <div className="flex min-w-0 flex-1 items-center justify-between gap-2 px-2.5 py-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-gray-800">{entry.name}</p>
+                      <p className="truncate text-xs text-gray-500">{formatNumber(entry.value)} บาท</p>
+                    </div>
+                    <span className="shrink-0 text-sm font-bold text-gray-800">
+                      {breakdownTotal > 0 ? Math.round((entry.value / breakdownTotal) * 100) : 0}%
+                    </span>
                   </div>
                 </div>
               ))}

@@ -1,8 +1,12 @@
 import { useAuthStore } from '../../controller/authController';
+import { Menu } from 'lucide-react';
+import logo from '../../assets/sugarcane-logo.png';
+import { useSidebar } from './SidebarContext';
 
 export function PageHeader({ title }) {
   const currentUser = useAuthStore((s) => s.currentUser);
-  
+  const sidebar = useSidebar();
+
   const name = currentUser?.fullName || currentUser?.username || 'User';
   let roleDisplay = 'User';
   if (currentUser?.role === 'superadmin') roleDisplay = 'Super Admin';
@@ -12,19 +16,28 @@ export function PageHeader({ title }) {
   const avatar = currentUser?.avatar;
 
   return (
-    <header className="mb-6 flex items-center justify-between">
-      <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
-      <div className="flex items-center gap-3">
+    <header className="mb-5 grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-4 sm:mb-6">
+      <div className="flex min-w-0 items-center gap-2.5 md:hidden">
+        <button type="button" aria-label="Open menu" aria-expanded={sidebar?.open} aria-controls="admin-sidebar" data-test="sidebar-toggle" onClick={sidebar?.openSidebar} className="-ml-1 shrink-0 rounded-lg border border-gray-200 bg-white p-2 text-gray-600 shadow-sm">
+          <Menu className="h-5 w-5" />
+        </button>
+        <div className="flex min-w-0 items-center gap-2 text-[#708238]">
+          <img src={logo} alt="Sugarcane Logo" className="h-8 w-8 shrink-0 object-contain" />
+          <span className="truncate text-xl font-bold tracking-tight">Sugarcane</span>
+        </div>
+      </div>
+      <h1 className="order-3 col-span-2 truncate border-t border-gray-200/80 pt-3 text-2xl font-bold text-gray-900 md:order-1 md:col-span-1 md:border-0 md:pt-0 sm:text-3xl">{title}</h1>
+      <div className="order-2 flex shrink-0 items-center justify-self-end gap-2.5 sm:gap-3">
         {avatar ? (
-          <img src={avatar} alt={name} className="h-11 w-11 rounded-full object-cover" />
+          <img src={avatar} alt={name} className="h-10 w-10 shrink-0 rounded-full object-cover sm:h-11 sm:w-11" />
         ) : (
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-farm-accent text-base font-semibold text-white uppercase">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-farm-accent text-base font-semibold uppercase text-white sm:h-11 sm:w-11">
             {name.charAt(0)}
           </div>
         )}
-        <div>
-          <p className="text-sm font-semibold text-farm-text">{name}</p>
-          <p className="text-xs text-farm-text/50">{roleDisplay}</p>
+        <div className="min-w-0 leading-tight">
+          <p className="max-w-[120px] truncate text-xs font-semibold text-farm-text sm:max-w-none sm:text-sm">{name}</p>
+          <p className="text-[11px] text-farm-text/50 sm:text-xs">{roleDisplay}</p>
         </div>
       </div>
     </header>

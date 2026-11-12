@@ -108,8 +108,8 @@ export default function AdvanceSalary() {
       <PageHeader title="Advance Salary" />
 
       <div className="grid gap-6 lg:grid-cols-[2fr_3fr]">
-        <Card className="p-6">
-          <h2 className="mb-6 text-lg font-bold text-farm-text">เพิ่มรายการเบิก</h2>
+        <Card className="p-4 sm:p-6">
+          <h2 className="mb-4 text-lg font-bold text-farm-text sm:mb-6">เพิ่มรายการเบิก</h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {submitError && (
               <div data-test="advance-submit-error" className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700">
@@ -185,7 +185,7 @@ export default function AdvanceSalary() {
               ))}
             </div>
 
-            <div className="flex gap-4 pt-2">
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:gap-4">
               <Button type="submit" variant="accent" data-test="advance-save-btn" className="flex-1" disabled={isSubmitting}>
                 บันทึกการเบิก
               </Button>
@@ -196,17 +196,17 @@ export default function AdvanceSalary() {
           </form>
         </Card>
 
-        <Card className="p-6">
-          <h2 className="mb-6 text-lg font-bold text-farm-text">รายการเบิกล่าสุด</h2>
-          <div className="max-h-[32rem] overflow-auto rounded-lg border border-gray-200">
-            <table className="w-full border-collapse text-center text-sm">
+        <Card className="min-w-0 p-4 sm:p-6">
+          <h2 className="mb-4 text-lg font-bold text-farm-text sm:mb-6">รายการเบิกล่าสุด</h2>
+          <div tabIndex={0} role="region" aria-label="รายการเบิกล่าสุด" className="max-h-[32rem] overflow-auto rounded-lg border border-gray-200">
+            <table className="w-full min-w-[560px] border-collapse text-center text-xs sm:text-sm">
               <thead className="sticky top-0 bg-[#3F5C2B] text-white">
                 <tr>
-                  <th className="px-4 py-3 font-medium">วันที่</th>
-                  <th className="px-4 py-3 text-left font-medium">ชื่อคนงาน</th>
-                  <th className="px-4 py-3 font-medium">ประเภท</th>
-                  <th className="px-4 py-3 font-medium">รายละเอียด</th>
-                  <th className="px-4 py-3 text-right font-medium">มูลค่า (บาท)</th>
+                  <th className="px-3 py-3 sm:px-4 font-medium">วันที่</th>
+                  <th className="px-3 py-3 sm:px-4 text-left font-medium">ชื่อคนงาน</th>
+                  <th className="px-3 py-3 sm:px-4 font-medium">ประเภท</th>
+                  <th className="px-3 py-3 sm:px-4 font-medium">รายละเอียด</th>
+                  <th className="px-3 py-3 sm:px-4 text-right font-medium">มูลค่า (บาท)</th>
                 </tr>
               </thead>
               <tbody>
@@ -214,8 +214,8 @@ export default function AdvanceSalary() {
                   const cfg = ADVANCE_TYPES[a.type];
                   return (
                     <tr key={a.id} data-test="advance-row" className="border-b border-gray-100 last:border-0 hover:bg-gray-50">
-                      <td className="px-4 py-3 text-gray-800">{formatShortDate(a.advanceDate)}</td>
-                      <td className="px-4 py-3 text-left">
+                      <td className="px-3 py-3 sm:px-4 text-gray-800">{formatShortDate(a.advanceDate)}</td>
+                      <td className="px-3 py-3 sm:px-4 text-left">
                         <div className="flex items-center gap-2">
                           <Avatar name={a.workerFullName} />
                           <span className="font-medium text-gray-800">{a.workerFullName}</span>
@@ -229,10 +229,10 @@ export default function AdvanceSalary() {
                           {cfg.labelTh}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-800" data-test="advance-row-item">
+                      <td className="px-3 py-3 sm:px-4 text-gray-800" data-test="advance-row-item">
                         {a.itemName || ''}
                       </td>
-                      <td className="px-4 py-3 text-right font-medium text-gray-800" data-test="advance-row-amount">
+                      <td className="px-3 py-3 sm:px-4 text-right font-medium text-gray-800" data-test="advance-row-amount">
                         {formatAmount(a.amount)}
                       </td>
                     </tr>
