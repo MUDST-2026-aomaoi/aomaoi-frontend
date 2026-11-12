@@ -7,7 +7,7 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
-import { SearchInput } from '../../components/ui/SearchInput';
+import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useFarmStore } from '../../store/useFarmStore';
@@ -198,19 +198,23 @@ export default function AllFarms() {
         </div>
       </div>
 
-      <div className="mb-6 flex items-center justify-between gap-2 sm:gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหา" className="min-w-0 flex-1 sm:max-w-lg" dataTest="farm-search" />
-
-        <Button
-          variant="accent"
-          data-test="farm-add-btn"
-          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 sm:gap-2 sm:px-6"
-          onClick={() => setModal({ mode: 'add', defaultValues: { name: '', location: '' } })}
-        >
-          <UserPlus className="h-5 w-5" />
-          <span>เพิ่มฟาร์มใหม่</span>
-        </Button>
-      </div>
+      <TableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="ค้นหาชื่อฟาร์ม, ที่ตั้ง"
+        searchTestId="farm-search"
+        action={
+          <Button
+            variant="accent"
+            data-test="farm-add-btn"
+            className="flex items-center gap-1.5 whitespace-nowrap px-3 sm:gap-2 sm:px-6"
+            onClick={() => setModal({ mode: 'add', defaultValues: { name: '', location: '' } })}
+          >
+            <UserPlus className="h-5 w-5" />
+            <span>เพิ่มฟาร์มใหม่</span>
+          </Button>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {filtered.map((farm) => (

@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Avatar } from '../../components/ui/Avatar';
-import { Badge } from '../../components/ui/Badge';
-import { Card } from '../../components/ui/Card';
+import { STATUS_STYLE } from '../../config/status';
 import { Dropdown } from '../../components/ui/Dropdown';
-import { SearchInput } from '../../components/ui/SearchInput';
+import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerBalanceStore } from '../../store/useWorkerBalanceStore';
-import { formatBaht } from '../../lib/format';
+import { formatAmount } from '../../lib/format';
 
 const STATUS_OPTIONS = [
   { value: 'all', label: 'สถานะทั้งหมด' },
@@ -14,14 +13,17 @@ const STATUS_OPTIONS = [
   { value: 'ok', label: 'ปกติ' },
 ];
 
-function SummaryTile({ label, value, tone = 'text-farm-text', dataTest }) {
+function SummaryTile({ label, value, tone = 'text-gray-700', dataTest }) {
   return (
-    <Card className="p-4 sm:p-5">
-      <p className="text-sm text-farm-text/60">{label}</p>
-      <p data-test={dataTest} className={`mt-1 text-xl font-bold sm:text-2xl ${tone}`}>
-        {value}
-      </p>
-    </Card>
+    <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-5">
+      <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">{label}</p>
+      <div className="flex items-baseline gap-1 sm:gap-2">
+        <h3 data-test={dataTest} className={`truncate text-xl font-bold sm:text-3xl ${tone}`}>
+          {value}
+        </h3>
+        <span className="text-xs font-medium text-gray-400 sm:text-sm">บาท</span>
+      </div>
+    </div>
   );
 }
 
@@ -74,35 +76,33 @@ export default function FinancialBalance() {
     <div>
       <PageHeader title="Financial Balance" />
 
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-        <SummaryTile label="รายได้รวม" value={formatBaht(totals.earnings)} dataTest="balance-total-earnings" />
-        <SummaryTile label="เบิกล่วงหน้ารวม" value={formatBaht(totals.advances)} dataTest="balance-total-advances" />
-        <SummaryTile label="หนี้คงค้างรวม" value={formatBaht(totals.debt)} tone="text-red-600" dataTest="balance-total-debt" />
+      <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-4">
+        <SummaryTile label="รายได้รวม" value={formatAmount(totals.earnings)} tone="text-[#205e2e]" dataTest="balance-total-earnings" />
+        <SummaryTile label="เบิกล่วงหน้ารวม" value={formatAmount(totals.advances)} dataTest="balance-total-advances" />
+        <SummaryTile label="หนี้คงค้างรวม" value={formatAmount(totals.debt)} tone="text-red-600" dataTest="balance-total-debt" />
       </div>
 
-      <div className="mb-6 flex w-full flex-wrap items-center gap-2 sm:flex-nowrap sm:gap-4">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="ค้นหาชื่อหรือชื่อเล่น"
-          className="w-full min-w-0 sm:min-w-[220px] sm:max-w-lg sm:flex-1"
-          dataTest="balance-search"
-        />
+      <TableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="ค้นหาชื่อหรือชื่อเล่น"
+        searchTestId="balance-search"
+      >
         <Dropdown
           value={workerFilter}
           onChange={setWorkerFilter}
-          className="min-w-0 flex-1 sm:w-56 sm:flex-none"
+          className={TOOLBAR_FILTER_CLASS}
           dataTest="balance-worker-filter"
           options={workerOptions}
         />
         <Dropdown
           value={statusFilter}
           onChange={setStatusFilter}
-          className="min-w-0 flex-1 sm:w-48 sm:flex-none"
+          className={TOOLBAR_FILTER_CLASS}
           dataTest="balance-status-filter"
           options={STATUS_OPTIONS}
         />
-      </div>
+      </TableToolbar>
 
       {error && (
         <div data-test="balance-error" className="mb-4 rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700">
@@ -114,12 +114,12 @@ export default function FinancialBalance() {
         <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
           <thead className="sticky top-0 z-10 bg-[#3F5C2B] text-white">
             <tr>
-              <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">ชื่อ-นามสกุล</th>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">ชื่อเล่น</th>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 text-right font-medium">รายได้รวม</th>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 text-right font-medium">เบิกล่วงหน้ารวม</th>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 text-right font-medium">ยอดคงเหลือ</th>
-              <th className="px-3 py-3 pr-4 sm:px-4 sm:py-3.5 sm:pr-6 font-medium">สถานะหนี้</th>
+              <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">Name</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">Nickname</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">Earnings</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">Advances</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">Balance</th>
+              <th className="px-3 py-3 pr-4 sm:px-4 sm:py-3.5 sm:pr-6 font-medium">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -132,27 +132,27 @@ export default function FinancialBalance() {
                 <td className="px-4 py-3 text-left sm:px-6 sm:py-4">
                   <div className="flex items-center gap-3">
                     <Avatar name={b.fullName} />
-                    <span className="font-medium text-gray-800">{b.fullName}</span>
+                    <span className="font-semibold text-gray-800">{b.fullName}</span>
                   </div>
                 </td>
                 <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">{b.nickname || '-'}</td>
-                <td className="px-3 py-3 sm:px-4 sm:py-4 text-right text-gray-800" data-test="balance-row-earnings">
-                  {formatBaht(b.totalEarnings)}
+                <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800" data-test="balance-row-earnings">
+                  {formatAmount(b.totalEarnings)}
                 </td>
-                <td className="px-3 py-3 sm:px-4 sm:py-4 text-right text-gray-800" data-test="balance-row-advances">
-                  {formatBaht(b.totalAdvances)}
+                <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800" data-test="balance-row-advances">
+                  {formatAmount(b.totalAdvances)}
                 </td>
                 <td
-                  className={`px-3 py-3 sm:px-4 sm:py-4 text-right font-semibold ${b.inDebt ? 'text-red-600' : 'text-farm-primary'}`}
+                  className={`px-3 py-3 sm:px-4 sm:py-4 font-semibold ${b.inDebt ? 'text-red-600' : 'text-farm-primary'}`}
                   data-test="balance-row-remaining"
                 >
-                  {formatBaht(b.remainingBalance)}
+                  {formatAmount(b.remainingBalance)}
                 </td>
                 <td className="px-3 py-3 pr-4 sm:px-4 sm:py-4 sm:pr-6" data-test="balance-row-status">
                   {b.inDebt ? (
-                    <Badge tone="danger">ติดหนี้ {formatBaht(b.outstandingDebt)}</Badge>
+                    <span className={`inline-block rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE.inactive}`}>ติดหนี้ {formatAmount(b.outstandingDebt)}</span>
                   ) : (
-                    <Badge tone="success">ปกติ</Badge>
+                    <span className={`inline-block min-w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE.active}`}>ปกติ</span>
                   )}
                 </td>
               </tr>

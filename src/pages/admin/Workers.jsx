@@ -2,13 +2,14 @@ import { useMemo, useRef, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Search, UserPlus, Edit, Trash2, X, AlertTriangle, ImagePlus, Info, Shuffle } from 'lucide-react';
+import { UserPlus, Edit, Trash2, X, AlertTriangle, ImagePlus, Info, Shuffle } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { Avatar } from '../../components/ui/Avatar';
 import { Dropdown } from '../../components/ui/Dropdown';
+import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { workerService } from '../../service/workerService';
@@ -309,41 +310,12 @@ export default function Workers() {
     <div>
       <PageHeader title="Worker Management" />
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
-        <div className="relative w-full min-w-0 flex-1 sm:min-w-[220px] sm:max-w-lg">
-          <input
-            type="text"
-            data-test="worker-search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="ค้นหาชื่อ, username, เบอร์โทร"
-            className="w-full rounded-lg border border-gray-300 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-1 focus:ring-farm-primary"
-          />
-          <Search className="pointer-events-none absolute right-3 top-3 h-5 w-5 text-gray-400" />
-        </div>
-
-        <div className="flex w-full flex-wrap gap-3 sm:w-auto sm:gap-4">
-          <Dropdown
-            value={workerFilter}
-            onChange={setWorkerFilter}
-            className="min-w-0 flex-1 sm:w-48 sm:flex-none"
-            dataTest="worker-name-filter"
-            options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...workers.map((w) => ({ value: w.id, label: w.fullName }))]}
-          />
-
-          <Dropdown
-            value={statusFilter}
-            onChange={setStatusFilter}
-            className="min-w-0 flex-1 sm:w-48 sm:flex-none"
-            dataTest="worker-status-filter"
-            options={[
-              { value: 'all', label: 'สถานะทั้งหมด' },
-              { value: 'active', label: 'Active' },
-              { value: 'pending', label: 'Pending' },
-              { value: 'inactive', label: 'Inactive' },
-            ]}
-          />
-
+      <TableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="ค้นหาชื่อ, username, เบอร์โทร"
+        searchTestId="worker-search"
+        action={
           <Button
             variant="accent"
             data-test="worker-add-btn"
@@ -358,8 +330,28 @@ export default function Workers() {
             <UserPlus className="h-5 w-5" />
             <span>เพิ่มคนงานใหม่</span>
           </Button>
-        </div>
-      </div>
+        }
+      >
+        <Dropdown
+          value={workerFilter}
+          onChange={setWorkerFilter}
+          className={TOOLBAR_FILTER_CLASS}
+          dataTest="worker-name-filter"
+          options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...workers.map((w) => ({ value: w.id, label: w.fullName }))]}
+        />
+        <Dropdown
+          value={statusFilter}
+          onChange={setStatusFilter}
+          className={TOOLBAR_FILTER_CLASS}
+          dataTest="worker-status-filter"
+          options={[
+            { value: 'all', label: 'สถานะทั้งหมด' },
+            { value: 'active', label: 'Active' },
+            { value: 'pending', label: 'Pending' },
+            { value: 'inactive', label: 'Inactive' },
+          ]}
+        />
+      </TableToolbar>
 
       <div tabIndex={0} role="region" aria-label="รายชื่อคนงาน" className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
         <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
@@ -377,22 +369,22 @@ export default function Workers() {
           <tbody>
             {filtered.map((worker) => (
               <tr key={worker.id} data-test="worker-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
-                <td className="px-3 py-3 pl-4 sm:px-4 sm:pl-6 text-left">
+                <td className="px-3 py-3 pl-4 text-left sm:px-4 sm:py-4 sm:pl-6">
                   <div className="flex items-center justify-start gap-3">
                     <Avatar src={worker.avatar} name={worker.fullName} />
                     <span data-test="worker-row-name" className="font-semibold text-gray-800">{worker.fullName}</span>
                   </div>
                 </td>
-                <td className="px-3 py-3 sm:px-4 font-medium text-gray-800">{worker.nickname}</td>
-                <td className="px-3 py-3 sm:px-4 text-gray-800">@{worker.username}</td>
-                <td className="px-3 py-3 sm:px-4 text-gray-800">{worker.phone}</td>
-                <td className="px-3 py-3 sm:px-4">
+                <td className="py-3 sm:py-4 px-3 sm:px-4 font-medium text-gray-800">{worker.nickname}</td>
+                <td className="py-3 sm:py-4 px-3 sm:px-4 text-gray-800">@{worker.username}</td>
+                <td className="py-3 sm:py-4 px-3 sm:px-4 text-gray-800">{worker.phone}</td>
+                <td className="py-3 sm:py-4 px-3 sm:px-4">
                   <span data-test="worker-row-status" className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[worker.status]}`}>
                     {STATUS_LABEL[worker.status]}
                   </span>
                 </td>
-                <td className="px-3 py-3 sm:px-4 text-gray-800">{formatDateLong(worker.joinedDate)}</td>
-                <td className="px-3 py-3 pr-4 sm:px-4 sm:pr-6 text-center" data-test="worker-row-manage">
+                <td className="py-3 sm:py-4 px-3 sm:px-4 text-gray-800">{formatDateLong(worker.joinedDate)}</td>
+                <td className="py-3 sm:py-4 px-3 pr-4 sm:px-4 sm:pr-6 text-center" data-test="worker-row-manage">
                   {worker.status !== 'inactive' ? (
                     <div className="flex items-center justify-center gap-4">
                       <button

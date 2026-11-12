@@ -196,7 +196,7 @@ export default function SuperAdminDashboard() {
       <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">
         <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 lg:col-span-7">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
-            <h3 className="text-lg font-bold text-gray-900">Payroll Overview</h3>
+            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Overview</h3>
             <div className="flex w-full min-w-0 gap-2 sm:w-auto">
               <PeriodSelect value={trendPeriod} onChange={setTrendPeriod} />
               <Dropdown

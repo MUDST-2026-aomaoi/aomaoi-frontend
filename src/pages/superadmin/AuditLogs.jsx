@@ -4,7 +4,7 @@ import { auditLogController } from '../../controller/auditLogController';
 import { RefreshCw, AlertCircle } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { DateInput } from '../../components/ui/DateInput';
-import { SearchInput } from '../../components/ui/SearchInput';
+import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 
 export default function AuditLogs() {
@@ -65,17 +65,26 @@ export default function AuditLogs() {
     <div>
       <PageHeader title="System Audit Logs" />
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search by action, user, or details..." className="w-full min-w-0 sm:max-w-lg sm:flex-1" dataTest="audit-search" />
-
-        <div className="flex w-full flex-wrap items-start gap-2 sm:w-auto sm:gap-4">
-          <DateInput value={dateFilter} onChange={setDateFilter} placeholder="กรองตามวันที่" className="min-w-0 flex-1 sm:w-48 sm:flex-none" dataTest="audit-date-filter" />
-          <Button variant="subtle" data-test="audit-refresh" onClick={handleRefresh} className="flex items-center gap-2">
+      <TableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="ค้นหาผู้ทำรายการ, การกระทำ, รายละเอียด"
+        searchTestId="audit-search"
+        action={
+          <Button variant="subtle" data-test="audit-refresh" onClick={handleRefresh} className="flex w-full items-center justify-center gap-2 sm:w-auto">
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </Button>
-        </div>
-      </div>
+        }
+      >
+        <DateInput
+          value={dateFilter}
+          onChange={setDateFilter}
+          placeholder="กรองตามวันที่"
+          className={TOOLBAR_FILTER_CLASS}
+          dataTest="audit-date-filter"
+        />
+      </TableToolbar>
 
       {error && (
         <div className="rounded-md bg-red-50 p-4 mb-6">
@@ -116,21 +125,21 @@ export default function AuditLogs() {
             ) : (
               filtered.map((log) => (
                 <tr key={log.id} data-test="audit-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-800">
+                  <td className="px-4 py-3 sm:py-4 text-gray-800">
                     {formatDateLong(log.timestamp || log.createdAt)}
                   </td>
-                  <td className="px-4 py-3 font-semibold text-gray-800">
+                  <td className="px-4 py-3 sm:py-4 font-semibold text-gray-800">
                     {log.performedBy || log.actionBy || '-'}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 sm:py-4">
                     <span data-test="audit-row-action" className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 border border-blue-200">
                       {log.action}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-800">
+                  <td className="px-4 py-3 sm:py-4 text-gray-800">
                     {log.targetUser || '-'}
                   </td>
-                  <td className="px-4 py-3 text-left text-gray-600 max-w-xs truncate" title={log.details}>
+                  <td className="px-4 py-3 sm:py-4 text-left text-gray-600 max-w-xs truncate" title={log.details}>
                     {log.details || '-'}
                   </td>
                 </tr>

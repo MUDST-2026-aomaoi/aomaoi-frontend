@@ -2,12 +2,13 @@ import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Avatar } from '../../components/ui/Avatar';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
-import { formatDate } from '../../lib/format';
+import { formatDate, formatDateLong, formatBaht } from '../../lib/format';
 
 const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const RADIAN = Math.PI / 180;
@@ -74,10 +75,8 @@ export default function Dashboard() {
   const [trendPeriod, setTrendPeriod] = useState('month');
   const [breakdownPeriod, setBreakdownPeriod] = useState('month');
 
-  const activeWorkers = useMemo(() => workers.filter((w) => w.status !== 'inactive'), [workers]);
   const entriesThisMonth = useMemo(() => entries.filter((e) => isThisMonth(e.date)), [entries]);
   const entriesToday = useMemo(() => entries.filter((e) => isToday(e.date)), [entries]);
-  const workersToday = useMemo(() => new Set(entriesToday.map((e) => e.workerId)).size, [entriesToday]);
 
   const totalAllTime = useMemo(() => entries.reduce((sum, e) => sum + e.total, 0), [entries]);
   const totalThisMonth = useMemo(() => entriesThisMonth.reduce((sum, e) => sum + e.total, 0), [entriesThisMonth]);
@@ -146,55 +145,41 @@ export default function Dashboard() {
     <div>
       <PageHeader title="Dashboard" />
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 min-[1700px]:grid-cols-8">
-        <div className="col-span-2 flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 font-medium text-gray-600">ยอดชำระรวม</p>
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">ยอดชำระรวม</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-[#205e2e] sm:text-4xl">{formatNumber(totalAllTime)}</h3>
-            <span className="font-medium text-gray-400">บาท</span>
+            <h3 className="truncate text-2xl font-bold text-[#205e2e] sm:text-3xl">{formatNumber(totalAllTime)}</h3>
+            <span className="text-sm font-medium text-gray-400">บาท</span>
           </div>
         </div>
-        <div className="col-span-2 flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 font-medium text-gray-600">ยอดชำระเดือนนี้</p>
+        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">ยอดชำระเดือนนี้</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-gray-700 sm:text-4xl">{formatNumber(totalThisMonth)}</h3>
-            <span className="font-medium text-gray-400">บาท</span>
+            <h3 className="truncate text-2xl font-bold text-gray-700 sm:text-3xl">{formatNumber(totalThisMonth)}</h3>
+            <span className="text-sm font-medium text-gray-400">บาท</span>
           </div>
         </div>
-        <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="mb-1 text-xs font-medium text-gray-600 sm:text-sm">คนงานทั้งหมด</p>
-          <div className="flex items-baseline gap-1">
-            <h3 className="text-2xl font-bold sm:text-3xl text-gray-700">{activeWorkers.length}</h3>
-            <span className="text-xs font-medium text-gray-400">คน</span>
+        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">งานทั้งหมด</p>
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-2xl font-bold text-gray-700 sm:text-3xl">{entries.length}</h3>
+            <span className="text-sm font-medium text-gray-400">รายการ</span>
           </div>
         </div>
-        <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="mb-1 text-xs font-medium text-gray-600 sm:text-sm">คนงานวันนี้</p>
-          <div className="flex items-baseline gap-1">
-            <h3 className="text-2xl font-bold sm:text-3xl text-[#568A3B]">{workersToday}</h3>
-            <span className="text-xs font-medium text-gray-400">คน</span>
-          </div>
-        </div>
-        <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="mb-1 text-xs font-medium text-gray-600 sm:text-sm">งานทั้งหมด</p>
-          <div className="flex items-baseline gap-1">
-            <h3 className="text-2xl font-bold sm:text-3xl text-gray-700">{entries.length}</h3>
-            <span className="text-xs font-medium text-gray-400">รายการ</span>
-          </div>
-        </div>
-        <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="mb-1 text-xs font-medium text-gray-600 sm:text-sm">งานวันนี้</p>
-          <div className="flex items-baseline gap-1">
-            <h3 className="text-2xl font-bold sm:text-3xl text-[#568A3B]">{entriesToday.length}</h3>
-            <span className="text-xs font-medium text-gray-400">รายการ</span>
+        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+          <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">งานวันนี้</p>
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-2xl font-bold text-[#568A3B] sm:text-3xl">{entriesToday.length}</h3>
+            <span className="text-sm font-medium text-gray-400">รายการ</span>
           </div>
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:gap-6 min-[1700px]:grid-cols-12">
-        <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 min-[1700px]:col-span-7">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
+        <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
-            <h3 className="text-lg font-bold text-gray-900">Payroll Overview</h3>
+            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Overview</h3>
             <div className="flex w-full min-w-0 gap-2 sm:w-auto">
               <PeriodSelect value={trendPeriod} onChange={setTrendPeriod} />
               <Dropdown
@@ -237,13 +222,13 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 min-[1700px]:col-span-5">
+        <div className="flex min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
           <div className="mb-2 flex items-center justify-between gap-2">
             <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Breakdown by Task</h3>
             <PeriodSelect value={breakdownPeriod} onChange={setBreakdownPeriod} />
           </div>
 
-          <div className="flex flex-1 flex-col items-center justify-center gap-6 sm:flex-row sm:gap-10">
+          <div className="flex flex-1 flex-col items-center justify-center gap-6 min-[1400px]:flex-row min-[1400px]:gap-8">
             <div className="relative h-50 w-50 shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -272,7 +257,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:min-w-56">
+            <div className="grid w-full grid-cols-2 gap-2 min-[1400px]:w-auto min-[1400px]:min-w-56">
               {breakdown.map((entry) => (
                 <div
                   key={entry.key}
@@ -296,49 +281,54 @@ export default function Dashboard() {
       </div>
 
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-gray-100 p-4 sm:p-5">
-          <h3 className="text-xl font-bold text-gray-900">Work Activity Log</h3>
+        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4 sm:px-6 sm:py-5">
+          <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Work Activity Log</h3>
           <Link to="/work" data-test="dashboard-worklog-more" className="flex items-center gap-1 text-sm font-semibold text-gray-700 hover:text-gray-900">
             More <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
         <div tabIndex={0} role="region" aria-label="Work Activity Log" className="overflow-x-auto">
-        <table className="w-full min-w-160 text-center text-xs sm:text-sm">
+        <table className="w-full min-w-[640px] border-collapse text-center text-xs sm:text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
-              <th className="px-3 py-3 pl-4 text-left text-xs sm:px-4 sm:py-3.5 sm:pl-6 font-semibold uppercase tracking-wide">Name</th>
-              <th className="px-3 py-3 text-xs sm:px-4 sm:py-3.5 font-semibold uppercase tracking-wide">Date</th>
-              <th className="px-3 py-3 text-xs sm:px-4 sm:py-3.5 font-semibold uppercase tracking-wide">Work Type</th>
-              <th className="px-3 py-3 text-right text-xs sm:px-4 sm:py-3.5 font-semibold uppercase tracking-wide">Qty</th>
-              <th className="px-3 py-3 text-xs sm:px-4 sm:py-3.5 font-semibold uppercase tracking-wide">Unit</th>
-              <th className="px-3 py-3 pr-4 text-right text-xs sm:px-4 sm:py-3.5 sm:pr-6 font-semibold uppercase tracking-wide">Wages</th>
+              <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">Name</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Date</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Work Type</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Qty</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Unit</th>
+              <th className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-3.5 sm:pr-6 font-medium">Wages</th>
             </tr>
           </thead>
           <tbody>
-            {recentActivity.map((entry, index) => {
+            {recentActivity.map((entry) => {
               const config = WORK_LOG_TYPES[entry.type];
+              const name = getWorkerName(entry.workerId);
               return (
-                <tr
-                  key={entry.id}
-                  className={`border-b border-gray-100 transition-colors hover:bg-gray-100/70 ${
-                    index === recentActivity.length - 1 ? 'border-b-0' : ''
-                  } ${index % 2 === 1 ? 'bg-gray-50/60' : ''}`}
-                >
-                  <td className="px-3 py-3 pl-4 text-left font-medium sm:px-4 sm:py-4 sm:pl-6 text-gray-800">{getWorkerName(entry.workerId)}</td>
-                  <td className="px-3 py-3 text-gray-700 sm:px-4 sm:py-4">{formatDate(entry.date)}</td>
-                  <td className="px-3 py-3 sm:px-4 sm:py-4">
-                    <span className={`rounded-full px-4 py-1.5 text-xs font-bold ${config.badgeClass}`}>{config.labelTh}</span>
+                <tr key={entry.id} className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-left font-medium sm:px-6 sm:py-4 text-gray-800">
+                    <div className="flex items-center gap-3">
+                      <Avatar src={workers.find((w) => String(w.id) === String(entry.workerId))?.avatar} name={name} />
+                      <span>{name}</span>
+                    </div>
                   </td>
-                  <td className="px-3 py-3 text-right sm:px-4 sm:py-4 text-gray-700">{formatNumber(config.primaryQty(entry))}</td>
-                  <td className="px-3 py-3 text-gray-700 sm:px-4 sm:py-4">{config.primaryUnit}</td>
-                  <td className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-4 sm:pr-6 font-medium text-gray-800">{formatNumber(entry.total)} บาท</td>
+                  <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">
+                    {entry.startDate && entry.endDate && entry.startDate !== entry.endDate
+                      ? `${formatDate(entry.startDate)} - ${formatDate(entry.endDate)}`
+                      : formatDateLong(entry.startDate || entry.date)}
+                  </td>
+                  <td className="px-3 py-3 sm:px-4 sm:py-4">
+                    <span className={`inline-block min-w-17.5 rounded-full px-4 py-1.5 text-xs font-bold ${config.badgeClass}`}>{config.labelTh}</span>
+                  </td>
+                  <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">{config.primaryQty(entry)}</td>
+                  <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">{config.primaryUnit}</td>
+                  <td className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-4 sm:pr-6 font-medium text-gray-800">{formatBaht(entry.total)}</td>
                 </tr>
               );
             })}
             {recentActivity.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-6 text-gray-400">
+                <td colSpan={6} className="py-8 text-gray-400">
                   ยังไม่มีรายการ
                 </td>
               </tr>

@@ -7,7 +7,8 @@ import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { DateInput } from '../../components/ui/DateInput';
-import { SearchInput } from '../../components/ui/SearchInput';
+import { Avatar } from '../../components/ui/Avatar';
+import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
@@ -205,35 +206,36 @@ export default function WorkLog() {
     <div>
       <PageHeader title="Work Activity Log" />
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหา" className="w-full min-w-0 flex-1 sm:min-w-[220px] sm:max-w-lg" dataTest="worklog-search" />
-
-        <div className="flex w-full flex-wrap gap-3 sm:w-auto sm:gap-4">
-          <Dropdown
-            value={workerFilter}
-            onChange={setWorkerFilter}
-            className="min-w-0 flex-1 sm:w-48 sm:flex-none"
-            dataTest="worklog-worker-filter"
-            options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...allWorkers.map((w) => ({ value: w.id, label: w.fullName }))]}
-          />
-
-          <Dropdown
-            value={typeFilter}
-            onChange={setTypeFilter}
-            className="min-w-0 flex-1 sm:w-48 sm:flex-none"
-            dataTest="worklog-type-filter"
-            options={[
-              { value: 'all', label: 'ประเภทงานทั้งหมด' },
-              ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
-            ]}
-          />
-
+      <TableToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="ค้นหาชื่อคนงาน"
+        searchTestId="worklog-search"
+        action={
           <Button variant="accent" data-test="worklog-add-btn" className="flex w-full items-center justify-center gap-2 sm:w-auto" onClick={openNewEntry}>
             <UserPlus className="h-5 w-5" />
             <span>บันทึกงานใหม่</span>
           </Button>
-        </div>
-      </div>
+        }
+      >
+        <Dropdown
+          value={workerFilter}
+          onChange={setWorkerFilter}
+          className={TOOLBAR_FILTER_CLASS}
+          dataTest="worklog-worker-filter"
+          options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...allWorkers.map((w) => ({ value: w.id, label: w.fullName }))]}
+        />
+        <Dropdown
+          value={typeFilter}
+          onChange={setTypeFilter}
+          className={TOOLBAR_FILTER_CLASS}
+          dataTest="worklog-type-filter"
+          options={[
+            { value: 'all', label: 'ประเภทงานทั้งหมด' },
+            ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
+          ]}
+        />
+      </TableToolbar>
 
       <div tabIndex={0} role="region" aria-label="บันทึกงาน" className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
         <table className="w-full min-w-[640px] border-collapse text-center text-xs sm:text-sm">
@@ -253,7 +255,10 @@ export default function WorkLog() {
               return (
                 <tr key={entry.id} data-test="worklog-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
                   <td className="px-4 py-3 text-left font-medium sm:px-6 sm:py-4 text-gray-800">
-                    {getWorkerName(entry.workerId)}
+                    <div className="flex items-center gap-3">
+                      <Avatar src={allWorkers.find((w) => String(w.id) === String(entry.workerId))?.avatar} name={getWorkerName(entry.workerId)} />
+                      <span>{getWorkerName(entry.workerId)}</span>
+                    </div>
                   </td>
                   <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">
                     {entry.startDate && entry.endDate && entry.startDate !== entry.endDate
