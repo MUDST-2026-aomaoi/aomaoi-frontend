@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { farmService } from '../service/farmService';
+import { t } from '../i18n';
 
 export const useFarmStore = create((set, get) => ({
   farms: [],
@@ -32,5 +33,5 @@ export const useFarmStore = create((set, get) => ({
       farms: state.farms.map((f) => (f.id === id ? { ...f, status } : f)),
     })),
 
-  getFarmName: (id) => get().farms.find((f) => String(f.id) === String(id))?.name ?? 'ไม่ทราบฟาร์ม',
+  getFarmName: (id) => get().farms.find((f) => String(f.id) === String(id))?.name ?? t('common.unknownFarm'),
 }));

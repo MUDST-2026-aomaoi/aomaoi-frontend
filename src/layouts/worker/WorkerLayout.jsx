@@ -4,8 +4,11 @@ import { LayoutDashboard, History, Wallet, LogOut, Menu, X } from 'lucide-react'
 import logo from '../../assets/sugarcane-logo.png';
 import SetPasswordModal from '../../components/auth/SetPasswordModal';
 import { useAuthStore } from '../../controller/authController';
+import { LanguageSwitch } from '../../components/ui/LanguageSwitch';
+import { useT, ROLE_LABEL } from '../../i18n';
 
 export default function WorkerLayout({ children }) {
+  const t = useT();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -36,10 +39,10 @@ export default function WorkerLayout({ children }) {
   };
 
   const pageTitle = location.pathname.includes('/salary-advance')
-    ? 'Salary Advance'
+    ? t('nav.salaryAdvance')
     : location.pathname.includes('/history')
-      ? 'History'
-      : 'Dashboard';
+      ? t('nav.history')
+      : t('nav.dashboard');
 
   return (
     <div className="flex h-screen h-[100dvh] bg-[#F9FAFB] text-farm-text font-sans relative overflow-hidden">
@@ -76,7 +79,7 @@ export default function WorkerLayout({ children }) {
           <button
             type="button"
             onClick={() => setSidebarOpen(false)}
-            aria-label="Close navigation menu"
+            aria-label={t('nav.closeMenu')}
             className="md:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <X className="h-5 w-5" />
@@ -85,7 +88,7 @@ export default function WorkerLayout({ children }) {
 
         {/* Menu Section */}
         <div className="flex-1 px-6 py-4 overflow-y-auto overscroll-contain">
-          <p className="mb-4 text-sm text-gray-400">Menu</p>
+          <p className="mb-4 text-sm text-gray-400">{t('nav.menu')}</p>
           <nav aria-label="Primary" className="flex flex-col gap-2">
             <Link
               to="/dashboard"
@@ -94,7 +97,7 @@ export default function WorkerLayout({ children }) {
               className={getNavClass('/dashboard')}
             >
               <LayoutDashboard className="h-5 w-5" />
-              <span>Dashboard</span>
+              <span>{t('nav.dashboard')}</span>
             </Link>
             <Link
               to="/history"
@@ -103,7 +106,7 @@ export default function WorkerLayout({ children }) {
               className={getNavClass('/history')}
             >
               <History className="h-5 w-5" />
-              <span>History</span>
+              <span>{t('nav.history')}</span>
             </Link>
             <Link
               to="/salary-advance"
@@ -113,20 +116,21 @@ export default function WorkerLayout({ children }) {
               className={getNavClass('/salary-advance')}
             >
               <Wallet className="h-5 w-5" />
-              <span>Salary Advance</span>
+              <span>{t('nav.salaryAdvance')}</span>
             </Link>
           </nav>
         </div>
 
         {/* Logout Section */}
-        <div className="p-6">
+        <div className="flex flex-col gap-5 p-6">
+          <LanguageSwitch block />
           <button
             data-test="logout-button"
             onClick={handleLogout}
             className="flex items-center gap-3 text-gray-500 transition-colors hover:text-red-500 font-medium"
           >
             <LogOut className="h-5 w-5" />
-            <span>Log out</span>
+            <span>{t('nav.logout')}</span>
           </button>
         </div>
       </aside>
@@ -139,7 +143,7 @@ export default function WorkerLayout({ children }) {
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              aria-label="Open navigation menu"
+              aria-label={t('nav.openMenu')}
               aria-expanded={sidebarOpen}
               aria-controls="worker-sidebar"
               className="p-2 -ml-1 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-sm shrink-0 transition-colors"
@@ -164,7 +168,7 @@ export default function WorkerLayout({ children }) {
             </div>
             <div className="text-left leading-tight">
               <p className="text-xs sm:text-sm font-semibold text-farm-text max-w-[120px] sm:max-w-none truncate">{myFullName}</p>
-              <p className="text-[11px] sm:text-[12px] font-normal text-gray-500">Worker</p>
+              <p className="text-[11px] sm:text-[12px] font-normal text-gray-500">{ROLE_LABEL.worker}</p>
             </div>
           </div>
         </header>

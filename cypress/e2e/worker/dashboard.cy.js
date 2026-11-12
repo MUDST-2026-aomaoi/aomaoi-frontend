@@ -39,9 +39,9 @@ describe('Worker - Dashboard', () => {
       cy.contains(fullName).should('be.visible');
 
       // 2. ตรวจสอบการ์ดสรุปยอดเงินหลักทั้ง 3 ใบตามดีไซน์ใหม่
-      cy.contains('Total Earning').should('be.visible');
-      cy.contains('Total SalaryAdvance').should('be.visible');
-      cy.contains('RemainingBalance').should('be.visible');
+      cy.contains('รายได้รวม').should('be.visible');
+      cy.contains('เบิกล่วงหน้ารวม').should('be.visible');
+      cy.contains('ยอดคงเหลือ').should('be.visible');
 
       // 3. ตรวจสอบยอดเงินรวม (2 ร่อง ร่องละ 100 วา = 400 บาท) + (5 ถัง ถังละ 150 บาท = 750 บาท) รวม 1,150 บาท
       cy.getByTestID('worker-total-earning').should('contain', '1,150');

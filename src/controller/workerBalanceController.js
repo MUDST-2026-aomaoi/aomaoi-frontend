@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { workerBalanceService } from '../service/workerBalanceService';
+import { t } from '../i18n';
+import { tError } from '../i18n/backendMessages';
 
 export const useWorkerBalanceStore = create((set) => ({
   balances: [],
@@ -12,7 +14,7 @@ export const useWorkerBalanceStore = create((set) => ({
       set({ balances: data, loaded: true, error: '' });
     } catch (error) {
       console.error('Failed to fetch worker balances:', error);
-      set({ error: error.response?.data?.message || 'โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง', loaded: true });
+      set({ error: tError(error, t('err.loadFailed')), loaded: true });
     }
   },
 }));

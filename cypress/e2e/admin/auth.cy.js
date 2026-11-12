@@ -23,7 +23,7 @@ describe('Admin - first login / logout / route guard', () => {
       cy.getByTestID('login-submit').click();
 
       cy.location('pathname').should('eq', '/dashboard');
-      cy.contains('Set New Password');
+      cy.contains('ตั้งรหัสผ่านใหม่');
 
       cy.getByTestID('setpw-old').type('wrong-old-pass');
       cy.getByTestID('setpw-new').type('NewPass123');
@@ -41,19 +41,19 @@ describe('Admin - first login / logout / route guard', () => {
       cy.getByTestID('setpw-new').clear().type('NewPass123');
       cy.getByTestID('setpw-confirm').clear().type('Mismatch123');
       cy.getByTestID('setpw-submit').click();
-      cy.getByTestID('setpw-error').should('contain', 'Passwords do not match');
+      cy.getByTestID('setpw-error').should('contain', 'รหัสผ่านใหม่ไม่ตรงกัน');
 
       cy.getByTestID('setpw-new').clear().type('short');
       cy.getByTestID('setpw-confirm').clear().type('short');
       cy.getByTestID('setpw-submit').click();
-      cy.getByTestID('setpw-error').should('contain', 'Password must be at least 6 characters');
+      cy.getByTestID('setpw-error').should('contain', 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
 
       cy.getByTestID('setpw-old').clear().type('Temp1234');
       cy.getByTestID('setpw-new').clear().type('NewPass123');
       cy.getByTestID('setpw-confirm').clear().type('NewPass123');
       cy.getByTestID('setpw-submit').click();
 
-      cy.getByTestID('setpw-success').should('contain', 'Add New Password Successfully!');
+      cy.getByTestID('setpw-success').should('contain', 'ตั้งรหัสผ่านใหม่สำเร็จ');
       cy.getByTestID('setpw-success-close').click();
 
       cy.getByTestID('logout-button').click();
@@ -63,7 +63,7 @@ describe('Admin - first login / logout / route guard', () => {
       cy.getByTestID('login-password').type('NewPass123');
       cy.getByTestID('login-submit').click();
       cy.location('pathname').should('eq', '/dashboard');
-      cy.contains('Set New Password').should('not.exist');
+      cy.contains('ตั้งรหัสผ่านใหม่').should('not.exist');
     });
   });
 
@@ -108,12 +108,12 @@ describe('Admin - first login / logout / route guard', () => {
       cy.activateAccount(username, 'Temp1234');
       cy.loginSession(username, 'NewPass123');
       cy.visit('/dashboard');
-      cy.contains('a', 'Dashboard');
-      cy.contains('a', 'Workers');
-      cy.contains('a', 'Work Log');
-      cy.contains('a', 'All Farms').should('not.exist');
-      cy.contains('a', 'All Admins').should('not.exist');
-      cy.contains('a', 'Audit Logs').should('not.exist');
+      cy.contains('a', 'แดชบอร์ด');
+      cy.contains('a', 'คนงาน');
+      cy.contains('a', 'บันทึกงาน');
+      cy.contains('a', 'ฟาร์มทั้งหมด').should('not.exist');
+      cy.contains('a', 'แอดมินทั้งหมด').should('not.exist');
+      cy.contains('a', 'บันทึกระบบ').should('not.exist');
     });
   });
 
@@ -124,7 +124,7 @@ describe('Admin - first login / logout / route guard', () => {
       cy.visit('/dashboard');
       cy.getByTestID('dashboard-worklog-more').click();
       cy.location('pathname').should('eq', '/work');
-      cy.contains('Work Activity Log');
+      cy.contains('บันทึกกิจกรรมงาน');
     });
   });
 });

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Scissors, Sprout, Droplets, SprayCan } from 'lucide-react';
+import { t } from '../i18n';
 
 export function todayISO() {
   const d = new Date();
@@ -7,67 +8,66 @@ export function todayISO() {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-const NO_FUTURE_MESSAGE = 'ไม่สามารถเลือกวันที่ในอนาคตได้';
 const notFuture = (value) => !value || value <= todayISO();
 
 export const WORK_LOG_TYPES = {
   cutting: {
     key: 'cutting',
     path: 'cutting',
-    labelTh: 'ตัดอ้อย',
+    get labelTh() { return t('wl.cutting.label'); },
     icon: Scissors,
-    formulaLabel: 'แถว × 100 วา/แถว × 2 บาท',
+    get formulaLabel() { return t('wl.cutting.formula'); },
     chartColor: '#B4D355',
     badgeClass: 'bg-[#dcfce7] text-[#166534]',
-    primaryUnit: 'วา',
+    get primaryUnit() { return t('wl.unit.wa'); },
     primaryQty: (v) => v.rows * v.waPerRow,
-    fields: [
-      { name: 'date', label: 'วันที่ทำงาน', type: 'date', defaultValue: '' },
-      { name: 'rows', label: 'จำนวนแถว', suffix: 'แถว', defaultValue: 1 },
-      { name: 'waPerRow', label: 'วา/แถว (มาตรฐาน)', suffix: 'วา', defaultValue: 100 },
-    ],
-    schema: z.object({
-      date: z.string().min(1, 'กรุณาเลือกวันที่').refine(notFuture, NO_FUTURE_MESSAGE),
-      workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),
-      rows: z.coerce.number().positive('ต้องมากกว่า 0'),
-      waPerRow: z.coerce.number().positive('ต้องมากกว่า 0'),
-    }),
+    get fields() { return [
+      { name: 'date', label: t('wl.field.workDate'), type: 'date', defaultValue: '' },
+      { name: 'rows', label: t('wl.field.rows'), suffix: t('wl.suffix.rows'), defaultValue: 1 },
+      { name: 'waPerRow', label: t('wl.field.waPerRow'), suffix: t('wl.unit.wa'), defaultValue: 100 },
+    ]; },
+    get schema() { return z.object({
+      date: z.string().min(1, t('wl.err.dateRequired')).refine(notFuture, t('wl.err.futureDate')),
+      workerId: z.string().min(1, t('wl.err.workerRequired')),
+      rows: z.coerce.number().positive(t('wl.err.positive')),
+      waPerRow: z.coerce.number().positive(t('wl.err.positive')),
+    }); },
     calcTotal: (v) => v.rows * v.waPerRow * 2,
-    summaryText: (v) => `${v.rows} แถว × ${v.waPerRow} วา/แถว`,
+    summaryText: (v) => t('wl.cutting.summary', { rows: v.rows, waPerRow: v.waPerRow }),
   },
   planting: {
     key: 'planting',
     path: 'planting',
-    labelTh: 'ปลูกอ้อย',
+    get labelTh() { return t('wl.planting.label'); },
     icon: Sprout,
-    formulaLabel: 'ร่อง × วา/ร่อง × 2.5 บาท',
+    get formulaLabel() { return t('wl.planting.formula'); },
     chartColor: '#1F3C28',
     badgeClass: 'bg-[#e5e7eb] text-[#374151]',
-    primaryUnit: 'วา',
+    get primaryUnit() { return t('wl.unit.wa'); },
     primaryQty: (v) => v.furrows * v.waPerFurrow,
-    fields: [
-      { name: 'date', label: 'วันที่ทำงาน', type: 'date', defaultValue: '' },
-      { name: 'furrows', label: 'จำนวนร่อง', suffix: 'ร่อง', defaultValue: 1 },
-      { name: 'waPerFurrow', label: 'วา/ร่อง', suffix: 'วา', defaultValue: 20 },
-    ],
-    schema: z.object({
-      date: z.string().min(1, 'กรุณาเลือกวันที่').refine(notFuture, NO_FUTURE_MESSAGE),
-      workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),
-      furrows: z.coerce.number().positive('ต้องมากกว่า 0'),
-      waPerFurrow: z.coerce.number().positive('ต้องมากกว่า 0'),
-    }),
+    get fields() { return [
+      { name: 'date', label: t('wl.field.workDate'), type: 'date', defaultValue: '' },
+      { name: 'furrows', label: t('wl.field.furrows'), suffix: t('wl.suffix.furrows'), defaultValue: 1 },
+      { name: 'waPerFurrow', label: t('wl.field.waPerFurrow'), suffix: t('wl.unit.wa'), defaultValue: 20 },
+    ]; },
+    get schema() { return z.object({
+      date: z.string().min(1, t('wl.err.dateRequired')).refine(notFuture, t('wl.err.futureDate')),
+      workerId: z.string().min(1, t('wl.err.workerRequired')),
+      furrows: z.coerce.number().positive(t('wl.err.positive')),
+      waPerFurrow: z.coerce.number().positive(t('wl.err.positive')),
+    }); },
     calcTotal: (v) => v.furrows * v.waPerFurrow * 2.5,
-    summaryText: (v) => `${v.furrows} ร่อง × ${v.waPerFurrow} วา/ร่อง`,
+    summaryText: (v) => t('wl.planting.summary', { furrows: v.furrows, waPerFurrow: v.waPerFurrow }),
   },
   watering: {
     key: 'watering',
     path: 'watering',
-    labelTh: 'รดน้ำ',
+    get labelTh() { return t('wl.watering.label'); },
     icon: Droplets,
-    formulaLabel: 'จำนวนวัน × ค่าแรงต่อวัน',
+    get formulaLabel() { return t('wl.watering.formula'); },
     chartColor: '#568A3B',
     badgeClass: 'bg-[#fef08a] text-[#854d0e]',
-    primaryUnit: 'วัน',
+    get primaryUnit() { return t('wl.unit.day'); },
     primaryQty: (v) => {
       if (v.startDate && v.endDate) {
         const start = new Date(v.startDate);
@@ -76,21 +76,21 @@ export const WORK_LOG_TYPES = {
       }
       return 0;
     },
-    fields: [
-      { name: 'startDate', label: 'วันที่เริ่ม', suffix: '', type: 'date', defaultValue: '' },
-      { name: 'endDate', label: 'วันที่สิ้นสุด', suffix: '', type: 'date', defaultValue: '' },
-      { name: 'dailyRate', label: 'ค่าแรงต่อวัน', suffix: 'บาท', defaultValue: 350 },
-    ],
-    schema: z.object({
-      workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),
-      startDate: z.string().min(1, 'กรุณาเลือกวันที่เริ่ม').refine(notFuture, NO_FUTURE_MESSAGE),
-      endDate: z.string().min(1, 'กรุณาเลือกวันที่สิ้นสุด').refine(notFuture, NO_FUTURE_MESSAGE),
-      dailyRate: z.coerce.number().positive('ต้องมากกว่า 0'),
+    get fields() { return [
+      { name: 'startDate', label: t('wl.field.startDate'), suffix: '', type: 'date', defaultValue: '' },
+      { name: 'endDate', label: t('wl.field.endDate'), suffix: '', type: 'date', defaultValue: '' },
+      { name: 'dailyRate', label: t('wl.field.dailyRate'), suffix: t('wl.suffix.baht'), defaultValue: 350 },
+    ]; },
+    get schema() { return z.object({
+      workerId: z.string().min(1, t('wl.err.workerRequired')),
+      startDate: z.string().min(1, t('wl.err.startRequired')).refine(notFuture, t('wl.err.futureDate')),
+      endDate: z.string().min(1, t('wl.err.endRequired')).refine(notFuture, t('wl.err.futureDate')),
+      dailyRate: z.coerce.number().positive(t('wl.err.positive')),
     }).refine((data) => {
       const start = new Date(data.startDate);
       const end = new Date(data.endDate);
       return end >= start;
-    }, { message: 'วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่ม', path: ['endDate'] }),
+    }, { message: t('wl.err.endBeforeStart'), path: ['endDate'] }); },
     calcTotal: (v) => {
       const start = new Date(v.startDate);
       const end = new Date(v.endDate);
@@ -101,30 +101,30 @@ export const WORK_LOG_TYPES = {
       const start = new Date(v.startDate);
       const end = new Date(v.endDate);
       const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
-      return `${days > 0 ? days : 0} วัน × ${v.dailyRate} บาท/วัน`;
+      return t('wl.watering.summary', { days: days > 0 ? days : 0, dailyRate: v.dailyRate });
     },
   },
   spraying: {
     key: 'spraying',
     path: 'spraying',
-    labelTh: 'พ่นยา',
+    get labelTh() { return t('wl.spraying.label'); },
     icon: SprayCan,
-    formulaLabel: 'จำนวนถัง × 150 บาท/ถัง',
+    get formulaLabel() { return t('wl.spraying.formula'); },
     chartColor: '#6A9E48',
     badgeClass: 'bg-[#fef08a] text-[#854d0e]',
-    primaryUnit: 'ถัง',
+    get primaryUnit() { return t('wl.unit.tank'); },
     primaryQty: (v) => v.tanks,
-    fields: [
-      { name: 'date', label: 'วันที่ทำงาน', type: 'date', defaultValue: '' },
-      { name: 'tanks', label: 'จำนวนถัง', suffix: 'ถัง', defaultValue: 1 },
-    ],
-    schema: z.object({
-      date: z.string().min(1, 'กรุณาเลือกวันที่').refine(notFuture, NO_FUTURE_MESSAGE),
-      workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),
-      tanks: z.coerce.number().positive('ต้องมากกว่า 0'),
-    }),
+    get fields() { return [
+      { name: 'date', label: t('wl.field.workDate'), type: 'date', defaultValue: '' },
+      { name: 'tanks', label: t('wl.field.tanks'), suffix: t('wl.suffix.tanks'), defaultValue: 1 },
+    ]; },
+    get schema() { return z.object({
+      date: z.string().min(1, t('wl.err.dateRequired')).refine(notFuture, t('wl.err.futureDate')),
+      workerId: z.string().min(1, t('wl.err.workerRequired')),
+      tanks: z.coerce.number().positive(t('wl.err.positive')),
+    }); },
     calcTotal: (v) => v.tanks * 150,
-    summaryText: (v) => `${v.tanks} ถัง`,
+    summaryText: (v) => t('wl.spraying.summary', { tanks: v.tanks }),
   },
 };
 

@@ -1,17 +1,19 @@
+import { getLocale } from '../i18n';
+
 export function formatBaht(amount) {
   const num = Number(amount);
   if (num < 0) {
-    return `-฿${Math.abs(num).toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
+    return `-฿${Math.abs(num).toLocaleString(getLocale(), { maximumFractionDigits: 2 })}`;
   }
-  return `฿${num.toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
+  return `฿${num.toLocaleString(getLocale(), { maximumFractionDigits: 2 })}`;
 }
 
 export function formatAmount(amount) {
   const num = Number(amount);
   if (num < 0) {
-    return `-${Math.abs(num).toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
+    return `-${Math.abs(num).toLocaleString(getLocale(), { maximumFractionDigits: 2 })}`;
   }
-  return num.toLocaleString('th-TH', { maximumFractionDigits: 2 });
+  return num.toLocaleString(getLocale(), { maximumFractionDigits: 2 });
 }
 
 function parseLocalDate(dateStr) {
@@ -26,7 +28,7 @@ function parseLocalDate(dateStr) {
 export function formatDate(dateStr) {
   const d = parseLocalDate(dateStr);
   if (!d) return '-';
-  return d.toLocaleDateString('th-TH', {
+  return d.toLocaleDateString(getLocale(), {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -36,9 +38,25 @@ export function formatDate(dateStr) {
 export function formatDateLong(dateStr) {
   const d = parseLocalDate(dateStr);
   if (!d) return '-';
-  return d.toLocaleDateString('th-TH', {
+  return d.toLocaleDateString(getLocale(), {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
+}
+
+/** Short month name (0-11) in the current language, e.g. "ม.ค." / "Jan". */
+export function monthShort(monthIndex) {
+  return new Date(2000, monthIndex, 1).toLocaleDateString(getLocale(), { month: 'short' });
+}
+
+/** Year as shown to the user: Buddhist era in Thai, Gregorian in English. */
+export function displayYear(year) {
+  return getLocale() === 'th-TH' ? year + 543 : year;
+}
+
+/** Turns the datepicker's "dd/MM/yyyy" text into the displayed year (Buddhist era in Thai). */
+export function localizeDateText(text) {
+  const m = /^(\d{2}\/\d{2}\/)(\d{4})$/.exec(text || '');
+  return m ? `${m[1]}${displayYear(Number(m[2]))}` : text;
 }

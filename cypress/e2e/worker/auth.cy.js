@@ -29,9 +29,9 @@ describe('Worker - Authentication Flow', () => {
       cy.location('pathname').should('eq', '/dashboard');
       
       // Verify worker-specific elements are visible
-      cy.contains('Total Earning').should('be.visible');
-      cy.contains('Total SalaryAdvance').should('be.visible');
-      cy.contains('RemainingBalance').should('be.visible');
+      cy.contains('รายได้รวม').should('be.visible');
+      cy.contains('เบิกล่วงหน้ารวม').should('be.visible');
+      cy.contains('ยอดคงเหลือ').should('be.visible');
     });
   });
 

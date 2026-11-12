@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../controller/authController';
+import { useT } from '../../i18n';
+import { tError } from '../../i18n/backendMessages';
 
 export default function SetPasswordModal({ onSuccess }) {
+  const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
   const setFirstLoginDone = useAuthStore(state => state.setFirstLoginDone);
@@ -19,15 +22,15 @@ export default function SetPasswordModal({ onSuccess }) {
     e.preventDefault();
     setErrorMessage('');
     if (!oldPassword || !newPassword || !confirmPassword) {
-      setErrorMessage("Please fill in all fields (กรุณากรอกข้อมูลให้ครบทุกช่อง)");
+      setErrorMessage(t('setpw.err.fillAll'));
       return;
     }
     if (newPassword.length < 6) {
-      setErrorMessage("Password must be at least 6 characters (รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร)");
+      setErrorMessage(t('setpw.err.minLength'));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setErrorMessage("Passwords do not match (รหัสผ่านใหม่ไม่ตรงกัน)");
+      setErrorMessage(t('setpw.err.mismatch'));
       return;
     }
     try {
@@ -41,7 +44,7 @@ export default function SetPasswordModal({ onSuccess }) {
       setIsSuccess(true);
     } catch (error) {
       console.error("Failed to change password", error);
-      const msg = error.response?.data?.message || "Failed to change password (เปลี่ยนรหัสผ่านไม่สำเร็จ)";
+      const msg = tError(error, t('setpw.err.failed'));
       setErrorMessage(msg);
     }
   };
@@ -72,7 +75,7 @@ export default function SetPasswordModal({ onSuccess }) {
           
           {/* Success Text */}
           <p data-test="setpw-success" className="text-gray-900 font-medium text-[17px] mb-2">
-            Add New Password Successfully!
+            {t('setpw.success')}
           </p>
         </div>
       </div>
@@ -86,7 +89,7 @@ export default function SetPasswordModal({ onSuccess }) {
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-[520px] mx-4 px-12 py-14 relative">
         {/* Title */}
         <h2 className="text-[30px] font-extrabold text-[#3B5323] text-center mb-6">
-          Set New Password
+          {t('setpw.title')}
         </h2>
 
         {errorMessage && (
@@ -99,14 +102,14 @@ export default function SetPasswordModal({ onSuccess }) {
           {/* Old Password */}
           <div className="flex flex-col gap-2">
             <label className="text-[14px] font-semibold text-[#3B5323]">
-              Old Password
+              {t('setpw.old')}
             </label>
             <input
               type="password"
               data-test="setpw-old"
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
-              placeholder="enter your old password"
+              placeholder={t('setpw.oldPlaceholder')}
               className="w-full px-5 py-4 border border-gray-300 rounded-2xl text-sm text-gray-700 placeholder:text-gray-400 outline-none focus:border-[#708238] transition-colors"
             />
           </div>
@@ -114,14 +117,14 @@ export default function SetPasswordModal({ onSuccess }) {
           {/* New Password */}
           <div className="flex flex-col gap-2">
             <label className="text-[14px] font-semibold text-[#3B5323]">
-              New Password
+              {t('setpw.new')}
             </label>
             <input
               type="password"
               data-test="setpw-new"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="enter your new password"
+              placeholder={t('setpw.newPlaceholder')}
               className="w-full px-5 py-4 border border-gray-300 rounded-2xl text-sm text-gray-700 placeholder:text-gray-400 outline-none focus:border-[#708238] transition-colors"
             />
           </div>
@@ -129,14 +132,14 @@ export default function SetPasswordModal({ onSuccess }) {
           {/* Confirm Password */}
           <div className="flex flex-col gap-2">
             <label className="text-[14px] font-semibold text-[#3B5323]">
-              New Password Again
+              {t('setpw.confirm')}
             </label>
             <input
               type="password"
               data-test="setpw-confirm"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="enter your new password"
+              placeholder={t('setpw.newPlaceholder')}
               className="w-full px-5 py-4 border border-gray-300 rounded-2xl text-sm text-gray-700 placeholder:text-gray-400 outline-none focus:border-[#708238] transition-colors"
             />
           </div>
@@ -147,7 +150,7 @@ export default function SetPasswordModal({ onSuccess }) {
             data-test="setpw-submit"
             className="mt-2 w-full py-4 bg-[#3B5323] hover:bg-[#2f4319] text-white font-bold text-[14px] tracking-widest rounded-2xl transition-colors"
           >
-            CREATE PASSWORD
+            {t('setpw.submit')}
           </button>
         </form>
       </div>

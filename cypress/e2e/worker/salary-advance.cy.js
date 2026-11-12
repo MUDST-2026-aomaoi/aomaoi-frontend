@@ -45,8 +45,8 @@ describe('Worker - Salary Advance', () => {
       cy.getByTestID('nav-worker-salary-advance').click();
       cy.location('pathname').should('eq', '/salary-advance');
 
-      cy.contains('h1', 'Salary Advance').should('be.visible');
-      cy.contains('Here is the salary advance of overall data').should('be.visible');
+      cy.contains('h1', 'เบิกเงินล่วงหน้า').should('be.visible');
+      cy.contains('ประวัติการเบิกเงินล่วงหน้าทั้งหมดของคุณ').should('be.visible');
 
       cy.contains('th', 'วันที่').should('be.visible');
       cy.contains('th', 'ชื่อสินค้า').should('be.visible');

@@ -7,14 +7,15 @@ import { format } from 'date-fns';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useAuthStore } from '../../controller/authController';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
-import { formatDate, formatAmount } from '../../lib/format';
+import { formatDate, formatAmount, localizeDateText } from '../../lib/format';
+import { useT, getDateFnsLocale } from '../../i18n';
 
 const CustomDateInput = forwardRef(({ value, onClick, placeholder }, ref) => (
   <div className="relative w-full cursor-pointer" onClick={onClick} ref={ref}>
     <input 
       type="text"
       readOnly
-      value={value}
+      value={localizeDateText(value)}
       placeholder={placeholder}
       className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm focus:border-[#708238] cursor-pointer"
     />
@@ -24,6 +25,7 @@ const CustomDateInput = forwardRef(({ value, onClick, placeholder }, ref) => (
 CustomDateInput.displayName = 'CustomDateInput';
 
 export default function WorkerHistory() {
+  const t = useT();
   const currentUser = useAuthStore(state => state.currentUser);
   const myWorkerId = currentUser?.id || '1';
   
@@ -44,19 +46,19 @@ export default function WorkerHistory() {
         
         if (e.type === 'cutting') {
           qty = e.rows;
-          unit = 'วา/แถว';
+          unit = t('wh.unit.waPerRow');
           badgeStyle = 'bg-[#1C3F1B] text-white'; // Dark Green
         } else if (e.type === 'planting') {
           qty = e.furrows;
-          unit = 'วา/ร่อง'; 
+          unit = t('wh.unit.waPerFurrow');
           badgeStyle = 'bg-[#708238] text-white'; // Olive Green
         } else if (e.type === 'watering') {
           qty = e.days;
-          unit = 'วัน';
+          unit = t('wl.unit.day');
           badgeStyle = 'bg-[#A9C46C] text-[#1C3F1B]'; // Light Green
         } else if (e.type === 'spraying') {
           qty = e.tanks;
-          unit = 'ถัง';
+          unit = t('wl.unit.tank');
           badgeStyle = 'bg-[#D2E1A7] text-[#1C3F1B]'; // Pale Green
         }
 
@@ -107,15 +109,15 @@ export default function WorkerHistory() {
   }, [myData, searchTerm, filterType, startDate, endDate]);
 
   const WORK_OPTIONS = [
-    { value: '', label: 'ประเภทงานทั้งหมด' },
-    ...WORK_LOG_ORDER.map(t => ({ value: t, label: WORK_LOG_TYPES[t].labelTh }))
+    { value: '', label: t('worker.allTypes') },
+    ...WORK_LOG_ORDER.map(key => ({ value: key, label: WORK_LOG_TYPES[key].labelTh }))
   ];
 
   return (
     <div className="flex flex-col w-full pb-20">
       
       {/* Subtitle ใต้ Header */}
-      <p className="text-gray-400 font-medium text-sm sm:text-[18px] mb-5 sm:mb-8 mt-[-12px] sm:mt-[-20px]">Here is the history of overall data</p>
+      <p className="text-gray-400 font-medium text-sm sm:text-[18px] mb-5 sm:mb-8 mt-[-12px] sm:mt-[-20px]">{t('wh.subtitle')}</p>
 
       {/* แถบค้นหาและฟิลเตอร์ */}
       <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6">
@@ -126,7 +128,7 @@ export default function WorkerHistory() {
           <div className="relative flex-1 min-w-0 sm:min-w-[220px] sm:max-w-[360px]">
             <input 
               type="text" 
-              placeholder="search your activity" 
+              placeholder={t('worker.searchActivity')} 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-3.5 sm:pl-5 pr-10 sm:pr-12 py-2.5 bg-white border border-gray-200 rounded-lg text-farm-text outline-none text-xs sm:text-sm placeholder:text-gray-400 shadow-sm focus:border-[#708238]"
@@ -141,7 +143,7 @@ export default function WorkerHistory() {
               className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2.5 bg-white border border-gray-200 rounded-lg outline-none text-xs sm:text-sm shadow-sm cursor-pointer flex items-center justify-between transition-colors focus:border-[#708238]"
             >
               <span className={`truncate ${filterType === '' ? 'text-gray-400' : 'text-gray-600'}`}>
-                {filterType === '' ? 'ประเภทงานทั้งหมด' : WORK_LOG_TYPES[filterType].labelTh}
+                {filterType === '' ? t('worker.allTypes') : WORK_LOG_TYPES[filterType].labelTh}
               </span>
             </div>
             <ChevronDown size={18} className="absolute right-2.5 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -168,21 +170,21 @@ export default function WorkerHistory() {
         {/* Date Range */}
         <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <div className="flex-1 sm:flex-none sm:w-[180px] min-w-0 [&_.react-datepicker-wrapper]:w-full">
-            <DatePicker popperContainer={DatePickerPopperContainer}
+            <DatePicker popperContainer={DatePickerPopperContainer} locale={getDateFnsLocale()}
               selected={startDate}
               onChange={(date) => setStartDate(date)}
-              customInput={<CustomDateInput placeholder="search your date" />}
+              customInput={<CustomDateInput placeholder={t('worker.searchDate')} />}
               dateFormat="dd/MM/yyyy"
             />
           </div>
 
-          <span className="text-farm-text font-bold text-[14px] px-0.5 sm:px-1 shrink-0">ถึง</span>
+          <span className="text-farm-text font-bold text-[14px] px-0.5 sm:px-1 shrink-0">{t('worker.to')}</span>
 
           <div className="flex-1 sm:flex-none sm:w-[180px] min-w-0 [&_.react-datepicker-wrapper]:w-full">
-            <DatePicker popperContainer={DatePickerPopperContainer}
+            <DatePicker popperContainer={DatePickerPopperContainer} locale={getDateFnsLocale()}
               selected={endDate}
               onChange={(date) => setEndDate(date)}
-              customInput={<CustomDateInput placeholder="search your date" />}
+              customInput={<CustomDateInput placeholder={t('worker.searchDate')} />}
               dateFormat="dd/MM/yyyy"
             />
           </div>
@@ -192,7 +194,7 @@ export default function WorkerHistory() {
 
       {/* ตาราง */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
-        <div tabIndex={0} role="region" aria-label="ประวัติการทำงาน" className="overflow-x-auto w-full">
+        <div tabIndex={0} role="region" aria-label={t('wh.tableLabel')} className="overflow-x-auto w-full">
           <table className="w-full table-fixed text-center border-collapse min-w-[620px] md:min-w-[800px]">
             <colgroup>
               <col className="w-1/5" />
@@ -203,11 +205,11 @@ export default function WorkerHistory() {
             </colgroup>
             <thead className="bg-[#E8E8E8] border-b border-gray-200 sticky top-0 z-10">
               <tr>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">วันที่</th>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">ประเภทงาน</th>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">จำนวน</th>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">หน่วย</th>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">ค่าแรง</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wh.col.date')}</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wh.col.type')}</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wh.col.qty')}</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wh.col.unit')}</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wh.col.wage')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -229,14 +231,14 @@ export default function WorkerHistory() {
                       {item.unit}
                     </td>
                     <td className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[14px] sm:text-[15px] whitespace-nowrap">
-                      {formatAmount(item.total)} <span className="ml-1">บาท</span>
+                      {formatAmount(item.total)} <span className="ml-1">{t('common.baht')}</span>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td colSpan="5" className="py-12 text-center text-gray-400 font-medium">
-                    ไม่พบประวัติการทำงานที่ตรงกับเงื่อนไข
+                    {t('wh.empty')}
                   </td>
                 </tr>
               )}

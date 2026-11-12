@@ -2,8 +2,12 @@ import { useState } from 'react';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../controller/authController';
+import { LanguageSwitch } from '../../components/ui/LanguageSwitch';
+import { useT } from '../../i18n';
+import { translateBackendMessage } from '../../i18n/backendMessages';
 
 export default function Login() {
+  const t = useT();
   const navigate = useNavigate();
   const login = useAuthStore(state => state.login);
   
@@ -24,24 +28,25 @@ export default function Login() {
        // Backend login success! Redirect to unified dashboard
        navigate('/dashboard', { state: { showSetPassword: result.isFirstLogin } });
     } else {
-       setErrorMsg(result.error);
+       setErrorMsg(translateBackendMessage(result.error));
        setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="relative min-h-screen bg-white flex items-center justify-center">
+      <LanguageSwitch className="absolute right-4 top-4" />
 
       {/* Login Card */}
       <div className="w-full max-w-[420px] px-8">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-[32px] font-extrabold text-[#3B5323] tracking-wide mb-3">
-            LOG IN
+            {t('login.title')}
           </h1>
           <div className="relative inline-block">
             <p className="text-[#708238] font-semibold text-[15px]">
-              Sugarcane Farm Accounting Management
+              {t('login.subtitle')}
             </p>
             <div className="absolute -bottom-2 left-0 right-0 h-[2px] bg-[#708238] rounded-full" />
           </div>
@@ -57,13 +62,13 @@ export default function Login() {
           
           {/* Username */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[13px] font-medium text-gray-600">username</label>
+            <label className="text-[13px] font-medium text-gray-600">{t('login.username')}</label>
             <div className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-300 rounded-2xl focus-within:border-[#708238] transition-colors">
               <User size={17} className="text-gray-400 shrink-0" />
               <input
                 type="text"
                 data-test="login-username"
-                placeholder="enter your username"
+                placeholder={t('login.usernamePlaceholder')}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -74,13 +79,13 @@ export default function Login() {
 
           {/* Password */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[13px] font-medium text-gray-600">password</label>
+            <label className="text-[13px] font-medium text-gray-600">{t('login.password')}</label>
             <div className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-300 rounded-2xl focus-within:border-[#708238] transition-colors">
               <Lock size={17} className="text-gray-400 shrink-0" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 data-test="login-password"
-                placeholder="enter your password"
+                placeholder={t('login.passwordPlaceholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -103,7 +108,7 @@ export default function Login() {
             disabled={isLoading}
             className="mt-2 w-full py-3.5 bg-[#3B5323] hover:bg-[#2f4319] disabled:bg-gray-400 text-white font-bold text-[14px] tracking-widest rounded-2xl transition-colors"
           >
-            {isLoading ? 'LOGGING IN...' : 'LOGIN'}
+            {isLoading ? t('login.submitting') : t('login.submit')}
           </button>
         </form>
       </div>

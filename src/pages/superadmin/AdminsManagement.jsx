@@ -15,18 +15,20 @@ import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useFarmStore } from '../../store/useFarmStore';
 import { adminService } from '../../service/adminService';
+import { tError } from '../../i18n/backendMessages';
 import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
+import { useT } from '../../i18n';
 
-const adminSchema = z.object({
-  fullName: z.string().min(1, 'กรุณากรอกชื่อ-นามสกุล').regex(/^[^0-9]*$/, 'ชื่อ-นามสกุลต้องไม่มีตัวเลข'),
-  username: z.string().min(3, 'ต้องมีอย่างน้อย 3 ตัวอักษร'),
-  phone: z.string().regex(/^[0-9]{10}$/, 'เบอร์โทรต้องเป็นตัวเลข 10 หลัก'),
-  farmId: z.string().min(1, 'กรุณาเลือกฟาร์ม'),
+const makeAdminSchema = (t) => z.object({
+  fullName: z.string().min(1, t('form.err.fullName')).regex(/^[^0-9]*$/, t('form.err.fullNameDigits')),
+  username: z.string().min(3, t('form.err.min3')),
+  phone: z.string().regex(/^[0-9]{10}$/, t('form.err.phone')),
+  farmId: z.string().min(1, t('adm.err.farm')),
 });
 
-const addAdminSchema = adminSchema.extend({
-  tempPassword: z.string().min(6, 'ต้องมีอย่างน้อย 6 ตัวอักษร'),
+const makeAddAdminSchema = (t) => makeAdminSchema(t).extend({
+  tempPassword: z.string().min(6, t('form.err.min6')),
 });
 
 function randomPassword() {
@@ -35,6 +37,7 @@ function randomPassword() {
 }
 
 function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
+  const t = useT();
   const [avatarPreview, setAvatarPreview] = useState(admin?.avatar || null);
   const fileInputRef = useRef(null);
   
@@ -44,7 +47,7 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(adminSchema),
+    resolver: zodResolver(makeAdminSchema(t)),
     defaultValues: { ...admin, farmId: admin?.farmId == null ? '' : String(admin.farmId) },
   });
 
@@ -59,7 +62,7 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
   return (
     <form onSubmit={handleSubmit((data) => onSubmit({ ...data, avatar: avatarPreview ?? undefined }))}>
       <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">Edit Admin</h3>
+        <h3 className="text-lg font-bold text-farm-primary">{t('adm.editTitle')}</h3>
         <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
           <X className="h-5 w-5" />
         </button>
@@ -86,15 +89,15 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-4">
-        <Input data-test="admin-form-fullname" label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
-        <Input data-test="admin-form-username" label="Username" {...register('username')} error={errors.username?.message} />
-        <Input data-test="admin-form-phone" label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
+        <Input data-test="admin-form-fullname" label={t('form.fullName')} {...register('fullName')} error={errors.fullName?.message} />
+        <Input data-test="admin-form-username" label={t('form.username')} {...register('username')} error={errors.username?.message} />
+        <Input data-test="admin-form-phone" label={t('form.phone')} {...register('phone')} error={errors.phone?.message} />
         <Controller
           control={control}
           name="farmId"
           render={({ field }) => (
             <Dropdown
-              label="ฟาร์ม"
+              label={t('adm.farm')}
               dataTest="admin-form-farm"
               value={field.value}
               onChange={field.onChange}
@@ -107,10 +110,10 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
 
       <div className="flex w-full gap-4">
         <Button type="button" data-test="admin-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
-          cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" data-test="admin-form-submit" className="flex-1">
-          confirm
+          {t('common.confirm')}
         </Button>
       </div>
     </form>
@@ -118,6 +121,7 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
 }
 
 function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
+  const t = useT();
   const [avatarPreview, setAvatarPreview] = useState(null);
   const fileInputRef = useRef(null);
   const {
@@ -126,7 +130,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(addAdminSchema), defaultValues });
+  } = useForm({ resolver: zodResolver(makeAddAdminSchema(t)), defaultValues });
 
   function handleAvatarChange(e) {
     const file = e.target.files?.[0];
@@ -139,7 +143,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
   return (
     <form onSubmit={handleSubmit((data) => onSubmit({ ...data, avatar: avatarPreview ?? undefined }))}>
       <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">Add New Admin</h3>
+        <h3 className="text-lg font-bold text-farm-primary">{t('adm.addTitle')}</h3>
         <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
           <X className="h-5 w-5" />
         </button>
@@ -161,21 +165,21 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-4">
-        <Input data-test="admin-form-fullname" label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
-        <Input data-test="admin-form-username" label="Username" {...register('username')} error={errors.username?.message} />
-        <Input data-test="admin-form-phone" label="เบอร์โทร" {...register('phone')} error={errors.phone?.message} />
+        <Input data-test="admin-form-fullname" label={t('form.fullName')} {...register('fullName')} error={errors.fullName?.message} />
+        <Input data-test="admin-form-username" label={t('form.username')} {...register('username')} error={errors.username?.message} />
+        <Input data-test="admin-form-phone" label={t('form.phone')} {...register('phone')} error={errors.phone?.message} />
         <Controller
           control={control}
           name="farmId"
           render={({ field }) => (
             <Dropdown
-              label="ฟาร์ม"
+              label={t('adm.farm')}
               dataTest="admin-form-farm"
               value={field.value}
               onChange={field.onChange}
               error={errors.farmId?.message}
               options={[
-                { value: '', label: 'เลือกฟาร์ม' },
+                { value: '', label: t('adm.pickFarm') },
                 ...farms.map((f) => ({ value: String(f.id), label: f.name })),
               ]}
             />
@@ -184,27 +188,27 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-2">
-        <Input data-test="admin-form-temppw" label="รหัสผ่านชั่วคราว" {...register('tempPassword')} error={errors.tempPassword?.message} />
+        <Input data-test="admin-form-temppw" label={t('form.tempPassword')} {...register('tempPassword')} error={errors.tempPassword?.message} />
         <button
           type="button"
           onClick={() => setValue('tempPassword', randomPassword(), { shouldValidate: true })}
           className="mt-1 flex items-center gap-1 text-xs font-medium text-farm-primary hover:underline"
         >
-          <Shuffle size={12} /> สุ่มรหัสผ่านใหม่
+          <Shuffle size={12} /> {t('form.randomPassword')}
         </button>
       </div>
 
       <div className="mb-6 mt-3 flex items-start gap-2 rounded-md bg-[#FEF3C7] p-3 text-xs text-[#92400E]">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
-        <p>ส่งข้อมูลนี้ให้ Admin ทางที่สะดวก ระบบจะบังคับเปลี่ยนรหัสผ่านตอนเข้าสู่ระบบครั้งแรก</p>
+        <p>{t('adm.tempPwNote')}</p>
       </div>
 
       <div className="flex w-full gap-4">
         <Button type="button" data-test="admin-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
-          cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" data-test="admin-form-submit" className="flex-1">
-          confirm
+          {t('common.confirm')}
         </Button>
       </div>
     </form>
@@ -212,6 +216,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
 }
 
 export default function AdminsManagement() {
+  const t = useT();
   const admins = useAdminStore((s) => s.admins);
   const addAdmin = useAdminStore((s) => s.addAdmin);
   const updateAdmin = useAdminStore((s) => s.updateAdmin);
@@ -255,7 +260,7 @@ export default function AdminsManagement() {
       setModal({ mode: 'success', action: 'add' });
     } catch (error) {
       console.error("Failed to add admin", error);
-      alert("Failed to add admin: " + (error.response?.data?.message || error.message));
+      alert(t('adm.err.addFailed') + ': ' + tError(error));
     }
   }
 
@@ -266,7 +271,7 @@ export default function AdminsManagement() {
       setModal({ mode: 'success', action: 'edit' });
     } catch (error) {
       console.error(error);
-      alert('Failed to update admin');
+      alert(t('adm.err.updateFailed'));
     }
   }
 
@@ -277,18 +282,18 @@ export default function AdminsManagement() {
       setModal({ mode: 'success', action: 'delete', admin: modal.admin });
     } catch (error) {
       console.error(error);
-      alert('Failed to delete admin');
+      alert(t('adm.err.deleteFailed'));
     }
   }
 
   return (
     <div>
-      <PageHeader title="Admins Management"  />
+      <PageHeader title={t('adm.pageTitle')} />
 
       <TableToolbar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="ค้นหาชื่อ, username, เบอร์โทร"
+        searchPlaceholder={t('wk.search')}
         searchTestId="admin-search"
         action={
           <Button
@@ -303,7 +308,7 @@ export default function AdminsManagement() {
             }
           >
             <UserPlus className="h-5 w-5" />
-            <span>เพิ่ม Admin ใหม่</span>
+            <span>{t('adm.addBtn')}</span>
           </Button>
         }
       >
@@ -312,7 +317,7 @@ export default function AdminsManagement() {
           onChange={setFarmFilter}
           className={TOOLBAR_FILTER_CLASS}
           dataTest="admin-farm-filter"
-          options={[{ value: 'all', label: 'ฟาร์มทั้งหมด' }, ...farms.map((f) => ({ value: String(f.id), label: f.name }))]}
+          options={[{ value: 'all', label: t('adm.allFarms') }, ...farms.map((f) => ({ value: String(f.id), label: f.name }))]}
         />
         <Dropdown
           value={statusFilter}
@@ -320,10 +325,10 @@ export default function AdminsManagement() {
           className={TOOLBAR_FILTER_CLASS}
           dataTest="admin-status-filter"
           options={[
-            { value: 'all', label: 'สถานะทั้งหมด' },
-            { value: 'active', label: 'Active' },
-            { value: 'pending', label: 'Pending' },
-            { value: 'inactive', label: 'Inactive' },
+            { value: 'all', label: t('common.allStatuses') },
+            { value: 'active', label: t('status.active') },
+            { value: 'pending', label: t('status.pending') },
+            { value: 'inactive', label: t('status.inactive') },
           ]}
         />
       </TableToolbar>
@@ -332,13 +337,13 @@ export default function AdminsManagement() {
         <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
-              <th className="px-4 py-3.5 font-medium">Name</th>
-              <th className="px-4 py-3.5 font-medium">Username</th>
-              <th className="px-4 py-3.5 font-medium">Phone Number</th>
-              <th className="px-4 py-3.5 font-medium">Farm</th>
-              <th className="px-4 py-3.5 font-medium">Status</th>
-              <th className="px-4 py-3.5 font-medium">Start Date</th>
-              <th className="px-4 py-3.5 font-medium">Manage</th>
+              <th className="px-4 py-3.5 font-medium">{t('col.name')}</th>
+              <th className="px-4 py-3.5 font-medium">{t('col.username')}</th>
+              <th className="px-4 py-3.5 font-medium">{t('col.phone')}</th>
+              <th className="px-4 py-3.5 font-medium">{t('col.farm')}</th>
+              <th className="px-4 py-3.5 font-medium">{t('col.status')}</th>
+              <th className="px-4 py-3.5 font-medium">{t('col.startDate')}</th>
+              <th className="px-4 py-3.5 font-medium">{t('col.manage')}</th>
             </tr>
           </thead>
           <tbody>
@@ -358,7 +363,7 @@ export default function AdminsManagement() {
                   </span>
                 </td>
                 <td className="px-4 py-3 sm:py-4">
-                  <span data-test="admin-row-status" className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[admin.status]}`}>
+                  <span data-test="admin-row-status" className={`inline-block min-w-20 whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[admin.status]}`}>
                     {STATUS_LABEL[admin.status]}
                   </span>
                 </td>
@@ -392,7 +397,7 @@ export default function AdminsManagement() {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className="py-8 text-gray-400">
-                  ไม่พบ Admin ที่ตรงกับเงื่อนไข
+                  {t('adm.empty')}
                 </td>
               </tr>
             )}
@@ -418,14 +423,14 @@ export default function AdminsManagement() {
             <X className="h-5 w-5" />
           </button>
           <AlertTriangle className="mb-4 h-16 w-16 stroke-[1.5] text-red-600" />
-          <p className="mb-1 font-medium text-gray-800">ยืนยันการลบ Admin "{modal.admin.fullName}"?</p>
-          <p className="mb-8 text-sm font-medium text-red-600">ประวัติจะยังอยู่ แต่จะไม่สามารถเข้าสู่ระบบได้อีก</p>
+          <p className="mb-1 font-medium text-gray-800">{t('adm.deleteConfirm', { name: modal.admin.fullName })}</p>
+          <p className="mb-8 text-sm font-medium text-red-600">{t('adm.deleteNote')}</p>
           <div className="flex w-full gap-4">
             <Button variant="outline" className="flex-1" onClick={closeModal}>
-              cancel
+              {t('common.cancel')}
             </Button>
             <Button variant="danger" data-test="admin-delete-confirm" className="flex-1" onClick={handleConfirmDelete}>
-              confirm
+              {t('common.confirm')}
             </Button>
           </div>
         </ModalShell>
@@ -435,11 +440,11 @@ export default function AdminsManagement() {
         <SuccessModal
           onClose={closeModal}
           message={
-            (modal.action === 'add' && 'เพิ่ม Admin สำเร็จ') ||
-            (modal.action === 'edit' && 'แก้ไขข้อมูลสำเร็จ') ||
-            'ลบ Admin สำเร็จ'
+            (modal.action === 'add' && t('adm.addedOk')) ||
+            (modal.action === 'edit' && t('common.editedOk')) ||
+            t('adm.deletedOk')
           }
-          submessage={modal.action === 'delete' ? `${modal.admin.fullName} ถูกปิดการใช้งานแล้ว` : undefined}
+          submessage={modal.action === 'delete' ? t('wk.deactivated', { name: modal.admin.fullName }) : undefined}
         />
       )}
     </div>

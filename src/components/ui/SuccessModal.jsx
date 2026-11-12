@@ -3,7 +3,7 @@ import { ModalShell } from './ModalShell';
 
 export function SuccessModal({ onClose, message, submessage }) {
   return (
-    <ModalShell onClose={onClose} className="flex w-100 flex-col items-center p-10 text-center">
+    <ModalShell onClose={onClose} className="flex flex-col items-center p-10 text-center sm:w-100">
       <button type="button" data-test="success-modal-close" onClick={onClose} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
         <X className="h-5 w-5" />
       </button>

@@ -15,12 +15,16 @@ import { useWorkerStore } from '../../store/useWorkerStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER, todayISO } from '../../config/workLogTypes';
 import { formatDate, formatDateLong, formatBaht } from '../../lib/format';
+import { getLocale } from '../../i18n';
+import { tError } from '../../i18n/backendMessages';
+import { useT } from '../../i18n';
 
 function formatNumber(n) {
-  return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 0 });
+  return Number(n).toLocaleString(getLocale(), { maximumFractionDigits: 0 });
 }
 
 function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, submitError, onSubmit, onCancel }) {
+  const t = useT();
   const config = WORK_LOG_TYPES[type];
   const {
     register,
@@ -51,7 +55,7 @@ function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, su
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">Add New Work Record</h3>
+        <h3 className="text-lg font-bold text-farm-primary">{t('wlog.addTitle')}</h3>
         <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
           <X className="h-5 w-5" />
         </button>
@@ -67,7 +71,7 @@ function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, su
             name="workerId"
             render={({ field }) => (
               <Dropdown
-                label="คนงาน"
+                label={t('common.worker')}
                 dataTest="worklog-form-worker"
                 value={field.value}
                 onChange={(v) => {
@@ -76,14 +80,14 @@ function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, su
                 }}
                 error={errors.workerId?.message}
                 options={[
-                  { value: '', label: 'เลือกคนงาน' },
+                  { value: '', label: t('wlog.pickWorker') },
                   ...workers.map((w) => ({ value: String(w.id), label: w.fullName })),
                 ]}
               />
             )}
           />
           <Dropdown
-            label="ประเภทงาน"
+            label={t('wlog.workType')}
             dataTest="worklog-form-type"
             value={type}
             onChange={onTypeChange}
@@ -127,18 +131,18 @@ function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, su
         <div className="rounded-lg bg-farm-sidebar px-5 py-4 text-white">
           <p data-test="worklog-preview-summary" className="text-xs text-white/60">{previewValid ? config.summaryText(computedValues) : config.formulaLabel}</p>
           <div className="mt-1 flex items-center justify-between">
-            <span className="text-sm font-medium text-white/90">ค่าแรงรวม</span>
-            <span data-test="worklog-preview-total" className="text-2xl font-bold">{formatNumber(preview)} บาท</span>
+            <span className="text-sm font-medium text-white/90">{t('wlog.totalWage')}</span>
+            <span data-test="worklog-preview-total" className="text-2xl font-bold">{formatNumber(preview)} {t('common.baht')}</span>
           </div>
         </div>
       </div>
 
       <div className="mt-6 flex w-full gap-4">
         <Button type="button" data-test="worklog-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
-          cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" data-test="worklog-form-submit" className="flex-1">
-          confirm
+          {t('common.confirm')}
         </Button>
       </div>
     </form>
@@ -146,6 +150,7 @@ function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, su
 }
 
 export default function WorkLog() {
+  const t = useT();
   const allWorkers = useWorkerStore((s) => s.workers);
   const getWorkerName = useWorkerStore((s) => s.getWorkerName);
   const allEntries = useWorkLogStore((s) => s.entries);
@@ -195,23 +200,23 @@ export default function WorkLog() {
       await addEntry(type, numericData);
       setModalState('success');
     } catch (error) {
-      setSubmitError(error.response?.data?.message || 'บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+      setSubmitError(tError(error, t('wlog.saveFailed')));
     }
   }
 
   return (
     <div>
-      <PageHeader title="Work Activity Log" />
+      <PageHeader title={t('wlog.pageTitle')} />
 
       <TableToolbar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="ค้นหาชื่อคนงาน"
+        searchPlaceholder={t('wlog.search')}
         searchTestId="worklog-search"
         action={
           <Button variant="accent" data-test="worklog-add-btn" className="flex w-full items-center justify-center gap-2 whitespace-nowrap sm:w-auto sm:shrink-0" onClick={openNewEntry}>
             <UserPlus className="h-5 w-5" />
-            <span>บันทึกงานใหม่</span>
+            <span>{t('wlog.addBtn')}</span>
           </Button>
         }
       >
@@ -220,7 +225,7 @@ export default function WorkLog() {
           onChange={setWorkerFilter}
           className={TOOLBAR_FILTER_CLASS}
           dataTest="worklog-worker-filter"
-          options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...allWorkers.map((w) => ({ value: w.id, label: w.fullName }))]}
+          options={[{ value: 'all', label: t('common.allWorkers') }, ...allWorkers.map((w) => ({ value: w.id, label: w.fullName }))]}
         />
         <Dropdown
           value={typeFilter}
@@ -228,22 +233,22 @@ export default function WorkLog() {
           className={TOOLBAR_FILTER_CLASS}
           dataTest="worklog-type-filter"
           options={[
-            { value: 'all', label: 'ประเภทงานทั้งหมด' },
+            { value: 'all', label: t('worker.allTypes') },
             ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
           ]}
         />
       </TableToolbar>
 
-      <div tabIndex={0} role="region" aria-label="บันทึกงาน" className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div tabIndex={0} role="region" aria-label={t('wlog.tableLabel')} className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
         <table className="w-full min-w-[640px] border-collapse text-center text-xs sm:text-sm">
           <thead className="sticky top-0 z-10 bg-[#3F5C2B] text-white">
             <tr>
-              <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">Name</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Date</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Work Type</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Qty</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Unit</th>
-              <th className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-3.5 sm:pr-6 font-medium">Wages</th>
+              <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">{t('col.name')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.date')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.workType')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.qty')}</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.unit')}</th>
+              <th className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-3.5 sm:pr-6 font-medium">{t('col.wages')}</th>
             </tr>
           </thead>
           <tbody>
@@ -276,7 +281,7 @@ export default function WorkLog() {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-8 text-gray-400">
-                  ไม่พบรายการ
+                  {t('common.noItems')}
                 </td>
               </tr>
             )}
@@ -300,7 +305,7 @@ export default function WorkLog() {
         </ModalShell>
       )}
 
-      {modalState === 'success' && <SuccessModal onClose={() => setModalState(null)} message="บันทึกงานสำเร็จ" />}
+      {modalState === 'success' && <SuccessModal onClose={() => setModalState(null)} message={t('wlog.savedOk')} />}
     </div>
   );
 }

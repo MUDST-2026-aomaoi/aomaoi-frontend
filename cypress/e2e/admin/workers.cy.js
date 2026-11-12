@@ -55,7 +55,7 @@ describe('Admin - worker management', () => {
 
       cy.window().then((win) => cy.stub(win, 'alert').as('alert'));
       cy.getByTestID('worker-form-submit').click();
-      cy.get('@alert').should('have.been.calledWithMatch', /^Failed to add worker/);
+      cy.get('@alert').should('have.been.calledWithMatch', /^เพิ่มคนงานไม่สำเร็จ/);
     });
   });
 
@@ -139,7 +139,7 @@ describe('Admin - worker management', () => {
 
       cy.getByTestID('success-modal-message').should('contain', 'ลบคนงานสำเร็จ');
       cy.getByTestID('success-modal-close').click();
-      cy.getByTestID('worker-row-status').should('contain', 'Inactive');
+      cy.getByTestID('worker-row-status').should('contain', 'ปิดใช้งาน');
       cy.getByTestID('worker-row-manage').should('contain', '-');
     });
   });
@@ -201,7 +201,7 @@ describe('Admin - worker management', () => {
       cy.getByTestID('worker-search').clear();
       cy.getByTestID('worker-status-filter').click();
       cy.getByTestID('worker-status-filter-opt-inactive').click();
-      cy.getByTestID('worker-row').should('have.length', 1).and('contain', 'Inactive');
+      cy.getByTestID('worker-row').should('have.length', 1).and('contain', 'ปิดใช้งาน');
     });
   });
 });

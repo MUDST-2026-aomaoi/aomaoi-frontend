@@ -80,7 +80,7 @@ describe('Worker - History', () => {
       cy.visit('/history');
 
       // ตรวจสอบหัวตารางหรือ Title ของหน้า
-      cy.contains('History').should('be.visible');
+      cy.contains('ประวัติงาน').should('be.visible');
       cy.contains('th', 'วันที่').should('be.visible');
       cy.contains('th', 'ประเภทงาน').should('be.visible');
       cy.contains('th', 'จำนวน').should('be.visible');
@@ -105,17 +105,17 @@ describe('Worker - History', () => {
       cy.contains('พ่นยา').should('be.visible');
 
       // พิมพ์ค้นหาคำว่า "พ่นยา"
-      cy.get('input[placeholder="search your activity"]').type('พ่นยา');
+      cy.get('input[placeholder="ค้นหากิจกรรม"]').type('พ่นยา');
 
       // ต้องเจอพ่นยา แต่ไม่เจอปลูกอ้อย
       cy.contains('พ่นยา').should('be.visible');
       cy.contains('ปลูกอ้อย').should('not.exist');
       
       // ลบคำค้นหาออก
-      cy.get('input[placeholder="search your activity"]').clear();
+      cy.get('input[placeholder="ค้นหากิจกรรม"]').clear();
       
       // พิมพ์ค้นหาคำว่า "ปลูก"
-      cy.get('input[placeholder="search your activity"]').type('ปลูก');
+      cy.get('input[placeholder="ค้นหากิจกรรม"]').type('ปลูก');
       cy.contains('ปลูกอ้อย').should('be.visible');
       cy.contains('พ่นยา').should('not.exist');
     });
