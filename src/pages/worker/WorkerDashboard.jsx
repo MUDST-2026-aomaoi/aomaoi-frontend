@@ -5,7 +5,7 @@ import { Dropdown } from '../../components/ui/Dropdown';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useAuthStore } from '../../controller/authController';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
-import { formatDate, formatBaht } from '../../lib/format';
+import { formatDate, formatBaht, formatAmount } from '../../lib/format';
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList, PieChart, Pie } from 'recharts';
 
@@ -110,7 +110,7 @@ export default function WorkerDashboard() {
         title: WORK_LOG_TYPES[type].labelTh,
         amountNum: amount,
         unit: unit,
-        thbStr: formatBaht(totalThb),
+        thbStr: formatAmount(totalThb),
         pct: pct,
         color: TASK_BAR_COLORS[type] || '#224213',
         icon: WORK_LOG_TYPES[type].icon
@@ -141,9 +141,9 @@ export default function WorkerDashboard() {
     <div className="flex flex-col gap-4 w-full pb-2">
       
       {/* 1. แถบแจ้งเตือนด้านบน */}
-      <div className="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-base font-normal text-farm-text shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="text-[#91712A]">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-white border border-gray-200 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm sm:text-base font-normal text-farm-text shadow-sm">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div className="text-[#91712A] shrink-0">
             <Clock size={22} strokeWidth={2.5} />
           </div>
           <span>
@@ -165,42 +165,42 @@ export default function WorkerDashboard() {
       </div>
 
       {/* 2. Top Cards (3 กล่องตาม Figma 544:1026) */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Earning */}
-        <div className="col-span-2 bg-[#3F4F3A] rounded-xl p-5 text-white shadow-sm flex flex-col justify-between min-h-[150px]">
-          <div className="flex items-center gap-4 mb-1">
-            <div className="bg-white text-[#91712A] p-2.5 rounded-lg shrink-0">
+        <div className="sm:col-span-2 lg:col-span-2 bg-[#3F4F3A] rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col justify-between min-h-[130px] sm:min-h-[150px]">
+          <div className="flex items-center gap-3 sm:gap-4 mb-1">
+            <div className="bg-white text-[#91712A] p-2 sm:p-2.5 rounded-lg shrink-0">
               <Wallet size={26} />
             </div>
             <div>
-              <h2 className="text-2xl font-semibold leading-tight">Total Earning</h2>
-              <p className="text-[13px] text-white/80 font-normal mt-0.5">Overview This month</p>
+              <h2 className="text-xl sm:text-2xl font-semibold leading-tight">Total Earning</h2>
+              <p className="text-[12px] sm:text-[13px] text-white/80 font-normal mt-0.5">Overview This month</p>
             </div>
           </div>
-          <div data-test="worker-total-earning" className="text-[42px] font-bold leading-none tracking-tight">
-            {formatBaht(totalBalanceThisMonth)} <span className="text-[26px] font-semibold ml-1 tracking-normal">THB</span>
+          <div data-test="worker-total-earning" className="text-3xl sm:text-4xl xl:text-[42px] font-bold leading-none tracking-tight mt-3 sm:mt-0">
+            {formatAmount(totalBalanceThisMonth)} <span className="text-xl sm:text-2xl xl:text-[26px] font-semibold ml-1 tracking-normal">THB</span>
           </div>
         </div>
 
         {/* Total SalaryAdvance */}
-        <div className="col-span-1 bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-h-[150px]">
+        <div className="col-span-1 bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-h-[120px] sm:min-h-[150px]">
           <div>
-            <h2 className="text-xl font-semibold text-farm-text">Total SalaryAdvance</h2>
-            <p className="text-[13px] text-gray-400 font-normal mt-1">Overview remainingBalance</p>
+            <h2 className="text-lg sm:text-xl font-semibold text-farm-text">Total SalaryAdvance</h2>
+            <p className="text-[12px] sm:text-[13px] text-gray-400 font-normal mt-1">Overview remainingBalance</p>
           </div>
-          <div data-test="worker-total-advance" className="text-[36px] font-bold text-[#2E5119] leading-none tracking-tight">
-            {formatBaht(totalSalaryAdvance)} <span className="text-[20px] font-semibold ml-1 tracking-normal">THB</span>
+          <div data-test="worker-total-advance" className="text-2xl sm:text-3xl xl:text-[36px] font-bold text-[#2E5119] leading-none tracking-tight mt-3 sm:mt-0">
+            {formatAmount(totalSalaryAdvance)} <span className="text-lg sm:text-[20px] font-semibold ml-1 tracking-normal">THB</span>
           </div>
         </div>
 
         {/* RemainingBalance */}
-        <div className="col-span-1 bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-h-[150px]">
+        <div className="col-span-1 bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-h-[120px] sm:min-h-[150px]">
           <div>
-            <h2 className="text-xl font-semibold text-farm-text">RemainingBalance</h2>
-            <p className="text-[13px] text-gray-400 font-normal mt-1">Overview remainingBalance</p>
+            <h2 className="text-lg sm:text-xl font-semibold text-farm-text">RemainingBalance</h2>
+            <p className="text-[12px] sm:text-[13px] text-gray-400 font-normal mt-1">Overview remainingBalance</p>
           </div>
-          <div data-test="worker-remaining-balance" className={`text-[36px] font-bold leading-none tracking-tight ${isInDebt ? 'text-[#C80303]' : 'text-[#2E5119]'}`}>
-            {formatBaht(remainingBalance)} <span className="text-[20px] font-semibold ml-1 tracking-normal">THB</span>
+          <div data-test="worker-remaining-balance" className={`text-2xl sm:text-3xl xl:text-[36px] font-bold leading-none tracking-tight mt-3 sm:mt-0 ${isInDebt ? 'text-[#C80303]' : 'text-[#2E5119]'}`}>
+            {formatAmount(remainingBalance)} <span className="text-lg sm:text-[20px] font-semibold ml-1 tracking-normal">THB</span>
           </div>
         </div>
       </div>
@@ -209,9 +209,9 @@ export default function WorkerDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-[323px]">
         
         {/* Bar Chart: Total Work Done */}
-        <div className="bg-white rounded-xl px-7 py-5 shadow-sm border border-gray-100 flex flex-col">
-          <h3 className="text-farm-text font-bold text-[22px] mb-2">Total Work Done</h3>
-          <div className="flex-1 w-full min-h-[235px]">
+        <div className="bg-white rounded-xl p-4 sm:px-7 sm:py-5 shadow-sm border border-gray-100 flex flex-col min-w-0">
+          <h3 className="text-farm-text font-bold text-lg sm:text-[22px] mb-2">Total Work Done</h3>
+          <div className="flex-1 w-full min-h-[220px] sm:min-h-[235px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartBars} margin={{ top: 20, right: 10, left: -25, bottom: 0 }} barSize={46}>
                 <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#9ca3af', fontWeight: 'normal' }} dy={8} />
@@ -229,22 +229,22 @@ export default function WorkerDashboard() {
         </div>
 
         {/* Tasks (Donut Chart + 4 Task Cards + Period Select Dropdown) */}
-        <div className="bg-white rounded-xl px-7 py-5 shadow-sm border border-gray-100 flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-farm-text font-bold text-[22px]">Tasks</h3>
+        <div className="bg-white rounded-xl p-4 sm:px-7 sm:py-5 shadow-sm border border-gray-100 flex flex-col min-w-0">
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <h3 className="text-farm-text font-bold text-lg sm:text-[22px]">Tasks</h3>
             <Dropdown
               value={taskPeriod}
               onChange={setTaskPeriod}
               options={PERIOD_OPTIONS}
-              className="w-[200px]"
+              className="w-[150px] sm:w-[200px]"
               dataTest="worker-tasks-period"
             />
           </div>
 
-          <div className="flex-1 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex-1 flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-6">
             {/* Donut Chart ด้านซ้าย (จัดกึ่งกลางในพื้นที่ฝั่งซ้ายอย่างสมมาตร) */}
             <div className="flex-1 flex items-center justify-center">
-              <div className="relative w-[210px] h-[210px] flex items-center justify-center shrink-0">
+              <div className="relative w-[190px] h-[190px] sm:w-[210px] sm:h-[210px] flex items-center justify-center shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -279,24 +279,24 @@ export default function WorkerDashboard() {
                 
                 <div className="absolute inset-0 m-auto flex flex-col items-center justify-center pointer-events-none">
                   <span className="text-[14px] font-bold text-farm-text leading-tight">รวม</span>
-                  <span data-test="worker-tasks-total" className="text-[20px] font-bold text-farm-text leading-tight my-1">{formatBaht(taskPeriodTotal)}</span>
+                  <span data-test="worker-tasks-total" className="text-[20px] font-bold text-farm-text leading-tight my-1">{formatAmount(taskPeriodTotal)}</span>
                   <span className="text-[14px] font-bold text-farm-text leading-tight">บาท</span>
                 </div>
               </div>
             </div>
 
-            {/* 4 Task Breakdown Cards ด้านขวา (กว้าง 200px ตรงกับ Dropdown ด้านบนเป๊ะตาม Figma) */}
-            <div className="w-full sm:w-[200px] shrink-0 flex flex-col gap-2.5">
+            {/* 4 Task Breakdown Cards ด้านขวา (กว้าง 200px ตรงกับ Dropdown ด้านบนเป๊ะตาม Figma บนจอ sm ขึ้นไป, และ 2 คอลัมน์บนจอมือถือ) */}
+            <div className="w-full grid grid-cols-2 gap-2.5 sm:flex sm:flex-col sm:w-[200px] shrink-0">
               {statsBoxes.map((stat) => (
                 <div key={stat.id} data-test={`worker-task-card-${stat.id}`} className="flex items-center bg-white rounded-[6px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] border border-gray-100/80 overflow-hidden h-[46px]">
-                  <div className="w-[13px] self-stretch shrink-0" style={{ backgroundColor: stat.color }}></div>
-                  <div className="flex-1 flex items-center justify-between pl-2.5 pr-3 py-1">
-                    <div className="flex flex-col justify-center text-left leading-tight">
-                      <span className="text-[12px] font-medium text-black leading-tight">{stat.title}</span>
-                      <span className="text-[10px] text-[#989898] font-normal leading-tight mt-0.5">{stat.amountNum} {stat.unit}</span>
-                      <span className="text-[10px] text-[#989898] font-normal leading-tight">{stat.thbStr} บาท</span>
+                  <div className="w-[10px] sm:w-[13px] self-stretch shrink-0" style={{ backgroundColor: stat.color }}></div>
+                  <div className="flex-1 flex items-center justify-between pl-2 sm:pl-2.5 pr-2.5 sm:pr-3 py-1 min-w-0">
+                    <div className="flex flex-col justify-center text-left leading-tight min-w-0">
+                      <span className="text-[11px] sm:text-[12px] font-medium text-black leading-tight truncate">{stat.title}</span>
+                      <span className="text-[10px] text-[#989898] font-normal leading-tight mt-0.5 truncate">{stat.amountNum} {stat.unit}</span>
+                      <span className="text-[10px] text-[#989898] font-normal leading-tight truncate">{stat.thbStr} บาท</span>
                     </div>
-                    <div className="text-[20px] font-bold text-[#224213] shrink-0">{stat.pct}%</div>
+                    <div className="text-[16px] sm:text-[20px] font-bold text-[#224213] shrink-0 ml-1">{stat.pct}%</div>
                   </div>
                 </div>
               ))}
@@ -307,10 +307,10 @@ export default function WorkerDashboard() {
       </div>
 
       {/* 4. Bottom Row: Recent Activity (เต็มความกว้างด้านล่างตาม Figma 544:1026) */}
-      <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col">
+      <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col">
         <div className="flex justify-between items-center mb-3">
-          <h3 className="text-farm-text font-bold text-[20px]">Recent Activity</h3>
-          <Link to="/history" className="text-[16px] font-medium text-farm-text hover:text-[#708238] flex items-center gap-1.5">
+          <h3 className="text-farm-text font-bold text-lg sm:text-[20px]">Recent Activity</h3>
+          <Link to="/history" className="text-sm sm:text-[16px] font-medium text-farm-text hover:text-[#708238] flex items-center gap-1.5">
             More <ArrowRight size={20} strokeWidth={2.5} />
           </Link>
         </div>
@@ -319,20 +319,20 @@ export default function WorkerDashboard() {
           {recentActivities.map((item) => {
             const Icon = WORK_LOG_TYPES[item.type].icon;
             return (
-              <div key={item.id} className="flex items-center justify-between bg-white border border-[#F2F2F2] rounded-lg px-4 py-2.5 shadow-[0_2px_6px_rgba(0,0,0,0.04)]">
-                <div className="flex items-center gap-4">
+              <div key={item.id} className="flex items-center justify-between gap-2 bg-white border border-[#F2F2F2] rounded-lg px-3 sm:px-4 py-2.5 shadow-[0_2px_6px_rgba(0,0,0,0.04)]">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                   <div className="text-[#C09644] shrink-0">
                     <Icon size={24} strokeWidth={2.2} />
                   </div>
-                  <div>
-                    <p className="text-[14px] font-semibold text-farm-text leading-tight">
-                      {WORK_LOG_TYPES[item.type].labelTh} <span className="text-black font-bold mx-1">·</span> <span className="font-normal text-gray-700 text-[14px]">{WORK_LOG_TYPES[item.type].summaryText(item)}</span>
+                  <div className="min-w-0">
+                    <p className="text-[13px] sm:text-[14px] font-semibold text-farm-text leading-tight">
+                      {WORK_LOG_TYPES[item.type].labelTh} <span className="text-black font-bold mx-1">·</span> <span className="font-normal text-gray-700 text-[13px] sm:text-[14px]">{WORK_LOG_TYPES[item.type].summaryText(item)}</span>
                     </p>
-                    <p className="text-[13px] font-normal text-[#989898] mt-0.5">{formatDate(item.date)}</p>
+                    <p className="text-[12px] sm:text-[13px] font-normal text-[#989898] mt-0.5">{formatDate(item.date)}</p>
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-[18px] font-semibold text-[#517A33]">+{formatBaht(item.total)}</p>
+                  <p className="text-base sm:text-[18px] font-semibold text-[#517A33]">+{formatBaht(item.total)}</p>
                 </div>
               </div>
             );
