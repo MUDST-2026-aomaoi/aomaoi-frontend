@@ -5,15 +5,10 @@ import { Dropdown } from '../../components/ui/Dropdown';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useAuthStore } from '../../controller/authController';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
-import { formatDate, formatBaht, formatAmount } from '../../lib/format';
+import { formatDate, formatBaht, formatAmount, monthShort } from '../../lib/format';
+import { useT, periodOptions } from '../../i18n';
 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList, PieChart, Pie } from 'recharts';
-
-const PERIOD_OPTIONS = [
-  { value: 'month', label: 'รายเดือน' },
-  { value: 'day', label: 'รายวัน' },
-  { value: 'year', label: 'รายปี' },
-];
 
 const TASK_BAR_COLORS = {
   cutting: '#224213',
@@ -43,6 +38,7 @@ function isThisYear(dateStr) {
 }
 
 export default function WorkerDashboard() {
+  const t = useT();
   const currentUser = useAuthStore(state => state.currentUser);
   const myWorkerId = currentUser?.id || '1';
   const [taskPeriod, setTaskPeriod] = useState('month');
@@ -91,16 +87,16 @@ export default function WorkerDashboard() {
       let unit = '';
       if (type === 'cutting') {
         amount = typeEntries.reduce((sum, e) => sum + Number(e.rows || 0), 0);
-        unit = 'แถว';
+        unit = t('wl.suffix.rows');
       } else if (type === 'planting') {
         amount = typeEntries.reduce((sum, e) => sum + Number(e.furrows || 0), 0);
-        unit = 'ร่อง';
+        unit = t('wl.suffix.furrows');
       } else if (type === 'watering') {
         amount = typeEntries.reduce((sum, e) => sum + Number(e.days || 0), 0);
-        unit = 'วัน';
+        unit = t('wl.unit.day');
       } else if (type === 'spraying') {
         amount = typeEntries.reduce((sum, e) => sum + Number(e.tanks || 0), 0);
-        unit = 'ถัง';
+        unit = t('wl.suffix.tanks');
       }
 
       const pct = taskPeriodTotal > 0 ? Math.round((totalThb / taskPeriodTotal) * 100) : 0;
@@ -116,9 +112,7 @@ export default function WorkerDashboard() {
         icon: WORK_LOG_TYPES[type].icon
       };
     });
-  }, [filteredTaskEntries, taskPeriodTotal]);
-
-  const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  }, [filteredTaskEntries, taskPeriodTotal, t]);
 
   const chartBars = useMemo(() => {
     const now = new Date();
@@ -133,9 +127,9 @@ export default function WorkerDashboard() {
         return Number(ey) === year && Number(em) - 1 === month;
       }).length;
       
-      return { label: THAI_MONTHS_SHORT[month], value: count };
+      return { label: monthShort(month), value: count };
     });
-  }, [myEntries]);
+  }, [myEntries, t]);
 
   return (
     <div className="flex flex-col gap-4 w-full pb-2">
@@ -147,7 +141,10 @@ export default function WorkerDashboard() {
             <Clock size={22} strokeWidth={2.5} />
           </div>
           <span>
-            บันทึกงานล่าสุด: {recentActivities[0] ? formatDate(recentActivities[0].date) : 'ไม่มีข้อมูล'} · ทำงานแล้ว {new Set(myEntriesThisMonth.map(e => e.date)).size} วันในเดือนนี้
+            {t('wd.latest', {
+              date: recentActivities[0] ? formatDate(recentActivities[0].date) : t('common.noData'),
+              days: new Set(myEntriesThisMonth.map(e => e.date)).size,
+            })}
           </span>
         </div>
         {isInDebt && (
@@ -159,7 +156,7 @@ export default function WorkerDashboard() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EF0202]"></span>
             </span>
-            ติดหนี้
+            {t('worker.inDebt')}
           </span>
         )}
       </div>
@@ -173,34 +170,34 @@ export default function WorkerDashboard() {
               <Wallet size={26} />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-semibold leading-tight">Total Earning</h2>
-              <p className="text-[12px] sm:text-[13px] text-white/80 font-normal mt-0.5">Overview This month</p>
+              <h2 className="text-xl sm:text-2xl font-semibold leading-tight">{t('wd.totalEarning')}</h2>
+              <p className="text-[12px] sm:text-[13px] text-white/80 font-normal mt-0.5">{t('wd.overviewThisMonth')}</p>
             </div>
           </div>
           <div data-test="worker-total-earning" className="text-3xl sm:text-4xl xl:text-[42px] font-bold leading-none tracking-tight mt-3 sm:mt-0">
-            {formatAmount(totalBalanceThisMonth)} <span className="text-xl sm:text-2xl xl:text-[26px] font-semibold ml-1 tracking-normal">THB</span>
+            {formatAmount(totalBalanceThisMonth)} <span className="text-xl sm:text-2xl xl:text-[26px] font-semibold ml-1 tracking-normal">{t('common.thb')}</span>
           </div>
         </div>
 
         {/* Total SalaryAdvance */}
         <div className="col-span-1 bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-h-[120px] sm:min-h-[150px]">
           <div>
-            <h2 className="text-lg sm:text-xl font-semibold text-farm-text">Total SalaryAdvance</h2>
-            <p className="text-[12px] sm:text-[13px] text-gray-400 font-normal mt-1">Overview remainingBalance</p>
+            <h2 className="text-lg sm:text-xl font-semibold text-farm-text">{t('wd.totalAdvance')}</h2>
+            <p className="text-[12px] sm:text-[13px] text-gray-400 font-normal mt-1">{t('wd.overviewRemaining')}</p>
           </div>
           <div data-test="worker-total-advance" className="text-2xl sm:text-3xl xl:text-[36px] font-bold text-[#2E5119] leading-none tracking-tight mt-3 sm:mt-0">
-            {formatAmount(totalSalaryAdvance)} <span className="text-lg sm:text-[20px] font-semibold ml-1 tracking-normal">THB</span>
+            {formatAmount(totalSalaryAdvance)} <span className="text-lg sm:text-[20px] font-semibold ml-1 tracking-normal">{t('common.thb')}</span>
           </div>
         </div>
 
         {/* RemainingBalance */}
         <div className="col-span-1 bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-h-[120px] sm:min-h-[150px]">
           <div>
-            <h2 className="text-lg sm:text-xl font-semibold text-farm-text">RemainingBalance</h2>
-            <p className="text-[12px] sm:text-[13px] text-gray-400 font-normal mt-1">Overview remainingBalance</p>
+            <h2 className="text-lg sm:text-xl font-semibold text-farm-text">{t('wd.remaining')}</h2>
+            <p className="text-[12px] sm:text-[13px] text-gray-400 font-normal mt-1">{t('wd.overviewRemaining')}</p>
           </div>
           <div data-test="worker-remaining-balance" className={`text-2xl sm:text-3xl xl:text-[36px] font-bold leading-none tracking-tight mt-3 sm:mt-0 ${isInDebt ? 'text-[#C80303]' : 'text-[#2E5119]'}`}>
-            {formatAmount(remainingBalance)} <span className="text-lg sm:text-[20px] font-semibold ml-1 tracking-normal">THB</span>
+            {formatAmount(remainingBalance)} <span className="text-lg sm:text-[20px] font-semibold ml-1 tracking-normal">{t('common.thb')}</span>
           </div>
         </div>
       </div>
@@ -210,7 +207,7 @@ export default function WorkerDashboard() {
         
         {/* Bar Chart: Total Work Done */}
         <div className="bg-white rounded-xl p-4 sm:px-7 sm:py-5 shadow-sm border border-gray-100 flex flex-col min-w-0">
-          <h3 className="text-farm-text font-bold text-lg sm:text-[22px] mb-2">Total Work Done</h3>
+          <h3 className="text-farm-text font-bold text-lg sm:text-[22px] mb-2">{t('wd.totalWorkDone')}</h3>
           <div className="flex-1 w-full min-h-[220px] sm:min-h-[235px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartBars} margin={{ top: 20, right: 10, left: -25, bottom: 0 }} barSize={46}>
@@ -231,11 +228,11 @@ export default function WorkerDashboard() {
         {/* Tasks (Donut Chart + 4 Task Cards + Period Select Dropdown) */}
         <div className="bg-white rounded-xl p-4 sm:px-7 sm:py-5 shadow-sm border border-gray-100 flex flex-col min-w-0">
           <div className="flex items-center justify-between gap-2 mb-4">
-            <h3 className="text-farm-text font-bold text-lg sm:text-[22px]">Tasks</h3>
+            <h3 className="text-farm-text font-bold text-lg sm:text-[22px]">{t('wd.tasks')}</h3>
             <Dropdown
               value={taskPeriod}
               onChange={setTaskPeriod}
-              options={PERIOD_OPTIONS}
+              options={periodOptions(t)}
               className="w-[150px] sm:w-[200px]"
               dataTest="worker-tasks-period"
             />
@@ -278,9 +275,9 @@ export default function WorkerDashboard() {
                 </ResponsiveContainer>
                 
                 <div className="absolute inset-0 m-auto flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-[14px] font-bold text-farm-text leading-tight">รวม</span>
+                  <span className="text-[14px] font-bold text-farm-text leading-tight">{t('common.total')}</span>
                   <span data-test="worker-tasks-total" className="text-[20px] font-bold text-farm-text leading-tight my-1">{formatAmount(taskPeriodTotal)}</span>
-                  <span className="text-[14px] font-bold text-farm-text leading-tight">บาท</span>
+                  <span className="text-[14px] font-bold text-farm-text leading-tight">{t('common.baht')}</span>
                 </div>
               </div>
             </div>
@@ -294,7 +291,7 @@ export default function WorkerDashboard() {
                     <div className="flex flex-col justify-center text-left leading-tight min-w-0">
                       <span className="text-[11px] sm:text-[12px] font-medium text-black leading-tight truncate">{stat.title}</span>
                       <span className="text-[10px] text-[#989898] font-normal leading-tight mt-0.5 truncate">{stat.amountNum} {stat.unit}</span>
-                      <span className="text-[10px] text-[#989898] font-normal leading-tight truncate">{stat.thbStr} บาท</span>
+                      <span className="text-[10px] text-[#989898] font-normal leading-tight truncate">{stat.thbStr} {t('common.baht')}</span>
                     </div>
                     <div className="text-[16px] sm:text-[20px] font-bold text-[#224213] shrink-0 ml-1">{stat.pct}%</div>
                   </div>
@@ -309,7 +306,7 @@ export default function WorkerDashboard() {
       {/* 4. Bottom Row: Recent Activity (เต็มความกว้างด้านล่างตาม Figma 544:1026) */}
       <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col">
         <div className="flex justify-between items-center mb-3">
-          <h3 className="text-farm-text font-bold text-lg sm:text-[20px]">Recent Activity</h3>
+          <h3 className="text-farm-text font-bold text-lg sm:text-[20px]">{t('wd.recentActivity')}</h3>
           <Link to="/history" className="text-sm sm:text-[16px] font-medium text-farm-text hover:text-[#708238] flex items-center gap-1.5">
             More <ArrowRight size={20} strokeWidth={2.5} />
           </Link>
@@ -338,7 +335,7 @@ export default function WorkerDashboard() {
             );
           })}
           {recentActivities.length === 0 && (
-            <p className="text-center text-gray-400 py-6 text-sm">ยังไม่มีประวัติการทำงาน</p>
+            <p className="text-center text-gray-400 py-6 text-sm">{t('wd.noHistory')}</p>
           )}
         </div>
       </div>

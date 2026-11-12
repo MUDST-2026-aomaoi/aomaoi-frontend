@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker';
 import { DatePickerPopperContainer } from '../../components/ui/DatePickerPopperContainer';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
+import { useT, getDateFnsLocale } from '../../i18n';
 import { useSalaryAdvanceStore } from '../../store/useSalaryAdvanceStore';
 import { formatDate, formatAmount } from '../../lib/format';
 
@@ -22,24 +23,27 @@ const CustomDateInput = forwardRef(({ value, onClick, placeholder, dataTest }, r
 ));
 CustomDateInput.displayName = 'CustomDateInput';
 
-const ADVANCE_OPTIONS = [
-  { value: '', label: 'ประเภทการเบิกทั้งหมด' },
-  { value: 'CASH', label: 'เงินสด' },
-  { value: 'GOODS', label: 'สิ่งของ' },
+const advanceOptions = (t) => [
+  { value: '', label: t('worker.allAdvanceTypes') },
+  { value: 'CASH', label: t('advance.cash') },
+  { value: 'GOODS', label: t('advance.goods') },
 ];
 
-const ADVANCE_BADGE = {
+const advanceBadge = (t) => ({
   CASH: {
-    label: 'เงินสด',
+    label: t('advance.cash'),
     className: 'bg-[#A2C73E]/40 text-black',
   },
   GOODS: {
-    label: 'สิ่งของ',
+    label: t('advance.goods'),
     className: 'bg-[#FFEA76]/40 text-black',
   },
-};
+});
 
 export default function WorkerSalaryAdvance() {
+  const t = useT();
+  const ADVANCE_OPTIONS = advanceOptions(t);
+  const ADVANCE_BADGE = advanceBadge(t);
   const myAdvances = useSalaryAdvanceStore((s) => s.myAdvances);
   const fetchMyAdvances = useSalaryAdvanceStore((s) => s.fetchMyAdvances);
 
@@ -81,7 +85,7 @@ export default function WorkerSalaryAdvance() {
         };
       })
       .sort((a, b) => b.rawDate.localeCompare(a.rawDate) || Number(b.id) - Number(a.id));
-  }, [myAdvances]);
+  }, [myAdvances, t]);
 
   const filteredData = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase();
@@ -98,13 +102,13 @@ export default function WorkerSalaryAdvance() {
   }, [preparedData, searchTerm, filterType, startDate, endDate]);
 
   const selectedOptionLabel =
-    ADVANCE_OPTIONS.find((opt) => opt.value === filterType)?.label || 'ประเภทการเบิกทั้งหมด';
+    ADVANCE_OPTIONS.find((opt) => opt.value === filterType)?.label || t('worker.allAdvanceTypes');
 
   return (
     <div className="flex flex-col w-full pb-20">
       {/* Subtitle ใต้ Header */}
       <p className="text-gray-400 font-medium text-sm sm:text-[18px] mb-5 sm:mb-8 mt-[-12px] sm:mt-[-20px]">
-        Here is the salary advance of overall data
+        {t('wsa.subtitle')}
       </p>
 
       {/* แถบค้นหาและฟิลเตอร์ */}
@@ -115,7 +119,7 @@ export default function WorkerSalaryAdvance() {
           <div className="relative flex-1 min-w-0 sm:min-w-[220px] sm:max-w-[360px]">
             <input
               type="text"
-              placeholder="search your activity"
+              placeholder={t('worker.searchActivity')}
               data-test="worker-advance-search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -162,21 +166,21 @@ export default function WorkerSalaryAdvance() {
         {/* Date Range */}
         <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <div className="flex-1 sm:flex-none sm:w-[180px] min-w-0 [&_.react-datepicker-wrapper]:w-full">
-            <DatePicker popperContainer={DatePickerPopperContainer}
+            <DatePicker popperContainer={DatePickerPopperContainer} locale={getDateFnsLocale()}
               selected={startDate}
               onChange={(date) => setStartDate(date)}
-              customInput={<CustomDateInput placeholder="search your date" dataTest="worker-advance-start-date" />}
+              customInput={<CustomDateInput placeholder={t('worker.searchDate')} dataTest="worker-advance-start-date" />}
               dateFormat="dd/MM/yyyy"
             />
           </div>
 
-          <span className="text-farm-text font-bold text-[14px] px-0.5 sm:px-1 shrink-0">ถึง</span>
+          <span className="text-farm-text font-bold text-[14px] px-0.5 sm:px-1 shrink-0">{t('worker.to')}</span>
 
           <div className="flex-1 sm:flex-none sm:w-[180px] min-w-0 [&_.react-datepicker-wrapper]:w-full">
-            <DatePicker popperContainer={DatePickerPopperContainer}
+            <DatePicker popperContainer={DatePickerPopperContainer} locale={getDateFnsLocale()}
               selected={endDate}
               onChange={(date) => setEndDate(date)}
-              customInput={<CustomDateInput placeholder="search your date" dataTest="worker-advance-end-date" />}
+              customInput={<CustomDateInput placeholder={t('worker.searchDate')} dataTest="worker-advance-end-date" />}
               dateFormat="dd/MM/yyyy"
             />
           </div>
@@ -185,7 +189,7 @@ export default function WorkerSalaryAdvance() {
 
       {/* ตาราง */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
-        <div tabIndex={0} role="region" aria-label="ประวัติการเบิกเงินและสิ่งของ" className="overflow-x-auto w-full">
+        <div tabIndex={0} role="region" aria-label={t('wsa.tableLabel')} className="overflow-x-auto w-full">
           <table data-test="worker-advance-table" className="w-full table-fixed text-center border-collapse min-w-[560px] md:min-w-[800px]">
             <colgroup>
               <col className="w-1/4" />
@@ -195,10 +199,10 @@ export default function WorkerSalaryAdvance() {
             </colgroup>
             <thead className="bg-[#E8E8E8] border-b border-gray-200 sticky top-0 z-10">
               <tr>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">วันที่</th>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">ชื่อสินค้า</th>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">ประเภทการเบิก</th>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">จำนวนเงิน</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wh.col.date')}</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wsa.col.item')}</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wsa.col.type')}</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wsa.col.amount')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -220,14 +224,14 @@ export default function WorkerSalaryAdvance() {
                       </span>
                     </td>
                     <td className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[14px] sm:text-[15px] whitespace-nowrap">
-                      {formatAmount(item.amount)} <span className="ml-1">บาท</span>
+                      {formatAmount(item.amount)} <span className="ml-1">{t('common.baht')}</span>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td colSpan="4" className="py-12 text-center text-gray-400 font-medium">
-                    ไม่พบรายการเบิกที่ตรงกับเงื่อนไข
+                    {t('wsa.empty')}
                   </td>
                 </tr>
               )}

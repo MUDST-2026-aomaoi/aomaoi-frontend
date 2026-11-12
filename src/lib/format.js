@@ -1,17 +1,19 @@
+import { getLocale } from '../i18n';
+
 export function formatBaht(amount) {
   const num = Number(amount);
   if (num < 0) {
-    return `-฿${Math.abs(num).toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
+    return `-฿${Math.abs(num).toLocaleString(getLocale(), { maximumFractionDigits: 2 })}`;
   }
-  return `฿${num.toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
+  return `฿${num.toLocaleString(getLocale(), { maximumFractionDigits: 2 })}`;
 }
 
 export function formatAmount(amount) {
   const num = Number(amount);
   if (num < 0) {
-    return `-${Math.abs(num).toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
+    return `-${Math.abs(num).toLocaleString(getLocale(), { maximumFractionDigits: 2 })}`;
   }
-  return num.toLocaleString('th-TH', { maximumFractionDigits: 2 });
+  return num.toLocaleString(getLocale(), { maximumFractionDigits: 2 });
 }
 
 function parseLocalDate(dateStr) {
@@ -26,7 +28,7 @@ function parseLocalDate(dateStr) {
 export function formatDate(dateStr) {
   const d = parseLocalDate(dateStr);
   if (!d) return '-';
-  return d.toLocaleDateString('th-TH', {
+  return d.toLocaleDateString(getLocale(), {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -36,9 +38,14 @@ export function formatDate(dateStr) {
 export function formatDateLong(dateStr) {
   const d = parseLocalDate(dateStr);
   if (!d) return '-';
-  return d.toLocaleDateString('th-TH', {
+  return d.toLocaleDateString(getLocale(), {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
+}
+
+/** Short month name (0-11) in the current language, e.g. "ม.ค." / "Jan". */
+export function monthShort(monthIndex) {
+  return new Date(2000, monthIndex, 1).toLocaleDateString(getLocale(), { month: 'short' });
 }
