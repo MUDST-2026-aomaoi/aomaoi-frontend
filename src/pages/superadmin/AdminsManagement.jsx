@@ -285,14 +285,14 @@ export default function AdminsManagement() {
     <div>
       <PageHeader title="Admins Management"  />
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหาชื่อ, username, เบอร์โทร" className="max-w-lg flex-1" dataTest="admin-search" />
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหาชื่อ, username, เบอร์โทร" className="w-full min-w-0 sm:max-w-lg sm:flex-1" dataTest="admin-search" />
 
-        <div className="flex flex-wrap gap-4">
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:gap-4">
           <Dropdown
             value={farmFilter}
             onChange={setFarmFilter}
-            className="w-48"
+            className="min-w-0 flex-1 sm:w-48 sm:flex-none"
             dataTest="admin-farm-filter"
             options={[{ value: 'all', label: 'ฟาร์มทั้งหมด' }, ...farms.map((f) => ({ value: String(f.id), label: f.name }))]}
           />
@@ -300,7 +300,7 @@ export default function AdminsManagement() {
           <Dropdown
             value={statusFilter}
             onChange={setStatusFilter}
-            className="w-48"
+            className="min-w-0 flex-1 sm:w-48 sm:flex-none"
             dataTest="admin-status-filter"
             options={[
               { value: 'all', label: 'สถานะทั้งหมด' },
@@ -328,7 +328,7 @@ export default function AdminsManagement() {
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="w-full border-collapse text-center text-sm">
+        <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
               <th className="px-4 py-3.5 font-medium">Name</th>
@@ -400,19 +400,19 @@ export default function AdminsManagement() {
       </div>
 
       {modal?.mode === 'add' && (
-        <ModalShell onClose={closeModal} className="w-112.5">
+        <ModalShell onClose={closeModal} className="sm:w-112.5">
           <AddAdminForm defaultValues={modal.defaultValues} farms={farms} onSubmit={handleAddSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 
       {modal?.mode === 'edit' && (
-        <ModalShell onClose={closeModal} className="w-112.5">
+        <ModalShell onClose={closeModal} className="sm:w-112.5">
           <EditAdminForm admin={modal.admin} farms={farms} onSubmit={handleEditSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 
       {modal?.mode === 'delete' && (
-        <ModalShell onClose={closeModal} className="flex w-100 flex-col items-center text-center">
+        <ModalShell onClose={closeModal} className="flex flex-col items-center text-center sm:w-100">
           <button type="button" onClick={closeModal} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
             <X className="h-5 w-5" />
           </button>

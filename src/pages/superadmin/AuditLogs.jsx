@@ -65,11 +65,11 @@ export default function AuditLogs() {
     <div>
       <PageHeader title="System Audit Logs" />
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search by action, user, or details..." className="max-w-lg flex-1" dataTest="audit-search" />
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+        <SearchInput value={search} onChange={setSearch} placeholder="Search by action, user, or details..." className="w-full min-w-0 sm:max-w-lg sm:flex-1" dataTest="audit-search" />
 
-        <div className="flex flex-wrap items-start gap-4">
-          <DateInput value={dateFilter} onChange={setDateFilter} placeholder="กรองตามวันที่" className="w-48" dataTest="audit-date-filter" />
+        <div className="flex w-full flex-wrap items-start gap-2 sm:w-auto sm:gap-4">
+          <DateInput value={dateFilter} onChange={setDateFilter} placeholder="กรองตามวันที่" className="min-w-0 flex-1 sm:w-48 sm:flex-none" dataTest="audit-date-filter" />
           <Button variant="subtle" data-test="audit-refresh" onClick={handleRefresh} className="flex items-center gap-2">
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
@@ -94,7 +94,7 @@ export default function AuditLogs() {
       )}
 
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="w-full border-collapse text-center text-sm">
+        <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
               <th className="px-4 py-3.5 font-medium">Time</th>

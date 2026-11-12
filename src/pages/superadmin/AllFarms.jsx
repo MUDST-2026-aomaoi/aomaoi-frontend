@@ -174,37 +174,37 @@ export default function AllFarms() {
     <div>
       <PageHeader title="All Farms"  />
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-          <p className="mb-1 font-medium text-gray-600">All Farms</p>
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-3xl font-bold text-gray-700">{visibleFarms.length}</h3>
-            <span className="font-medium text-gray-400">ฟาร์ม</span>
+      <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-5">
+          <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">All Farms</p>
+          <div className="flex items-baseline gap-1 sm:gap-2">
+            <h3 className="text-2xl font-bold text-gray-700 sm:text-3xl">{visibleFarms.length}</h3>
+            <span className="text-xs font-medium text-gray-400 sm:text-base">ฟาร์ม</span>
           </div>
         </div>
-        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-          <p className="mb-1 font-medium text-gray-600">All Admin</p>
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-3xl font-bold text-gray-700">{admins.length}</h3>
-            <span className="font-medium text-gray-400">คน</span>
+        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-5">
+          <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">All Admin</p>
+          <div className="flex items-baseline gap-1 sm:gap-2">
+            <h3 className="text-2xl font-bold text-gray-700 sm:text-3xl">{admins.length}</h3>
+            <span className="text-xs font-medium text-gray-400 sm:text-base">คน</span>
           </div>
         </div>
-        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-          <p className="mb-1 font-medium text-gray-600">All Worker</p>
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-3xl font-bold text-gray-700">{totalWorkers}</h3>
-            <span className="font-medium text-gray-400">คน</span>
+        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-5">
+          <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">All Worker</p>
+          <div className="flex items-baseline gap-1 sm:gap-2">
+            <h3 className="text-2xl font-bold text-gray-700 sm:text-3xl">{totalWorkers}</h3>
+            <span className="text-xs font-medium text-gray-400 sm:text-base">คน</span>
           </div>
         </div>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหา" className="max-w-lg flex-1" dataTest="farm-search" />
+      <div className="mb-6 flex items-center justify-between gap-2 sm:gap-4">
+        <SearchInput value={search} onChange={setSearch} placeholder="ค้นหา" className="min-w-0 flex-1 sm:max-w-lg" dataTest="farm-search" />
 
         <Button
           variant="accent"
           data-test="farm-add-btn"
-          className="flex items-center gap-2"
+          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 sm:gap-2 sm:px-6"
           onClick={() => setModal({ mode: 'add', defaultValues: { name: '', location: '' } })}
         >
           <UserPlus className="h-5 w-5" />
@@ -212,7 +212,7 @@ export default function AllFarms() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {filtered.map((farm) => (
           <div key={farm.id} data-test="farm-card" className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
             <div className="relative flex h-40 items-center justify-center overflow-hidden bg-linear-to-br from-farm-primary to-[#1F3C28]">
@@ -240,7 +240,7 @@ export default function AllFarms() {
                 </button>
               </div>
             </div>
-            <div className="p-5">
+            <div className="p-4 sm:p-5">
               <h3 data-test="farm-name" className="text-lg font-bold text-gray-900">{farm.name}</h3>
               <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
                 <MapPin className="h-4 w-4" /> {farm.location}
@@ -266,19 +266,19 @@ export default function AllFarms() {
       </div>
 
       {modal?.mode === 'add' && (
-        <ModalShell onClose={closeModal} className="w-112.5">
+        <ModalShell onClose={closeModal} className="sm:w-112.5">
           <FarmForm title="Add New Farm" defaultValues={modal.defaultValues} onSubmit={handleAddSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 
       {modal?.mode === 'edit' && (
-        <ModalShell onClose={closeModal} className="w-112.5">
+        <ModalShell onClose={closeModal} className="sm:w-112.5">
           <FarmForm title="Edit Farm" defaultValues={modal.farm} onSubmit={handleEditSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 
       {modal?.mode === 'delete' && (
-        <ModalShell onClose={closeModal} className="flex w-100 flex-col items-center text-center">
+        <ModalShell onClose={closeModal} className="flex flex-col items-center text-center sm:w-100">
           <button type="button" onClick={closeModal} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
             <X className="h-5 w-5" />
           </button>
