@@ -52,18 +52,18 @@ export default function WorkerLayout({ children }) {
       {/* Mobile Drawer Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-30 lg:hidden transition-opacity"
+          className="fixed inset-0 bg-black/40 z-30 md:hidden transition-opacity"
           onClick={() => setSidebarOpen(false)}
           aria-hidden="true"
         />
       )}
       
-      {/* Sidebar: อ้างอิง Layout แบบ Admin แต่สีพื้นหลังสว่าง (Drawer บนจอมือถือ/แท็บเล็ต, Static บนจอ lg ขึ้นไป) */}
+      {/* Sidebar: อ้างอิง Layout แบบ Admin แต่สีพื้นหลังสว่าง (Drawer บนจอมือถือ < md, Static บนจอ md ขึ้นไป) */}
       <aside
         id="worker-sidebar"
         aria-label="Worker navigation"
-        className={`fixed inset-y-0 left-0 z-40 flex h-screen h-[100dvh] w-64 shrink-0 flex-col bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0 shadow-xl lg:shadow-none' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-40 flex h-screen h-[100dvh] w-64 shrink-0 flex-col bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0 shadow-xl md:shadow-none' : '-translate-x-full'
         }`}
       >
         
@@ -77,7 +77,7 @@ export default function WorkerLayout({ children }) {
             type="button"
             onClick={() => setSidebarOpen(false)}
             aria-label="Close navigation menu"
-            className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="md:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -134,8 +134,8 @@ export default function WorkerLayout({ children }) {
       {/* Main Content Area */}
       <main className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
         <header className="mb-5 sm:mb-6 grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-4">
-          {/* Mobile Top Bar Left: Hamburger + Sugarcane Logo (ซ่อนบนจอ lg ขึ้นไป) */}
-          <div className="flex items-center gap-2.5 min-w-0 lg:hidden">
+          {/* Mobile Top Bar Left: Hamburger + Sugarcane Logo (ซ่อนบนจอ md ขึ้นไป) */}
+          <div className="flex items-center gap-2.5 min-w-0 md:hidden">
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
@@ -152,8 +152,8 @@ export default function WorkerLayout({ children }) {
             </div>
           </div>
 
-          {/* Page Title: บนมือถือ/แท็บเล็ต (< lg) อยู่บรรทัดที่ 2 เต็มความกว้าง, บน Desktop (lg+) อยู่บรรทัดแรกฝั่งซ้าย */}
-          <h1 className="col-span-2 order-3 pt-1 border-t border-gray-200/80 lg:border-t-0 lg:pt-0 lg:col-span-1 lg:order-1 text-2xl sm:text-3xl font-bold text-gray-900 truncate">
+          {/* Page Title: บนมือถือ (< md) อยู่บรรทัดที่ 2 เต็มความกว้าง, บนจอ md ขึ้นไปอยู่บรรทัดแรกฝั่งซ้าย */}
+          <h1 className="col-span-2 order-3 pt-1 border-t border-gray-200/80 md:border-t-0 md:pt-0 md:col-span-1 md:order-1 text-2xl sm:text-3xl font-bold text-gray-900 truncate">
             {pageTitle}
           </h1>
           
