@@ -319,7 +319,7 @@ export default function Workers() {
           <Button
             variant="accent"
             data-test="worker-add-btn"
-            className="flex w-full items-center justify-center gap-2 sm:w-auto"
+            className="flex w-full items-center justify-center gap-2 whitespace-nowrap sm:w-auto sm:shrink-0"
             onClick={() =>
               setModal({
                 mode: 'add',

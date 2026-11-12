@@ -14,14 +14,15 @@ const STATUS_OPTIONS = [
 ];
 
 function SummaryTile({ label, value, tone = 'text-gray-700', dataTest }) {
+  // Same sizing as the Dashboard stat cards. Unit wraps under the number on very narrow screens.
   return (
-    <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-5">
-      <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">{label}</p>
-      <div className="flex items-baseline gap-1 sm:gap-2">
-        <h3 data-test={dataTest} className={`truncate text-xl font-bold sm:text-3xl ${tone}`}>
+    <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+      <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">{label}</p>
+      <div className="flex flex-wrap items-baseline gap-x-2">
+        <h3 data-test={dataTest} className={`text-2xl font-bold sm:text-3xl ${tone}`}>
           {value}
         </h3>
-        <span className="text-xs font-medium text-gray-400 sm:text-sm">บาท</span>
+        <span className="text-sm font-medium text-gray-400">บาท</span>
       </div>
     </div>
   );
@@ -76,7 +77,7 @@ export default function FinancialBalance() {
     <div>
       <PageHeader title="Financial Balance" />
 
-      <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-4">
+      <div className="mb-6 grid grid-cols-3 gap-3 sm:gap-4">
         <SummaryTile label="รายได้รวม" value={formatAmount(totals.earnings)} tone="text-[#205e2e]" dataTest="balance-total-earnings" />
         <SummaryTile label="เบิกล่วงหน้ารวม" value={formatAmount(totals.advances)} dataTest="balance-total-advances" />
         <SummaryTile label="หนี้คงค้างรวม" value={formatAmount(totals.debt)} tone="text-red-600" dataTest="balance-total-debt" />

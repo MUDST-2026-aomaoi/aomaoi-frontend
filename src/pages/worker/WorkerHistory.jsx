@@ -1,6 +1,7 @@
 import { useState, useMemo, forwardRef, useEffect, useRef } from 'react';
 import { Search, Calendar, ChevronDown } from 'lucide-react';
 import DatePicker from 'react-datepicker';
+import { DatePickerPopperContainer } from '../../components/ui/DatePickerPopperContainer';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
@@ -167,7 +168,7 @@ export default function WorkerHistory() {
         {/* Date Range */}
         <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <div className="flex-1 sm:flex-none sm:w-[180px] min-w-0 [&_.react-datepicker-wrapper]:w-full">
-            <DatePicker
+            <DatePicker popperContainer={DatePickerPopperContainer}
               selected={startDate}
               onChange={(date) => setStartDate(date)}
               customInput={<CustomDateInput placeholder="search your date" />}
@@ -178,7 +179,7 @@ export default function WorkerHistory() {
           <span className="text-farm-text font-bold text-[14px] px-0.5 sm:px-1 shrink-0">ถึง</span>
 
           <div className="flex-1 sm:flex-none sm:w-[180px] min-w-0 [&_.react-datepicker-wrapper]:w-full">
-            <DatePicker
+            <DatePicker popperContainer={DatePickerPopperContainer}
               selected={endDate}
               onChange={(date) => setEndDate(date)}
               customInput={<CustomDateInput placeholder="search your date" />}

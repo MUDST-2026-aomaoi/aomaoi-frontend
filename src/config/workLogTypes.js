@@ -1,6 +1,15 @@
 import { z } from 'zod';
 import { Scissors, Sprout, Droplets, SprayCan } from 'lucide-react';
 
+export function todayISO() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+const NO_FUTURE_MESSAGE = 'ไม่สามารถเลือกวันที่ในอนาคตได้';
+const notFuture = (value) => !value || value <= todayISO();
+
 export const WORK_LOG_TYPES = {
   cutting: {
     key: 'cutting',
@@ -18,7 +27,7 @@ export const WORK_LOG_TYPES = {
       { name: 'waPerRow', label: 'วา/แถว (มาตรฐาน)', suffix: 'วา', defaultValue: 100 },
     ],
     schema: z.object({
-      date: z.string().min(1, 'กรุณาเลือกวันที่'),
+      date: z.string().min(1, 'กรุณาเลือกวันที่').refine(notFuture, NO_FUTURE_MESSAGE),
       workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),
       rows: z.coerce.number().positive('ต้องมากกว่า 0'),
       waPerRow: z.coerce.number().positive('ต้องมากกว่า 0'),
@@ -42,7 +51,7 @@ export const WORK_LOG_TYPES = {
       { name: 'waPerFurrow', label: 'วา/ร่อง', suffix: 'วา', defaultValue: 20 },
     ],
     schema: z.object({
-      date: z.string().min(1, 'กรุณาเลือกวันที่'),
+      date: z.string().min(1, 'กรุณาเลือกวันที่').refine(notFuture, NO_FUTURE_MESSAGE),
       workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),
       furrows: z.coerce.number().positive('ต้องมากกว่า 0'),
       waPerFurrow: z.coerce.number().positive('ต้องมากกว่า 0'),
@@ -74,8 +83,8 @@ export const WORK_LOG_TYPES = {
     ],
     schema: z.object({
       workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),
-      startDate: z.string().min(1, 'กรุณาเลือกวันที่เริ่ม'),
-      endDate: z.string().min(1, 'กรุณาเลือกวันที่สิ้นสุด'),
+      startDate: z.string().min(1, 'กรุณาเลือกวันที่เริ่ม').refine(notFuture, NO_FUTURE_MESSAGE),
+      endDate: z.string().min(1, 'กรุณาเลือกวันที่สิ้นสุด').refine(notFuture, NO_FUTURE_MESSAGE),
       dailyRate: z.coerce.number().positive('ต้องมากกว่า 0'),
     }).refine((data) => {
       const start = new Date(data.startDate);
@@ -110,7 +119,7 @@ export const WORK_LOG_TYPES = {
       { name: 'tanks', label: 'จำนวนถัง', suffix: 'ถัง', defaultValue: 1 },
     ],
     schema: z.object({
-      date: z.string().min(1, 'กรุณาเลือกวันที่'),
+      date: z.string().min(1, 'กรุณาเลือกวันที่').refine(notFuture, NO_FUTURE_MESSAGE),
       workerId: z.string().min(1, 'กรุณาเลือกคนงาน'),
       tanks: z.coerce.number().positive('ต้องมากกว่า 0'),
     }),

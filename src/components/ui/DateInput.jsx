@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import DatePicker from 'react-datepicker';
+import { DatePickerPopperContainer } from './DatePickerPopperContainer';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { Calendar } from 'lucide-react';
@@ -27,16 +28,18 @@ const parseLocalDate = (str) => {
   return new Date(str);
 };
 
-export function DateInput({ value, onChange, label, error, placeholder, className = '', isClearable = false, dataTest }) {
+export function DateInput({ value, onChange, label, error, placeholder, className = '', isClearable = false, dataTest, maxDate, minDate }) {
   return (
     <label className={`block ${className}`}>
       {label && <span className="mb-1 block text-sm font-medium text-farm-text">{label}</span>}
-      <DatePicker
+      <DatePicker popperContainer={DatePickerPopperContainer}
         selected={parseLocalDate(value)}
         onChange={(date) => onChange(date ? format(date, 'yyyy-MM-dd') : '')}
         dateFormat="dd/MM/yyyy"
         customInput={<CustomDateButton placeholder={placeholder} dataTest={dataTest} />}
         wrapperClassName="w-full"
+        maxDate={maxDate}
+        minDate={minDate}
         isClearable={isClearable && !!value}
       />
       {error && <span className="mt-1 block text-xs text-red-600">{error}</span>}

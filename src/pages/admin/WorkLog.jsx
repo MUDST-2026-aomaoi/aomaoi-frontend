@@ -13,12 +13,8 @@ import { SuccessModal } from '../../components/ui/SuccessModal';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
-import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
+import { WORK_LOG_TYPES, WORK_LOG_ORDER, todayISO } from '../../config/workLogTypes';
 import { formatDate, formatDateLong, formatBaht } from '../../lib/format';
-
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
-}
 
 function formatNumber(n) {
   return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 0 });
@@ -108,6 +104,7 @@ function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, su
                     dataTest={`worklog-form-${field.name}`}
                     value={rhfField.value}
                     onChange={rhfField.onChange}
+                    maxDate={new Date()}
                     error={errors[field.name]?.message}
                   />
                 )}
@@ -212,7 +209,7 @@ export default function WorkLog() {
         searchPlaceholder="ค้นหาชื่อคนงาน"
         searchTestId="worklog-search"
         action={
-          <Button variant="accent" data-test="worklog-add-btn" className="flex w-full items-center justify-center gap-2 sm:w-auto" onClick={openNewEntry}>
+          <Button variant="accent" data-test="worklog-add-btn" className="flex w-full items-center justify-center gap-2 whitespace-nowrap sm:w-auto sm:shrink-0" onClick={openNewEntry}>
             <UserPlus className="h-5 w-5" />
             <span>บันทึกงานใหม่</span>
           </Button>
