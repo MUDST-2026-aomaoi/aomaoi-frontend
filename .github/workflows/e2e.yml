@@ -30,10 +30,22 @@ jobs:
         fetch-depth: 0
         path: backend-source
 
+    - name: Use the backend branch with the same name as this branch, if it exists
+      working-directory: backend-source
+      env:
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      run: |
+        if git show-ref --verify --quiet "refs/remotes/origin/${BRANCH_NAME}"; then
+          echo "Using backend branch ${BRANCH_NAME}"
+          git checkout "${BRANCH_NAME}"
+        else
+          echo "No backend branch named ${BRANCH_NAME}; staying on main"
+        fi
+
     - name: Use backend feat/phase-2 if not yet merged into main
       working-directory: backend-source
       run: |
-        if git show-ref --verify --quiet refs/remotes/origin/feat/phase-2 && ! git merge-base --is-ancestor origin/feat/phase-2 origin/main; then
+        if [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ] && git show-ref --verify --quiet refs/remotes/origin/feat/phase-2 && ! git merge-base --is-ancestor origin/feat/phase-2 origin/main; then
           git checkout feat/phase-2
         fi
 
