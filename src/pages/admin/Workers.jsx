@@ -384,7 +384,7 @@ export default function Workers() {
                 <td className="py-3 sm:py-4 px-3 sm:px-4 text-gray-800">@{worker.username}</td>
                 <td className="py-3 sm:py-4 px-3 sm:px-4 text-gray-800">{worker.phone}</td>
                 <td className="py-3 sm:py-4 px-3 sm:px-4">
-                  <span data-test="worker-row-status" className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[worker.status]}`}>
+                  <span data-test="worker-row-status" className={`inline-block min-w-20 whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[worker.status]}`}>
                     {STATUS_LABEL[worker.status]}
                   </span>
                 </td>

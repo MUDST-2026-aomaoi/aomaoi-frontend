@@ -54,3 +54,9 @@ export function monthShort(monthIndex) {
 export function displayYear(year) {
   return getLocale() === 'th-TH' ? year + 543 : year;
 }
+
+/** Turns the datepicker's "dd/MM/yyyy" text into the displayed year (Buddhist era in Thai). */
+export function localizeDateText(text) {
+  const m = /^(\d{2}\/\d{2}\/)(\d{4})$/.exec(text || '');
+  return m ? `${m[1]}${displayYear(Number(m[2]))}` : text;
+}

@@ -3,6 +3,7 @@ import { LayoutGrid, Sprout, Users, LogOut, ClipboardList, X } from 'lucide-reac
 import { useAuthStore } from '../../controller/authController';
 import logo from '../../assets/sugarcane-logo.png';
 import { useT } from '../../i18n';
+import { LanguageSwitch } from '../../components/ui/LanguageSwitch';
 
 const linkBase = 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors';
 const linkActive = 'bg-farm-superSidebarActive text-white border-l-4 border-farm-sidebarAccent -ml-6 pl-9 rounded-none';
@@ -58,7 +59,8 @@ export function SuperAdminSidebar({ open = false, onClose }) {
         </nav>
       </div>
 
-      <div className="p-6">
+      <div className="flex flex-col gap-5 p-6">
+        <LanguageSwitch tone="dark" block />
         <button type="button" data-test="logout-button" onClick={() => { useAuthStore.getState().logout(); window.location.href = '/login'; }} className="flex items-center gap-3 text-white transition-colors hover:text-white/70">
           <LogOut className="h-5 w-5" />
           <span>{t('nav.logout')}</span>

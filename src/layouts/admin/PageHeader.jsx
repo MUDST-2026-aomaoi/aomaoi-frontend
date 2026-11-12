@@ -2,7 +2,6 @@ import { useAuthStore } from '../../controller/authController';
 import { Menu } from 'lucide-react';
 import logo from '../../assets/sugarcane-logo.png';
 import { useSidebar } from './SidebarContext';
-import { LanguageSwitch } from '../../components/ui/LanguageSwitch';
 import { useT, ROLE_LABEL } from '../../i18n';
 
 export function PageHeader({ title }) {
@@ -28,7 +27,6 @@ export function PageHeader({ title }) {
       </div>
       <h1 className="order-3 col-span-2 truncate border-t border-gray-200/80 pt-3 text-2xl font-bold text-gray-900 md:order-1 md:col-span-1 md:border-0 md:pt-0 sm:text-3xl">{title}</h1>
       <div className="order-2 flex shrink-0 items-center justify-self-end gap-2.5 sm:gap-3">
-        <LanguageSwitch />
         {avatar ? (
           <img src={avatar} alt={name} className="h-10 w-10 shrink-0 rounded-full object-cover sm:h-11 sm:w-11" />
         ) : (

@@ -363,7 +363,7 @@ export default function AdminsManagement() {
                   </span>
                 </td>
                 <td className="px-4 py-3 sm:py-4">
-                  <span data-test="admin-row-status" className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[admin.status]}`}>
+                  <span data-test="admin-row-status" className={`inline-block min-w-20 whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[admin.status]}`}>
                     {STATUS_LABEL[admin.status]}
                   </span>
                 </td>

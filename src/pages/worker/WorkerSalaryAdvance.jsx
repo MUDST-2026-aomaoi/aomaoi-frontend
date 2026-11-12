@@ -6,14 +6,14 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { useT, getDateFnsLocale } from '../../i18n';
 import { useSalaryAdvanceStore } from '../../store/useSalaryAdvanceStore';
-import { formatDate, formatAmount } from '../../lib/format';
+import { formatDate, formatAmount, localizeDateText } from '../../lib/format';
 
 const CustomDateInput = forwardRef(({ value, onClick, placeholder, dataTest }, ref) => (
   <div className="relative w-full cursor-pointer" onClick={onClick} ref={ref}>
     <input
       type="text"
       readOnly
-      value={value}
+      value={localizeDateText(value)}
       placeholder={placeholder}
       data-test={dataTest}
       className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm focus:border-[#708238] cursor-pointer"

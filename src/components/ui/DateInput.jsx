@@ -5,6 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { Calendar } from 'lucide-react';
 import { useT, getDateFnsLocale } from '../../i18n';
+import { localizeDateText } from '../../lib/format';
 
 const CustomDateButton = forwardRef(({ value, onClick, placeholder, dataTest }, ref) => {
   const t = useT();
@@ -16,7 +17,7 @@ const CustomDateButton = forwardRef(({ value, onClick, placeholder, dataTest }, 
     data-test={dataTest}
     className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-left text-sm text-gray-500 shadow-sm outline-none focus:border-[#708238]"
   >
-    <span className={value ? '' : 'text-farm-text/40'}>{value || placeholder || t('common.selectDate')}</span>
+    <span className={value ? '' : 'text-farm-text/40'}>{localizeDateText(value) || placeholder || t('common.selectDate')}</span>
     <Calendar className="h-4 w-4 shrink-0 text-farm-text/40" />
   </button>
   );

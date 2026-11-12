@@ -122,7 +122,8 @@ export default function WorkerLayout({ children }) {
         </div>
 
         {/* Logout Section */}
-        <div className="p-6">
+        <div className="flex flex-col gap-5 p-6">
+          <LanguageSwitch block />
           <button
             data-test="logout-button"
             onClick={handleLogout}
@@ -162,7 +163,6 @@ export default function WorkerLayout({ children }) {
           
           {/* Profile Section: อยู่บรรทัดแรกฝั่งขวาเสมอ */}
           <div className="order-2 flex items-center justify-self-end gap-2.5 sm:gap-3 shrink-0">
-            <LanguageSwitch />
             <div className="w-10 h-10 sm:w-11 sm:h-11 bg-gray-200 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center shrink-0">
               <img src={currentUser?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${myUsername}`} alt="Profile" className="w-full h-full object-cover" />
             </div>
