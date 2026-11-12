@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { workerService } from '../service/workerService';
+import { t } from '../i18n';
 
 export const useWorkerStore = create((set, get) => ({
   workers: [],
@@ -31,5 +32,5 @@ export const useWorkerStore = create((set, get) => ({
       workers: state.workers.map((w) => (w.id === id ? { ...w, status } : w)),
     })),
 
-  getWorkerName: (id) => get().workers.find((w) => String(w.id) === String(id))?.fullName ?? 'ไม่ระบุ',
+  getWorkerName: (id) => get().workers.find((w) => String(w.id) === String(id))?.fullName ?? t('common.unspecified'),
 }));

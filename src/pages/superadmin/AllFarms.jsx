@@ -14,15 +14,16 @@ import { useFarmStore } from '../../store/useFarmStore';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useWorkerStore } from '../../store/useWorkerStore';
+import { getLocale } from '../../i18n';
 import { useT } from '../../i18n';
 
 function formatNumber(n) {
-  return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 0 });
+  return Number(n).toLocaleString(getLocale(), { maximumFractionDigits: 0 });
 }
 
-const farmSchema = z.object({
-  name: z.string().min(1, 'กรุณากรอกชื่อฟาร์ม'),
-  location: z.string().min(1, 'กรุณากรอกที่ตั้ง'),
+const makeFarmSchema = (t) => z.object({
+  name: z.string().min(1, t('farm.err.name')),
+  location: z.string().min(1, t('farm.err.location')),
 });
 
 function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
@@ -33,7 +34,7 @@ function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(farmSchema), defaultValues });
+  } = useForm({ resolver: zodResolver(makeFarmSchema(t)), defaultValues });
 
   function handleImageChange(e) {
     const file = e.target.files?.[0];
@@ -66,13 +67,13 @@ function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
       </button>
 
       <div className="mb-4 space-y-4">
-        <Input data-test="farm-form-name" label="ชื่อฟาร์ม" {...register('name')} error={errors.name?.message} />
-        <Input data-test="farm-form-location" label="ที่ตั้ง" {...register('location')} error={errors.location?.message} />
+        <Input data-test="farm-form-name" label={t('farm.name')} {...register('name')} error={errors.name?.message} />
+        <Input data-test="farm-form-location" label={t('farm.location')} {...register('location')} error={errors.location?.message} />
       </div>
 
       <div className="mb-6 flex items-start gap-2 rounded-md bg-[#FEF3C7] p-3 text-xs text-[#92400E]">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
-        <p>สร้างฟาร์มก่อน แล้วค่อยเพิ่ม Admin ให้ฟาร์มนี้ได้จากหน้า "จัดการ Admin"</p>
+        <p>{t('farm.note')}</p>
       </div>
 
       <div className="flex w-full gap-4">
@@ -145,7 +146,7 @@ export default function AllFarms() {
       setModal({ mode: 'success', action: 'add' });
     } catch (error) {
       console.error(error);
-      alert('Failed to add farm');
+      alert(t('farm.err.addFailed'));
     }
   }
 
@@ -157,7 +158,7 @@ export default function AllFarms() {
       setModal({ mode: 'success', action: 'edit' });
     } catch (error) {
       console.error(error);
-      alert('Failed to update farm');
+      alert(t('farm.err.updateFailed'));
     }
   }
 
@@ -169,34 +170,34 @@ export default function AllFarms() {
       setModal({ mode: 'success', action: 'delete', farm: modal.farm });
     } catch (error) {
       console.error(error);
-      alert('Failed to delete farm');
+      alert(t('farm.err.deleteFailed'));
     }
   }
 
   return (
     <div>
-      <PageHeader title="All Farms"  />
+      <PageHeader title={t('nav.farms')} />
 
       <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-4">
         <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-5">
-          <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">All Farms</p>
+          <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">{t('nav.farms')}</p>
           <div className="flex items-baseline gap-1 sm:gap-2">
             <h3 className="text-2xl font-bold text-gray-700 sm:text-3xl">{visibleFarms.length}</h3>
-            <span className="text-xs font-medium text-gray-400 sm:text-base">ฟาร์ม</span>
+            <span className="text-xs font-medium text-gray-400 sm:text-base">{t('farm.unit')}</span>
           </div>
         </div>
         <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-5">
-          <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">All Admin</p>
+          <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">{t('farm.allAdmins')}</p>
           <div className="flex items-baseline gap-1 sm:gap-2">
             <h3 className="text-2xl font-bold text-gray-700 sm:text-3xl">{admins.length}</h3>
-            <span className="text-xs font-medium text-gray-400 sm:text-base">คน</span>
+            <span className="text-xs font-medium text-gray-400 sm:text-base">{t('common.people')}</span>
           </div>
         </div>
         <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-5">
-          <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">All Worker</p>
+          <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">{t('farm.allWorkers')}</p>
           <div className="flex items-baseline gap-1 sm:gap-2">
             <h3 className="text-2xl font-bold text-gray-700 sm:text-3xl">{totalWorkers}</h3>
-            <span className="text-xs font-medium text-gray-400 sm:text-base">คน</span>
+            <span className="text-xs font-medium text-gray-400 sm:text-base">{t('common.people')}</span>
           </div>
         </div>
       </div>
@@ -204,7 +205,7 @@ export default function AllFarms() {
       <TableToolbar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="ค้นหาชื่อฟาร์ม, ที่ตั้ง"
+        searchPlaceholder={t('farm.search')}
         searchTestId="farm-search"
         action={
           <Button
@@ -214,7 +215,7 @@ export default function AllFarms() {
             onClick={() => setModal({ mode: 'add', defaultValues: { name: '', location: '' } })}
           >
             <UserPlus className="h-5 w-5" />
-            <span>เพิ่มฟาร์มใหม่</span>
+            <span>{t('farm.addBtn')}</span>
           </Button>
         }
       />
@@ -254,33 +255,33 @@ export default function AllFarms() {
               </p>
               <div className="mt-4 grid grid-cols-3 divide-x divide-gray-100 border-t border-gray-100 pt-4">
                 <div>
-                  <p className="text-xs text-gray-500">Worker</p>
+                  <p className="text-xs text-gray-500">{t('farm.cardWorkers')}</p>
                   <p className="text-lg font-bold text-gray-800">{farm.workerCount}</p>
                 </div>
                 <div className="pl-3">
-                  <p className="text-xs text-gray-500">Admin</p>
+                  <p className="text-xs text-gray-500">{t('farm.cardAdmins')}</p>
                   <p className="text-lg font-bold text-gray-800">{farm.adminCount}</p>
                 </div>
                 <div className="pl-3">
-                  <p className="text-xs text-gray-500">Monthly Wages</p>
+                  <p className="text-xs text-gray-500">{t('farm.monthlyWages')}</p>
                   <p className="text-lg font-bold text-gray-800">{formatNumber(farm.monthlyWages)}</p>
                 </div>
               </div>
             </div>
           </div>
         ))}
-        {filtered.length === 0 && <p className="col-span-full py-8 text-center text-gray-400">ไม่พบฟาร์มที่ตรงกับเงื่อนไข</p>}
+        {filtered.length === 0 && <p className="col-span-full py-8 text-center text-gray-400">{t('farm.empty')}</p>}
       </div>
 
       {modal?.mode === 'add' && (
         <ModalShell onClose={closeModal} className="sm:w-112.5">
-          <FarmForm title="Add New Farm" defaultValues={modal.defaultValues} onSubmit={handleAddSubmit} onCancel={closeModal} />
+          <FarmForm title={t('farm.addTitle')} defaultValues={modal.defaultValues} onSubmit={handleAddSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 
       {modal?.mode === 'edit' && (
         <ModalShell onClose={closeModal} className="sm:w-112.5">
-          <FarmForm title="Edit Farm" defaultValues={modal.farm} onSubmit={handleEditSubmit} onCancel={closeModal} />
+          <FarmForm title={t('farm.editTitle')} defaultValues={modal.farm} onSubmit={handleEditSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 
@@ -290,8 +291,8 @@ export default function AllFarms() {
             <X className="h-5 w-5" />
           </button>
           <AlertTriangle className="mb-4 h-16 w-16 stroke-[1.5] text-red-600" />
-          <p className="mb-1 font-medium text-gray-800">ยืนยันการลบฟาร์ม "{modal.farm.name}"?</p>
-          <p className="mb-8 text-sm font-medium text-red-600">ข้อมูลย้อนหลังจะยังอยู่ แต่ฟาร์มนี้จะไม่แสดงในระบบอีก</p>
+          <p className="mb-1 font-medium text-gray-800">{t('farm.deleteConfirm', { name: modal.farm.name })}</p>
+          <p className="mb-8 text-sm font-medium text-red-600">{t('farm.deleteNote')}</p>
           <div className="flex w-full gap-4">
             <Button variant="outline" className="flex-1" onClick={closeModal}>
               {t('common.cancel')}
@@ -307,11 +308,11 @@ export default function AllFarms() {
         <SuccessModal
           onClose={closeModal}
           message={
-            (modal.action === 'add' && 'เพิ่มฟาร์มสำเร็จ') ||
-            (modal.action === 'edit' && 'แก้ไขข้อมูลสำเร็จ') ||
-            'ลบฟาร์มสำเร็จ'
+            (modal.action === 'add' && t('farm.addedOk')) ||
+            (modal.action === 'edit' && t('common.editedOk')) ||
+            t('farm.deletedOk')
           }
-          submessage={modal.action === 'delete' ? `${modal.farm.name} ถูกลบออกจากระบบแล้ว` : undefined}
+          submessage={modal.action === 'delete' ? t('farm.removed', { name: modal.farm.name }) : undefined}
         />
       )}
     </div>

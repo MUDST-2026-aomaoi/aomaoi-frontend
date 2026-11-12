@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { adminService } from '../service/adminService';
+import { t } from '../i18n';
 
 export const useAdminStore = create((set, get) => ({
   admins: [],
@@ -32,5 +33,5 @@ export const useAdminStore = create((set, get) => ({
       admins: state.admins.map((a) => (a.id === id ? { ...a, status } : a)),
     })),
 
-  getAdminName: (id) => get().admins.find((a) => a.id === id)?.fullName ?? 'ไม่ทราบชื่อ',
+  getAdminName: (id) => get().admins.find((a) => a.id === id)?.fullName ?? t('common.unknownName'),
 }));

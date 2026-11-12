@@ -7,14 +7,15 @@ import { useAdminStore } from '../../store/useAdminStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { useAuthStore } from '../../controller/authController';
+import { monthShort } from '../../lib/format';
+import { getLocale, periodOptions } from '../../i18n';
 
-const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const RADIAN = Math.PI / 180;
 const FARM_LINE_COLORS = ['#3b82f6', '#ef4444', '#22c55e'];
 const FARM_DONUT_COLORS = ['#1F3C28', '#6A9E48', '#B4D355'];
 
 function formatNumber(n) {
-  return Number(n).toLocaleString('th-TH', { maximumFractionDigits: 0 });
+  return Number(n).toLocaleString(getLocale(), { maximumFractionDigits: 0 });
 }
 
 function formatCompactBaht(n) {
@@ -35,14 +36,9 @@ const renderPercentLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percen
   );
 };
 
-const PERIOD_OPTIONS = [
-  { value: 'month', label: 'รายเดือน' },
-  { value: 'day', label: 'รายวัน' },
-  { value: 'year', label: 'รายปี' },
-];
-
 function PeriodSelect({ value, onChange }) {
-  return <Dropdown value={value} onChange={onChange} options={PERIOD_OPTIONS} className="w-32" />;
+  const t = useT();
+  return <Dropdown value={value} onChange={onChange} options={periodOptions(t)} className="w-32" />;
 }
 
 function farmValueForPeriod(farm, period) {
@@ -52,6 +48,7 @@ function farmValueForPeriod(farm, period) {
 }
 
 export default function SuperAdminDashboard() {
+  const t = useT();
   const allFarms = useFarmStore((s) => s.farms);
   const fetchFarms = useFarmStore((s) => s.fetchFarms);
   const allAdmins = useAdminStore((s) => s.admins);
@@ -93,7 +90,7 @@ export default function SuperAdminDashboard() {
       const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
       const year = d.getFullYear();
       const month = d.getMonth();
-      const point = { name: THAI_MONTHS_SHORT[month] };
+      const point = { name: monthShort(month) };
       
       farms.forEach((f) => {
         point[f.id] = 0;
@@ -111,7 +108,7 @@ export default function SuperAdminDashboard() {
       });
       return point;
     });
-  }, [farms, allEntries, allWorkers]);
+  }, [farms, allEntries, allWorkers, t]);
 
   const breakdown = useMemo(() => {
     return farms.map((f, idx) => {
@@ -160,35 +157,35 @@ export default function SuperAdminDashboard() {
 
   return (
     <div>
-      <PageHeader title="Dashboard" />
+      <PageHeader title={t('nav.dashboard')} />
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 font-medium text-gray-600">ยอดชำระรวม</p>
+          <p className="mb-1 font-medium text-gray-600">{t('dash.totalPaid')}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold sm:text-4xl text-[#205e2e]">{formatNumber(totalAllTime)}</h3>
-            <span className="font-medium text-gray-400">บาท</span>
+            <span className="font-medium text-gray-400">{t('common.baht')}</span>
           </div>
         </div>
         <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 font-medium text-gray-600">ยอดชำระเดือนนี้</p>
+          <p className="mb-1 font-medium text-gray-600">{t('dash.paidThisMonth')}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold sm:text-4xl text-gray-700">{formatNumber(totalThisMonth)}</h3>
-            <span className="font-medium text-gray-400">บาท</span>
+            <span className="font-medium text-gray-400">{t('common.baht')}</span>
           </div>
         </div>
         <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 font-medium text-gray-600">All Farms</p>
+          <p className="mb-1 font-medium text-gray-600">{t('nav.farms')}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold sm:text-4xl text-gray-700">{farms.length}</h3>
-            <span className="font-medium text-gray-400">ฟาร์ม</span>
+            <span className="font-medium text-gray-400">{t('farm.unit')}</span>
           </div>
         </div>
         <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 font-medium text-gray-600">All Admin</p>
+          <p className="mb-1 font-medium text-gray-600">{t('farm.allAdmins')}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold sm:text-4xl text-gray-700">{admins.length}</h3>
-            <span className="font-medium text-gray-400">คน</span>
+            <span className="font-medium text-gray-400">{t('common.people')}</span>
           </div>
         </div>
       </div>
@@ -196,14 +193,14 @@ export default function SuperAdminDashboard() {
       <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
         <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
-            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Overview</h3>
+            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">{t('dash.payrollOverview')}</h3>
             <div className="flex w-full min-w-0 gap-2 sm:w-auto">
               <PeriodSelect value={trendPeriod} onChange={setTrendPeriod} />
               <Dropdown
                 value={trendFarmFilter}
                 onChange={setTrendFarmFilter}
                 className="min-w-0 flex-1 sm:w-44 sm:flex-none"
-                options={[{ value: 'all', label: 'ฟาร์มทั้งหมด' }, ...farms.map((f) => ({ value: f.id, label: f.name }))]}
+                options={[{ value: 'all', label: t('adm.allFarms') }, ...farms.map((f) => ({ value: f.id, label: f.name }))]}
               />
             </div>
           </div>
@@ -214,7 +211,7 @@ export default function SuperAdminDashboard() {
                 <CartesianGrid strokeDasharray="3 3" vertical stroke="#f0f0f0" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} tickFormatter={formatCompactBaht} width={64} />
-                <Tooltip formatter={(value, key) => [`${formatNumber(value)} บาท`, farms.find((f) => f.id === key)?.name ?? key]} />
+                <Tooltip formatter={(value, key) => [`${formatNumber(value)} ${t('common.baht')}`, farms.find((f) => f.id === key)?.name ?? key]} />
                 {visibleTrendFarms.map((f) => {
                   const color = FARM_LINE_COLORS[farms.indexOf(f) % FARM_LINE_COLORS.length];
                   return (
@@ -250,7 +247,7 @@ export default function SuperAdminDashboard() {
 
         <div className="flex min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Breakdown by Farms</h3>
+            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">{t('dash.breakdownByFarms')}</h3>
             <PeriodSelect value={breakdownPeriod} onChange={setBreakdownPeriod} />
           </div>
 
@@ -276,9 +273,9 @@ export default function SuperAdminDashboard() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-xs text-gray-600">รวม</p>
+                <p className="text-xs text-gray-600">{t('common.total')}</p>
                 <p className="text-xl font-bold text-gray-900">{formatNumber(breakdownTotal)}</p>
-                <p className="text-xs text-gray-600">บาท</p>
+                <p className="text-xs text-gray-600">{t('common.baht')}</p>
               </div>
             </div>
             <div className="grid w-full grid-cols-2 gap-2 min-[1400px]:w-auto min-[1400px]:min-w-56">
@@ -288,7 +285,7 @@ export default function SuperAdminDashboard() {
                   <div className="flex min-w-0 flex-1 items-center justify-between gap-2 px-2.5 py-2">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-gray-800">{entry.name}</p>
-                      <p className="truncate text-xs text-gray-500">{formatNumber(entry.value)} บาท</p>
+                      <p className="truncate text-xs text-gray-500">{formatNumber(entry.value)} {t('common.baht')}</p>
                     </div>
                     <span className="shrink-0 text-sm font-bold text-gray-800">
                       {breakdownTotal > 0 ? Math.round((entry.value / breakdownTotal) * 100) : 0}%

@@ -6,8 +6,10 @@ import { Button } from '../../components/ui/Button';
 import { DateInput } from '../../components/ui/DateInput';
 import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
+import { getLocale } from '../../i18n';
 
 export default function AuditLogs() {
+  const t = useT();
   const { auditLogs, isLoading, error } = useAuditLogStore();
   
   const [search, setSearch] = useState('');
@@ -25,7 +27,7 @@ export default function AuditLogs() {
   const formatDateLong = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    return date.toLocaleString('th-TH', {
+    return date.toLocaleString(getLocale(), {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -63,24 +65,24 @@ export default function AuditLogs() {
 
   return (
     <div>
-      <PageHeader title="System Audit Logs" />
+      <PageHeader title={t('audit.pageTitle')} />
 
       <TableToolbar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="ค้นหาผู้ทำรายการ, การกระทำ, รายละเอียด"
+        searchPlaceholder={t('audit.search')}
         searchTestId="audit-search"
         action={
           <Button variant="subtle" data-test="audit-refresh" onClick={handleRefresh} className="flex shrink-0 items-center justify-center gap-2">
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <span>{t('audit.refresh')}</span>
           </Button>
         }
       >
         <DateInput
           value={dateFilter}
           onChange={setDateFilter}
-          placeholder="กรองตามวันที่"
+          placeholder={t('audit.dateFilter')}
           className={TOOLBAR_FILTER_CLASS}
           dataTest="audit-date-filter"
         />
@@ -93,7 +95,7 @@ export default function AuditLogs() {
               <AlertCircle className="h-5 w-5 text-red-400" />
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error loading logs</h3>
+              <h3 className="text-sm font-medium text-red-800">{t('audit.errorTitle')}</h3>
               <div className="mt-2 text-sm text-red-700">
                 <p>{error}</p>
               </div>
@@ -106,21 +108,21 @@ export default function AuditLogs() {
         <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
-              <th className="px-4 py-3.5 font-medium">Time</th>
-              <th className="px-4 py-3.5 font-medium">Action By</th>
-              <th className="px-4 py-3.5 font-medium">Action</th>
-              <th className="px-4 py-3.5 font-medium">Target User</th>
-              <th className="px-4 py-3.5 font-medium">Details</th>
+              <th className="px-4 py-3.5 font-medium">{t('audit.col.time')}</th>
+              <th className="px-4 py-3.5 font-medium">{t('audit.col.by')}</th>
+              <th className="px-4 py-3.5 font-medium">{t('audit.col.action')}</th>
+              <th className="px-4 py-3.5 font-medium">{t('audit.col.target')}</th>
+              <th className="px-4 py-3.5 font-medium">{t('audit.col.details')}</th>
             </tr>
           </thead>
           <tbody>
             {isLoading && auditLogs.length === 0 ? (
               <tr>
-                <td colSpan="5" className="py-8 text-gray-400 text-center">Loading logs...</td>
+                <td colSpan="5" className="py-8 text-gray-400 text-center">{t('audit.loading')}</td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan="5" className="py-8 text-gray-400 text-center">No logs found matching your criteria.</td>
+                <td colSpan="5" className="py-8 text-gray-400 text-center">{t('audit.empty')}</td>
               </tr>
             ) : (
               filtered.map((log) => (
