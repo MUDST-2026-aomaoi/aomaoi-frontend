@@ -6,6 +6,14 @@ export function formatBaht(amount) {
   return `฿${num.toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
 }
 
+export function formatAmount(amount) {
+  const num = Number(amount);
+  if (num < 0) {
+    return `-${Math.abs(num).toLocaleString('th-TH', { maximumFractionDigits: 2 })}`;
+  }
+  return num.toLocaleString('th-TH', { maximumFractionDigits: 2 });
+}
+
 function parseLocalDate(dateStr) {
   if (!dateStr) return null;
   if (typeof dateStr !== 'string') return new Date(dateStr);

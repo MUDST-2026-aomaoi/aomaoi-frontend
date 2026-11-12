@@ -57,8 +57,8 @@ describe('Worker - Salary Advance', () => {
       cy.contains('ข้าวสารหอมมะลิ').should('be.visible');
       cy.contains('เงินสด').should('be.visible');
       cy.contains('สิ่งของ').should('be.visible');
-      cy.contains('฿400').should('be.visible');
-      cy.contains('฿650').should('be.visible');
+      cy.contains('400').should('be.visible');
+      cy.contains('650').should('be.visible');
     });
   });
 
