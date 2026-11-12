@@ -102,7 +102,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
         </button>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input data-test="worker-form-fullname" label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
         <Input data-test="worker-form-nickname" label="ชื่อเล่น" {...register('nickname')} error={errors.nickname?.message} />
         <Input data-test="worker-form-username" label="Username" {...register('username')} error={errors.username?.message} />
@@ -204,7 +204,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
         </button>
       </div>
 
-      <div className="mb-4 grid grid-cols-2 gap-4">
+      <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Input data-test="worker-form-fullname" label="ชื่อ-นามสกุล" {...register('fullName')} error={errors.fullName?.message} />
         <Input data-test="worker-form-nickname" label="ชื่อเล่น" {...register('nickname')} error={errors.nickname?.message} />
         <Input data-test="worker-form-username" label="Username" {...register('username')} error={errors.username?.message} />
@@ -309,8 +309,8 @@ export default function Workers() {
     <div>
       <PageHeader title="Worker Management" />
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="relative max-w-lg flex-1">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+        <div className="relative w-full min-w-0 flex-1 sm:min-w-[220px] sm:max-w-lg">
           <input
             type="text"
             data-test="worker-search"
@@ -322,11 +322,11 @@ export default function Workers() {
           <Search className="pointer-events-none absolute right-3 top-3 h-5 w-5 text-gray-400" />
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="flex w-full flex-wrap gap-3 sm:w-auto sm:gap-4">
           <Dropdown
             value={workerFilter}
             onChange={setWorkerFilter}
-            className="w-48"
+            className="min-w-0 flex-1 sm:w-48 sm:flex-none"
             dataTest="worker-name-filter"
             options={[{ value: 'all', label: 'พนักงานทั้งหมด' }, ...workers.map((w) => ({ value: w.id, label: w.fullName }))]}
           />
@@ -334,7 +334,7 @@ export default function Workers() {
           <Dropdown
             value={statusFilter}
             onChange={setStatusFilter}
-            className="w-48"
+            className="min-w-0 flex-1 sm:w-48 sm:flex-none"
             dataTest="worker-status-filter"
             options={[
               { value: 'all', label: 'สถานะทั้งหมด' },
@@ -347,7 +347,7 @@ export default function Workers() {
           <Button
             variant="accent"
             data-test="worker-add-btn"
-            className="flex items-center gap-2"
+            className="flex w-full items-center justify-center gap-2 sm:w-auto"
             onClick={() =>
               setModal({
                 mode: 'add',
@@ -361,38 +361,38 @@ export default function Workers() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="w-full border-collapse text-center text-sm">
-          <thead className="bg-[#3F5C2B] text-white">
+      <div tabIndex={0} role="region" aria-label="รายชื่อคนงาน" className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+        <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
+          <thead className="sticky top-0 z-10 bg-[#3F5C2B] text-white">
             <tr>
-              <th className="px-4 py-3.5 pl-6 text-left font-medium">Name</th>
-              <th className="px-4 py-3.5 font-medium">Nickname</th>
-              <th className="px-4 py-3.5 font-medium">Username</th>
-              <th className="px-4 py-3.5 font-medium">Phone Number</th>
-              <th className="px-4 py-3.5 font-medium">Status</th>
-              <th className="px-4 py-3.5 font-medium">Start Date</th>
-              <th className="px-4 py-3.5 pr-6 font-medium">Manage</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 pl-4 sm:pl-6 text-left font-medium">Name</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Nickname</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Username</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Phone Number</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Status</th>
+              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">Start Date</th>
+              <th className="px-3 py-3 sm:px-4 sm:py-3.5 pr-4 sm:pr-6 font-medium">Manage</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((worker) => (
               <tr key={worker.id} data-test="worker-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
-                <td className="px-4 py-3 pl-6 text-left">
+                <td className="px-3 py-3 pl-4 sm:px-4 sm:pl-6 text-left">
                   <div className="flex items-center justify-start gap-3">
                     <Avatar src={worker.avatar} name={worker.fullName} />
                     <span data-test="worker-row-name" className="font-semibold text-gray-800">{worker.fullName}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 font-medium text-gray-800">{worker.nickname}</td>
-                <td className="px-4 py-3 text-gray-800">@{worker.username}</td>
-                <td className="px-4 py-3 text-gray-800">{worker.phone}</td>
-                <td className="px-4 py-3">
+                <td className="px-3 py-3 sm:px-4 font-medium text-gray-800">{worker.nickname}</td>
+                <td className="px-3 py-3 sm:px-4 text-gray-800">@{worker.username}</td>
+                <td className="px-3 py-3 sm:px-4 text-gray-800">{worker.phone}</td>
+                <td className="px-3 py-3 sm:px-4">
                   <span data-test="worker-row-status" className={`inline-block w-20 rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[worker.status]}`}>
                     {STATUS_LABEL[worker.status]}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-gray-800">{formatDateLong(worker.joinedDate)}</td>
-                <td className="px-4 py-3 pr-6 text-center" data-test="worker-row-manage">
+                <td className="px-3 py-3 sm:px-4 text-gray-800">{formatDateLong(worker.joinedDate)}</td>
+                <td className="px-3 py-3 pr-4 sm:px-4 sm:pr-6 text-center" data-test="worker-row-manage">
                   {worker.status !== 'inactive' ? (
                     <div className="flex items-center justify-center gap-4">
                       <button
@@ -430,13 +430,13 @@ export default function Workers() {
       </div>
 
       {modal?.mode === 'add' && (
-        <ModalShell onClose={closeModal} className="w-112.5">
+        <ModalShell onClose={closeModal} className="w-full sm:w-112.5">
           <AddWorkerForm defaultValues={modal.defaultValues} onSubmit={handleAddSubmit} onCancel={closeModal} />
         </ModalShell>
       )}
 
       {modal?.mode === 'edit' && (
-        <ModalShell onClose={closeModal} className="w-112.5">
+        <ModalShell onClose={closeModal} className="w-full sm:w-112.5">
           <EditWorkerForm
             worker={modal.worker}
             onSubmit={handleEditSubmit}
@@ -449,7 +449,7 @@ export default function Workers() {
       )}
 
       {modal?.mode === 'delete' && (
-        <ModalShell onClose={closeModal} className="flex w-100 flex-col items-center text-center">
+        <ModalShell onClose={closeModal} className="flex w-full flex-col items-center text-center sm:w-100">
           <button type="button" onClick={closeModal} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
             <X className="h-5 w-5" />
           </button>

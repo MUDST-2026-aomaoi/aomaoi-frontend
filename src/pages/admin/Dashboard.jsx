@@ -55,7 +55,7 @@ const PERIOD_OPTIONS = [
 ];
 
 function PeriodSelect({ value, onChange }) {
-  return <Dropdown value={value} onChange={onChange} options={PERIOD_OPTIONS} className="w-full sm:w-32" />;
+  return <Dropdown value={value} onChange={onChange} options={PERIOD_OPTIONS} className="min-w-0 flex-1 sm:w-32 sm:flex-none" />;
 }
 
 export default function Dashboard() {
@@ -146,15 +146,15 @@ export default function Dashboard() {
     <div>
       <PageHeader title="Dashboard" />
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 2xl:grid-cols-8">
-        <div className="col-span-2 flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 min-[1700px]:grid-cols-8">
+        <div className="col-span-2 flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
           <p className="mb-1 font-medium text-gray-600">ยอดชำระรวม</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-[#205e2e] sm:text-4xl">{formatNumber(totalAllTime)}</h3>
             <span className="font-medium text-gray-400">บาท</span>
           </div>
         </div>
-        <div className="col-span-2 flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+        <div className="col-span-2 flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
           <p className="mb-1 font-medium text-gray-600">ยอดชำระเดือนนี้</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold text-gray-700 sm:text-4xl">{formatNumber(totalThisMonth)}</h3>
@@ -162,45 +162,45 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="mb-1 text-sm font-medium text-gray-600">คนงานทั้งหมด</p>
+          <p className="mb-1 text-xs font-medium text-gray-600 sm:text-sm">คนงานทั้งหมด</p>
           <div className="flex items-baseline gap-1">
-            <h3 className="text-3xl font-bold text-gray-700">{activeWorkers.length}</h3>
+            <h3 className="text-2xl font-bold sm:text-3xl text-gray-700">{activeWorkers.length}</h3>
             <span className="text-xs font-medium text-gray-400">คน</span>
           </div>
         </div>
         <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="mb-1 text-sm font-medium text-gray-600">คนงานวันนี้</p>
+          <p className="mb-1 text-xs font-medium text-gray-600 sm:text-sm">คนงานวันนี้</p>
           <div className="flex items-baseline gap-1">
-            <h3 className="text-3xl font-bold text-[#568A3B]">{workersToday}</h3>
+            <h3 className="text-2xl font-bold sm:text-3xl text-[#568A3B]">{workersToday}</h3>
             <span className="text-xs font-medium text-gray-400">คน</span>
           </div>
         </div>
         <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="mb-1 text-sm font-medium text-gray-600">งานทั้งหมด</p>
+          <p className="mb-1 text-xs font-medium text-gray-600 sm:text-sm">งานทั้งหมด</p>
           <div className="flex items-baseline gap-1">
-            <h3 className="text-3xl font-bold text-gray-700">{entries.length}</h3>
+            <h3 className="text-2xl font-bold sm:text-3xl text-gray-700">{entries.length}</h3>
             <span className="text-xs font-medium text-gray-400">รายการ</span>
           </div>
         </div>
         <div className="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="mb-1 text-sm font-medium text-gray-600">งานวันนี้</p>
+          <p className="mb-1 text-xs font-medium text-gray-600 sm:text-sm">งานวันนี้</p>
           <div className="flex items-baseline gap-1">
-            <h3 className="text-3xl font-bold text-[#568A3B]">{entriesToday.length}</h3>
+            <h3 className="text-2xl font-bold sm:text-3xl text-[#568A3B]">{entriesToday.length}</h3>
             <span className="text-xs font-medium text-gray-400">รายการ</span>
           </div>
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:gap-6 2xl:grid-cols-12">
-        <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-7">
-          <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <h3 className="whitespace-nowrap text-lg font-bold text-gray-900">Payroll Overview</h3>
-            <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:gap-6 min-[1700px]:grid-cols-12">
+        <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 min-[1700px]:col-span-7">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
+            <h3 className="text-lg font-bold text-gray-900">Payroll Overview</h3>
+            <div className="flex w-full min-w-0 gap-2 sm:w-auto">
               <PeriodSelect value={trendPeriod} onChange={setTrendPeriod} />
               <Dropdown
                 value={trendTypeFilter}
                 onChange={setTrendTypeFilter}
-                className="w-full sm:w-44"
+                className="min-w-0 flex-1 sm:w-44 sm:flex-none"
                 options={[
                   { value: 'all', label: 'ประเภทงานทั้งหมด' },
                   ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
@@ -237,9 +237,9 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-5">
-          <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <h3 className="text-lg font-bold text-gray-900">Payroll Breakdown by Task</h3>
+        <div className="flex min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 min-[1700px]:col-span-5">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Breakdown by Task</h3>
             <PeriodSelect value={breakdownPeriod} onChange={setBreakdownPeriod} />
           </div>
 
@@ -272,13 +272,21 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="flex w-full flex-col gap-4 sm:w-auto">
+            <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:min-w-56">
               {breakdown.map((entry) => (
-                <div key={entry.key} className="flex items-start gap-2">
-                  <div className="mt-1 h-4 w-4 shrink-0 rounded-full" style={{ backgroundColor: entry.color }} />
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">{entry.name}</p>
-                    <p className="text-sm text-gray-500">{formatNumber(entry.value)} บาท</p>
+                <div
+                  key={entry.key}
+                  className="flex min-w-0 items-stretch overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm"
+                >
+                  <div className="w-1.5 shrink-0" style={{ backgroundColor: entry.color }} />
+                  <div className="flex min-w-0 flex-1 items-center justify-between gap-2 px-2.5 py-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-gray-800">{entry.name}</p>
+                      <p className="truncate text-xs text-gray-500">{formatNumber(entry.value)} บาท</p>
+                    </div>
+                    <span className="shrink-0 text-sm font-bold text-gray-800">
+                      {breakdownTotal > 0 ? Math.round((entry.value / breakdownTotal) * 100) : 0}%
+                    </span>
                   </div>
                 </div>
               ))}
@@ -295,16 +303,16 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        <div className="overflow-x-auto">
-        <table className="w-full min-w-160 text-center text-sm">
+        <div tabIndex={0} role="region" aria-label="Work Activity Log" className="overflow-x-auto">
+        <table className="w-full min-w-160 text-center text-xs sm:text-sm">
           <thead className="bg-[#3F5C2B] text-white">
             <tr>
-              <th className="px-4 py-3.5 pl-6 text-left text-xs font-semibold uppercase tracking-wide">Name</th>
-              <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wide">Date</th>
-              <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wide">Work Type</th>
-              <th className="px-4 py-3.5 text-right text-xs font-semibold uppercase tracking-wide">Qty</th>
-              <th className="px-4 py-3.5 text-xs font-semibold uppercase tracking-wide">Unit</th>
-              <th className="px-4 py-3.5 pr-6 text-right text-xs font-semibold uppercase tracking-wide">Wages</th>
+              <th className="px-3 py-3 pl-4 text-left text-xs sm:px-4 sm:py-3.5 sm:pl-6 font-semibold uppercase tracking-wide">Name</th>
+              <th className="px-3 py-3 text-xs sm:px-4 sm:py-3.5 font-semibold uppercase tracking-wide">Date</th>
+              <th className="px-3 py-3 text-xs sm:px-4 sm:py-3.5 font-semibold uppercase tracking-wide">Work Type</th>
+              <th className="px-3 py-3 text-right text-xs sm:px-4 sm:py-3.5 font-semibold uppercase tracking-wide">Qty</th>
+              <th className="px-3 py-3 text-xs sm:px-4 sm:py-3.5 font-semibold uppercase tracking-wide">Unit</th>
+              <th className="px-3 py-3 pr-4 text-right text-xs sm:px-4 sm:py-3.5 sm:pr-6 font-semibold uppercase tracking-wide">Wages</th>
             </tr>
           </thead>
           <tbody>
@@ -317,14 +325,14 @@ export default function Dashboard() {
                     index === recentActivity.length - 1 ? 'border-b-0' : ''
                   } ${index % 2 === 1 ? 'bg-gray-50/60' : ''}`}
                 >
-                  <td className="px-4 py-4 pl-6 text-left font-medium text-gray-800">{getWorkerName(entry.workerId)}</td>
-                  <td className="px-4 py-4 text-gray-700">{formatDate(entry.date)}</td>
-                  <td className="px-4 py-4">
+                  <td className="px-3 py-3 pl-4 text-left font-medium sm:px-4 sm:py-4 sm:pl-6 text-gray-800">{getWorkerName(entry.workerId)}</td>
+                  <td className="px-3 py-3 text-gray-700 sm:px-4 sm:py-4">{formatDate(entry.date)}</td>
+                  <td className="px-3 py-3 sm:px-4 sm:py-4">
                     <span className={`rounded-full px-4 py-1.5 text-xs font-bold ${config.badgeClass}`}>{config.labelTh}</span>
                   </td>
-                  <td className="px-4 py-4 text-right text-gray-700">{formatNumber(config.primaryQty(entry))}</td>
-                  <td className="px-4 py-4 text-gray-700">{config.primaryUnit}</td>
-                  <td className="px-4 py-4 pr-6 text-right font-medium text-gray-800">{formatNumber(entry.total)} บาท</td>
+                  <td className="px-3 py-3 text-right sm:px-4 sm:py-4 text-gray-700">{formatNumber(config.primaryQty(entry))}</td>
+                  <td className="px-3 py-3 text-gray-700 sm:px-4 sm:py-4">{config.primaryUnit}</td>
+                  <td className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-4 sm:pr-6 font-medium text-gray-800">{formatNumber(entry.total)} บาท</td>
                 </tr>
               );
             })}
