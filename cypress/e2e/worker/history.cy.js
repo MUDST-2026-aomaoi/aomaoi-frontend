@@ -28,11 +28,27 @@ function seedWorkerWithLogs() {
   });
 }
 
-function getSpecificDateString(day) {
+// Work logs can't be dated in the future, so use the previous month (always in the past).
+function previousMonthStart() {
   const d = new Date();
-  const year = d.getFullYear();
+  return new Date(d.getFullYear(), d.getMonth() - 1, 1);
+}
+
+function getSpecificDateString(day) {
+  const d = previousMonthStart();
   const month = String(d.getMonth() + 1).padStart(2, '0');
-  return `${year}-${month}-${String(day).padStart(2, '0')}`;
+  return `${d.getFullYear()}-${month}-${String(day).padStart(2, '0')}`;
+}
+
+// Opens the datepicker on the previous month (if it isn't already there) and picks a day.
+function pickDayOfPreviousMonth(day) {
+  const label = previousMonthStart().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  cy.get('.react-datepicker__current-month').invoke('text').then((text) => {
+    if (!text.includes(label)) {
+      cy.get('.react-datepicker__navigation--previous').click();
+    }
+  });
+  cy.get('.react-datepicker__day:not(.react-datepicker__day--outside-month)').contains(new RegExp(`^${day}$`)).click();
 }
 
 function seedWorkerWithDateLogs() {
@@ -45,7 +61,7 @@ function seedWorkerWithDateLogs() {
       { fullName, nickname: uniqueFullName('วันที่'), username, phone: '0999999999', tempPassword: 'Password123' },
       adminToken
     ).then((worker) => {
-      // สร้างข้อมูลจำลองแบบระบุวันที่ชัดเจน (วันที่ 10 และ วันที่ 20 ของเดือนปัจจุบัน)
+      // สร้างข้อมูลจำลองแบบระบุวันที่ชัดเจน (วันที่ 10 และ วันที่ 20 ของเดือนที่แล้ว)
       const date10 = getSpecificDateString(10);
       const date20 = getSpecificDateString(20);
       
@@ -116,7 +132,7 @@ describe('Worker - History', () => {
 
       // 1. กรอง Start Date ให้เริ่มต้นที่ "วันที่ 15"
       cy.get('.react-datepicker-wrapper input').first().click();
-      cy.get('.react-datepicker__day:not(.react-datepicker__day--outside-month)').contains(/^15$/).click();
+      pickDayOfPreviousMonth(15);
 
       // ปลูกอ้อย (วันที่ 10) ต้องหายไป เพราะเก่ากว่าวันที่ 15
       // พ่นยา (วันที่ 20) ต้องยังอยู่ เพราะใหม่กว่าวันที่ 15
@@ -125,12 +141,12 @@ describe('Worker - History', () => {
 
       // 2. เคลียร์เงื่อนไข โดยปรับ Start Date ให้กลับไปเป็น "วันที่ 1" (งานที่โดนซ่อนจะกลับมา)
       cy.get('.react-datepicker-wrapper input').first().click();
-      cy.get('.react-datepicker__day:not(.react-datepicker__day--outside-month)').contains(/^1$/).click();
+      pickDayOfPreviousMonth(1);
       cy.contains('ปลูกอ้อย').should('be.visible');
 
       // 3. กรอง End Date ให้สิ้นสุดแค่ "วันที่ 15"
       cy.get('.react-datepicker-wrapper input').last().click();
-      cy.get('.react-datepicker__day:not(.react-datepicker__day--outside-month)').contains(/^15$/).click();
+      pickDayOfPreviousMonth(15);
 
       // ปลูกอ้อย (วันที่ 10) ต้องยังอยู่ เพราะไม่เกินวันที่ 15
       // พ่นยา (วันที่ 20) ต้องหายไป เพราะเกินวันที่ 15

@@ -4,6 +4,12 @@ function pickCalendarDay(day) {
   cy.contains('.react-datepicker__day:not(.react-datepicker__day--outside-month)', String(day)).click();
 }
 
+// Work dates can't be in the future, so pick days from the previous month (always in the past).
+function pickPastDay(day) {
+  cy.get('.react-datepicker__navigation--previous').click();
+  pickCalendarDay(day);
+}
+
 function seedFarmAdminWorker() {
   return cy.seedActiveAdminWithFarm().then(({ username, adminToken, farm, id }) =>
     cy
@@ -78,9 +84,9 @@ describe('Admin - work log', () => {
 
       cy.getByTestID('worklog-form-date').should('not.exist');
       cy.getByTestID('worklog-form-startDate').click();
-      pickCalendarDay(10);
+      pickPastDay(10);
       cy.getByTestID('worklog-form-endDate').click();
-      pickCalendarDay(14);
+      pickPastDay(14);
       cy.getByTestID('worklog-form-dailyRate').clear().type('350');
 
       cy.getByTestID('worklog-preview-summary').should('contain', '5').and('contain', '350');
@@ -132,9 +138,9 @@ describe('Admin - work log', () => {
       pickWorker(worker);
       pickType('รดน้ำ');
       cy.getByTestID('worklog-form-startDate').click();
-      pickCalendarDay(14);
+      pickPastDay(14);
       cy.getByTestID('worklog-form-endDate').click();
-      pickCalendarDay(10);
+      pickPastDay(10);
       cy.getByTestID('worklog-form-dailyRate').clear().type('350');
       cy.getByTestID('worklog-form-submit').click();
       cy.contains('วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่ม');
@@ -150,6 +156,43 @@ describe('Admin - work log', () => {
       cy.getByTestID('worklog-form-rows').clear().type('0');
       cy.getByTestID('worklog-form-submit').click();
       cy.contains('ต้องมากกว่า 0');
+    });
+  });
+
+  it('AD-WORKLOG-010 blocks future dates but allows back-dated entries', () => {
+    seedFarmAdminWorker().then(({ username, worker }) => {
+      cy.loginSession(username, 'NewPass123');
+      cy.visit('/work');
+      openNewEntry();
+      pickWorker(worker);
+
+      cy.getByTestID('worklog-form-date').click();
+      cy.get('.react-datepicker__day--today').should('not.have.class', 'react-datepicker__day--disabled');
+      cy.get('.react-datepicker__day--disabled').should('exist');
+
+      // back-dating: pick a day from the previous month
+      pickPastDay(10);
+      cy.getByTestID('worklog-form-rows').clear().type('2');
+      cy.getByTestID('worklog-form-submit').click();
+      cy.contains('บันทึกงานสำเร็จ');
+    });
+  });
+
+  it('AD-WORKLOG-011 API: the server rejects future dates and accepts past dates', () => {
+    seedFarmAdminWorker().then(({ adminToken, worker }) => {
+      const post = (body) =>
+        cy.request({
+          method: 'POST',
+          url: `${Cypress.apiUrl}/work-logs`,
+          headers: { Authorization: `Bearer ${adminToken}` },
+          body,
+          failOnStatusCode: false,
+        });
+      const base = { type: 'cutting', workerId: String(worker.id), rows: 1, waPerRow: 100 };
+
+      post({ ...base, date: '2099-01-01' }).its('status').should('eq', 400);
+      post({ type: 'watering', workerId: String(worker.id), startDate: '2026-09-01', endDate: '2099-01-01', dailyRate: 350 }).its('status').should('eq', 400);
+      post({ ...base, date: '2026-09-01' }).its('status').should('be.oneOf', [200, 201]);
     });
   });
 

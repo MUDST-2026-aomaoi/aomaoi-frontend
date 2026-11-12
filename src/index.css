@@ -51,3 +51,9 @@ body {
   font-family: 'TASA Orbiter', 'Noto Sans Thai', sans-serif !important;
   @apply bg-farm-bg text-farm-text antialiased;
 }
+
+/* Datepicker popup is portaled to <body>; keep it above modals (z-50). */
+/* doubled selector: must beat the library's own `.react-datepicker-popper { z-index: 1 }` regardless of CSS order */
+.react-datepicker-popper.react-datepicker-popper {
+  z-index: 70;
+}
