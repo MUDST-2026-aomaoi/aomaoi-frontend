@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { useSalaryAdvanceStore } from '../../store/useSalaryAdvanceStore';
-import { formatDate, formatBaht } from '../../lib/format';
+import { formatDate, formatAmount } from '../../lib/format';
 
 const CustomDateInput = forwardRef(({ value, onClick, placeholder, dataTest }, ref) => (
   <div className="relative w-full cursor-pointer" onClick={onClick} ref={ref}>
@@ -102,14 +102,14 @@ export default function WorkerSalaryAdvance() {
   return (
     <div className="flex flex-col w-full pb-20">
       {/* Subtitle ใต้ Header */}
-      <p className="text-gray-400 font-medium text-[18px] mb-8 mt-[-20px]">
+      <p className="text-gray-400 font-medium text-sm sm:text-[18px] mb-5 sm:mb-8 mt-[-12px] sm:mt-[-20px]">
         Here is the salary advance of overall data
       </p>
 
       {/* แถบค้นหาและฟิลเตอร์ */}
-      <div className="flex flex-wrap items-center gap-4 mb-6">
+      <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6">
         {/* Search */}
-        <div className="relative flex-1 min-w-[280px] max-w-[360px]">
+        <div className="relative w-full sm:flex-1 sm:min-w-[240px] sm:max-w-[360px]">
           <input
             type="text"
             placeholder="search your activity"
@@ -122,7 +122,7 @@ export default function WorkerSalaryAdvance() {
         </div>
 
         {/* Dropdown ประเภทการเบิก */}
-        <div className="relative w-[210px]" ref={dropdownRef}>
+        <div className="relative w-full sm:w-[210px]" ref={dropdownRef}>
           <div
             data-test="worker-advance-type-filter"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -156,8 +156,8 @@ export default function WorkerSalaryAdvance() {
         </div>
 
         {/* Date Range */}
-        <div className="flex items-center gap-3">
-          <div className="w-[180px]">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className="flex-1 sm:flex-none sm:w-[180px] min-w-0 [&_.react-datepicker-wrapper]:w-full">
             <DatePicker
               selected={startDate}
               onChange={(date) => setStartDate(date)}
@@ -166,9 +166,9 @@ export default function WorkerSalaryAdvance() {
             />
           </div>
 
-          <span className="text-farm-text font-bold text-[14px] px-1">ถึง</span>
+          <span className="text-farm-text font-bold text-[14px] px-0.5 sm:px-1 shrink-0">ถึง</span>
 
-          <div className="w-[180px]">
+          <div className="flex-1 sm:flex-none sm:w-[180px] min-w-0 [&_.react-datepicker-wrapper]:w-full">
             <DatePicker
               selected={endDate}
               onChange={(date) => setEndDate(date)}
@@ -181,42 +181,42 @@ export default function WorkerSalaryAdvance() {
 
       {/* ตาราง */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
-        <div className="overflow-x-auto w-full">
-          <table data-test="worker-advance-table" className="w-full table-fixed text-center border-collapse min-w-[800px]">
+        <div tabIndex={0} role="region" aria-label="ประวัติการเบิกเงินและสิ่งของ" className="overflow-x-auto w-full">
+          <table data-test="worker-advance-table" className="w-full table-fixed text-center border-collapse min-w-[560px] md:min-w-[800px]">
             <colgroup>
               <col className="w-1/4" />
               <col className="w-1/4" />
               <col className="w-1/4" />
               <col className="w-1/4" />
             </colgroup>
-            <thead className="bg-[#E8E8E8] border-b border-gray-200">
+            <thead className="bg-[#E8E8E8] border-b border-gray-200 sticky top-0 z-10">
               <tr>
-                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">วันที่</th>
-                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">ชื่อสินค้า</th>
-                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">ประเภทการเบิก</th>
-                <th className="py-4 px-6 text-center text-[#3E2E1F] font-bold text-[15px]">จำนวนเงิน</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">วันที่</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">ชื่อสินค้า</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">ประเภทการเบิก</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">จำนวนเงิน</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredData.length > 0 ? (
                 filteredData.map((item) => (
                   <tr key={item.id} data-test="worker-advance-row" className="hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-6 text-center font-medium text-farm-text text-[14px] whitespace-nowrap">
+                    <td className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[13px] sm:text-[14px] whitespace-nowrap">
                       {item.displayDate}
                     </td>
-                    <td className="py-4 px-6 text-center font-medium text-farm-text text-[14px]">
+                    <td className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[13px] sm:text-[14px]">
                       {item.itemName || '-'}
                     </td>
-                    <td className="py-4 px-6 text-center">
+                    <td className="py-3 px-3 sm:py-4 sm:px-6 text-center">
                       <span
                         data-test="worker-advance-row-type"
-                        className={`inline-block min-w-[88px] px-4 py-1 rounded-full text-[13px] font-medium ${item.badgeClass}`}
+                        className={`inline-block min-w-[80px] sm:min-w-[88px] px-3 sm:px-4 py-1 rounded-full text-[12px] sm:text-[13px] font-medium ${item.badgeClass}`}
                       >
                         {item.typeLabel}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-center font-medium text-farm-text text-[15px] whitespace-nowrap">
-                      {formatBaht(item.amount)} <span className="ml-1">บาท</span>
+                    <td className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[14px] sm:text-[15px] whitespace-nowrap">
+                      {formatAmount(item.amount)} <span className="ml-1">บาท</span>
                     </td>
                   </tr>
                 ))
