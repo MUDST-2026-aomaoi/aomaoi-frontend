@@ -71,7 +71,7 @@ export default function AuditLogs() {
         searchPlaceholder="ค้นหาผู้ทำรายการ, การกระทำ, รายละเอียด"
         searchTestId="audit-search"
         action={
-          <Button variant="subtle" data-test="audit-refresh" onClick={handleRefresh} className="flex w-full items-center justify-center gap-2 sm:w-auto">
+          <Button variant="subtle" data-test="audit-refresh" onClick={handleRefresh} className="flex shrink-0 items-center justify-center gap-2">
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </Button>

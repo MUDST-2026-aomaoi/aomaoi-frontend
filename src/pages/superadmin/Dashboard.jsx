@@ -193,8 +193,8 @@ export default function SuperAdminDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">
-        <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 lg:col-span-7">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
+        <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
             <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Overview</h3>
             <div className="flex w-full min-w-0 gap-2 sm:w-auto">
@@ -248,13 +248,13 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6 lg:col-span-5">
-          <div className="mb-2 flex items-center justify-between">
+        <div className="flex min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">Payroll Breakdown by Farms</h3>
             <PeriodSelect value={breakdownPeriod} onChange={setBreakdownPeriod} />
           </div>
 
-          <div className="flex flex-1 flex-col items-center justify-center gap-6 sm:flex-row sm:gap-10">
+          <div className="flex flex-1 flex-col items-center justify-center gap-6 min-[1400px]:flex-row min-[1400px]:gap-8">
             <div className="relative h-50 w-50 shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -281,7 +281,7 @@ export default function SuperAdminDashboard() {
                 <p className="text-xs text-gray-600">บาท</p>
               </div>
             </div>
-            <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:min-w-56">
+            <div className="grid w-full grid-cols-2 gap-2 min-[1400px]:w-auto min-[1400px]:min-w-56">
               {breakdown.map((entry) => (
                 <div key={entry.key} className="flex min-w-0 items-stretch overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
                   <div className="w-1.5 shrink-0" style={{ backgroundColor: entry.color }} />
