@@ -108,51 +108,54 @@ export default function WorkerSalaryAdvance() {
 
       {/* แถบค้นหาและฟิลเตอร์ */}
       <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6">
-        {/* Search */}
-        <div className="relative w-full sm:flex-1 sm:min-w-[240px] sm:max-w-[360px]">
-          <input
-            type="text"
-            placeholder="search your activity"
-            data-test="worker-advance-search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-5 pr-12 py-2.5 bg-white border border-gray-200 rounded-lg text-farm-text outline-none text-sm placeholder:text-gray-400 shadow-sm focus:border-[#708238]"
-          />
-          <Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
-        </div>
-
-        {/* Dropdown ประเภทการเบิก */}
-        <div className="relative w-full sm:w-[210px]" ref={dropdownRef}>
-          <div
-            data-test="worker-advance-type-filter"
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg outline-none text-sm shadow-sm cursor-pointer flex items-center justify-between transition-colors focus:border-[#708238]"
-          >
-            <span className={filterType === '' ? 'text-gray-400' : 'text-gray-600'}>
-              {selectedOptionLabel}
-            </span>
+        {/* Search & Dropdown Group: บนมือถืออยู่แถวเดียวกันคนละครึ่ง 50/50, บน Desktop วางเรียงต่อกัน */}
+        <div className="flex items-center gap-2.5 sm:gap-4 w-full sm:w-auto sm:flex-1 sm:max-w-[590px]">
+          {/* Search */}
+          <div className="relative flex-1 min-w-0 sm:min-w-[220px] sm:max-w-[360px]">
+            <input
+              type="text"
+              placeholder="search your activity"
+              data-test="worker-advance-search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-3.5 sm:pl-5 pr-10 sm:pr-12 py-2.5 bg-white border border-gray-200 rounded-lg text-farm-text outline-none text-xs sm:text-sm placeholder:text-gray-400 shadow-sm focus:border-[#708238]"
+            />
+            <Search size={18} className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
-          <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
 
-          {isDropdownOpen && (
-            <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-              {ADVANCE_OPTIONS.map((opt) => (
-                <div
-                  key={opt.value}
-                  data-test={`worker-advance-type-option-${opt.value || 'all'}`}
-                  onClick={() => {
-                    setFilterType(opt.value);
-                    setIsDropdownOpen(false);
-                  }}
-                  className={`px-4 py-2.5 text-sm cursor-pointer transition-colors hover:bg-gray-50 ${
-                    filterType === opt.value ? 'bg-gray-50 text-farm-text font-bold' : 'text-gray-600'
-                  }`}
-                >
-                  {opt.label}
-                </div>
-              ))}
+          {/* Dropdown ประเภทการเบิก */}
+          <div className="relative flex-1 sm:flex-none w-auto sm:w-[210px] min-w-0" ref={dropdownRef}>
+            <div
+              data-test="worker-advance-type-filter"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2.5 bg-white border border-gray-200 rounded-lg outline-none text-xs sm:text-sm shadow-sm cursor-pointer flex items-center justify-between transition-colors focus:border-[#708238]"
+            >
+              <span className={`truncate ${filterType === '' ? 'text-gray-400' : 'text-gray-600'}`}>
+                {selectedOptionLabel}
+              </span>
             </div>
-          )}
+            <ChevronDown size={18} className="absolute right-2.5 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+
+            {isDropdownOpen && (
+              <div className="absolute top-full left-0 mt-1 w-full min-w-[160px] bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                {ADVANCE_OPTIONS.map((opt) => (
+                  <div
+                    key={opt.value}
+                    data-test={`worker-advance-type-option-${opt.value || 'all'}`}
+                    onClick={() => {
+                      setFilterType(opt.value);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`px-4 py-2.5 text-xs sm:text-sm cursor-pointer transition-colors hover:bg-gray-50 ${
+                      filterType === opt.value ? 'bg-gray-50 text-farm-text font-bold' : 'text-gray-600'
+                    }`}
+                  >
+                    {opt.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Date Range */}
