@@ -76,13 +76,13 @@ Cypress.Commands.add('seedFarm', (name, location, token) => {
     .then((res) => res.body);
 });
 
-Cypress.Commands.add('seedAdmin', (farm, { fullName, username, phone, tempPassword }, token) => {
+Cypress.Commands.add('seedAdmin', (farm, { fullName, username, phone, email, tempPassword }, token) => {
   return cy
     .request({
       method: 'POST',
       url: apiUrl('/admins'),
       headers: { Authorization: `Bearer ${token}` },
-      body: { fullName, username, phone, tempPassword, farmId: farm.id },
+      body: { fullName, username, phone, email, tempPassword, farmId: farm.id },
     })
     .then((res) => res.body);
 });

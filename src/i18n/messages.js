@@ -343,4 +343,10 @@ export const MESSAGES = {
   'common.unknownFarm': { th: 'ไม่ทราบฟาร์ม', en: 'Unknown farm' },
   'common.unspecified': { th: 'ไม่ระบุ', en: 'Unspecified' },
   'err.loadFailed': { th: 'โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง', en: 'Failed to load data. Please try again.' },
+
+  // ---- admin e-mail (daily summary) ----
+  'form.email': { th: 'อีเมล', en: 'Email' },
+  'form.emailDaily': { th: 'อีเมล (รับสรุปงานประจำวัน 18:00 น.)', en: 'Email (daily summary at 18:00)' },
+  'form.err.email': { th: 'รูปแบบอีเมลไม่ถูกต้อง', en: 'Invalid email address' },
+  'col.email': { th: 'อีเมล', en: 'Email' },
 };

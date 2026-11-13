@@ -19,6 +19,7 @@ describe('Superadmin - admin management', () => {
       cy.getByTestID('admin-form-fullname').clear().type(uniqueFullName('สมหญิง'));
       cy.getByTestID('admin-form-username').clear().type(`e2e_adm_${id}`);
       cy.getByTestID('admin-form-phone').clear().type('0812345678');
+      cy.getByTestID('admin-form-email').type(`Owner_${id}@Example.com`);
       cy.getByTestID('admin-form-farm').click();
       cy.getByTestID(`admin-form-farm-opt-${farm.id}`).click();
       cy.getByTestID('admin-form-submit').click();
@@ -27,6 +28,8 @@ describe('Superadmin - admin management', () => {
       cy.getByTestID('success-modal-close').click();
       cy.getByTestID('admin-search').type(id);
       cy.getByTestID('admin-row').should('have.length', 1).and('contain', `e2e_adm_${id}`);
+      // stored trimmed and lower-cased, shown in the table
+      cy.getByTestID('admin-row-email').should('contain', `owner_${id}@example.com`);
     });
   });
 
@@ -43,6 +46,49 @@ describe('Superadmin - admin management', () => {
     cy.contains('เบอร์โทรต้องเป็นตัวเลข 10 หลัก');
     cy.contains('กรุณาเลือกฟาร์ม');
     cy.contains('ต้องมีอย่างน้อย 6 ตัวอักษร');
+  });
+
+  it('SA-ADMIN-008 rejects an invalid email but the email stays optional', () => {
+    seedFarmForTest().then(({ farm, id }) => {
+      cy.visit('/admins');
+      cy.getByTestID('admin-add-btn').click();
+      cy.getByTestID('admin-form-fullname').clear().type(uniqueFullName('สมหญิง'));
+      cy.getByTestID('admin-form-username').clear().type(`e2e_adm_${id}`);
+      cy.getByTestID('admin-form-phone').clear().type('0812345678');
+      cy.getByTestID('admin-form-farm').click();
+      cy.getByTestID(`admin-form-farm-opt-${farm.id}`).click();
+      cy.getByTestID('admin-form-email').type('not-an-email');
+      cy.getByTestID('admin-form-submit').click();
+      cy.contains('รูปแบบอีเมลไม่ถูกต้อง');
+
+      cy.getByTestID('admin-form-email').clear();
+      cy.getByTestID('admin-form-submit').click();
+      cy.getByTestID('success-modal-message').should('contain', 'เพิ่ม Admin สำเร็จ');
+    });
+  });
+
+  it('SA-ADMIN-009 API: email is validated, normalised and returned', () => {
+    seedFarmForTest().then(({ farm, id }) => {
+      cy.seedSuperadminToken().then((token) => {
+        const create = (email, suffix) =>
+          cy.request({
+            method: 'POST',
+            url: `${Cypress.apiUrl}/admins`,
+            headers: { Authorization: `Bearer ${token}` },
+            body: { fullName: uniqueFullName('สมหญิง'), username: `e2e_adm_${id}${suffix}`, phone: '0812345678', email, tempPassword: 'Temp1234', farmId: farm.id },
+            failOnStatusCode: false,
+          });
+        create('bad email', 'a').its('status').should('eq', 400);
+        create('Boss@Example.COM', 'b').then((res) => {
+          expect(res.status).to.be.oneOf([200, 201]);
+          expect(res.body.email).to.eq('boss@example.com');
+        });
+        create('', 'c').then((res) => {
+          expect(res.status).to.be.oneOf([200, 201]);
+          expect(res.body.email).to.be.oneOf([null, undefined]);
+        });
+      });
+    });
   });
 
   it('SA-ADMIN-003 rejects a duplicate username', () => {

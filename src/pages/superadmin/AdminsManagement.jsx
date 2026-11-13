@@ -20,10 +20,14 @@ import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 import { useT } from '../../i18n';
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const makeAdminSchema = (t) => z.object({
   fullName: z.string().min(1, t('form.err.fullName')).regex(/^[^0-9]*$/, t('form.err.fullNameDigits')),
   username: z.string().min(3, t('form.err.min3')),
   phone: z.string().regex(/^[0-9]{10}$/, t('form.err.phone')),
+  // optional: Admins without an e-mail simply don't get the end-of-day summary
+  email: z.string().trim().max(255).refine((v) => v === '' || EMAIL_PATTERN.test(v), t('form.err.email')),
   farmId: z.string().min(1, t('adm.err.farm')),
 });
 
@@ -48,7 +52,7 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(makeAdminSchema(t)),
-    defaultValues: { ...admin, farmId: admin?.farmId == null ? '' : String(admin.farmId) },
+    defaultValues: { ...admin, email: admin?.email ?? '', farmId: admin?.farmId == null ? '' : String(admin.farmId) },
   });
 
   function handleAvatarChange(e) {
@@ -106,6 +110,9 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
             />
           )}
         />
+        <div className="col-span-2">
+          <Input data-test="admin-form-email" type="text" inputMode="email" autoComplete="off" label={t('form.emailDaily')} {...register('email')} error={errors.email?.message} />
+        </div>
       </div>
 
       <div className="flex w-full gap-4">
@@ -185,6 +192,9 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
             />
           )}
         />
+        <div className="col-span-2">
+          <Input data-test="admin-form-email" type="text" inputMode="email" autoComplete="off" label={t('form.emailDaily')} {...register('email')} error={errors.email?.message} />
+        </div>
       </div>
 
       <div className="mb-2">
@@ -242,7 +252,7 @@ export default function AdminsManagement() {
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return admins.filter((a) => {
-      const matchesSearch = !term || [a.fullName, a.username, a.phone].some((field) => field.toLowerCase().includes(term));
+      const matchesSearch = !term || [a.fullName, a.username, a.phone, a.email ?? ''].some((field) => field.toLowerCase().includes(term));
       const matchesFarm = farmFilter === 'all' || String(a.farmId) === farmFilter;
       const matchesStatus = statusFilter === 'all' || a.status === statusFilter;
       return matchesSearch && matchesFarm && matchesStatus;
@@ -303,7 +313,7 @@ export default function AdminsManagement() {
             onClick={() =>
               setModal({
                 mode: 'add',
-                defaultValues: { fullName: '', username: nextUsername(), phone: '', farmId: '', tempPassword: randomPassword() },
+                defaultValues: { fullName: '', username: nextUsername(), phone: '', email: '', farmId: '', tempPassword: randomPassword() },
               })
             }
           >
@@ -340,6 +350,7 @@ export default function AdminsManagement() {
               <th className="px-4 py-3.5 font-medium">{t('col.name')}</th>
               <th className="px-4 py-3.5 font-medium">{t('col.username')}</th>
               <th className="px-4 py-3.5 font-medium">{t('col.phone')}</th>
+              <th className="px-4 py-3.5 font-medium">{t('col.email')}</th>
               <th className="px-4 py-3.5 font-medium">{t('col.farm')}</th>
               <th className="px-4 py-3.5 font-medium">{t('col.status')}</th>
               <th className="px-4 py-3.5 font-medium">{t('col.startDate')}</th>
@@ -357,6 +368,7 @@ export default function AdminsManagement() {
                 </td>
                 <td className="px-4 py-3 sm:py-4 text-gray-800">{admin.username}</td>
                 <td className="px-4 py-3 sm:py-4 text-gray-800">{admin.phone}</td>
+                <td data-test="admin-row-email" className="px-4 py-3 sm:py-4 text-gray-800">{admin.email || '-'}</td>
                 <td className="px-4 py-3 sm:py-4">
                   <span className="inline-block rounded-full bg-farm-secondary/40 px-3 py-1 text-xs font-medium text-farm-text">
                     {getFarmName(admin.farmId)}
@@ -396,7 +408,7 @@ export default function AdminsManagement() {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-8 text-gray-400">
+                <td colSpan={8} className="py-8 text-gray-400">
                   {t('adm.empty')}
                 </td>
               </tr>
