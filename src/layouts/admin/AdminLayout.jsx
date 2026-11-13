@@ -25,7 +25,7 @@ export function AdminLayout({ children }) {
 
   return (
     <SidebarContext.Provider value={sidebarContext}>
-      <div className="relative flex h-dvh overflow-hidden bg-farm-bg">
+      <div className="admin-skin relative flex h-dvh overflow-hidden bg-[#F4F6F0]">
         {showPasswordModal && (
           <SetPasswordModal onSuccess={() => setShowPasswordModal(false)} />
         )}

@@ -5,6 +5,9 @@ import { parseEnv } from 'node:util';
 export default defineConfig({
   e2e: {
     baseUrl: 'http://localhost:3000',
+    // Tables paginate to fit the screen; a desktop-sized viewport keeps ~10 rows per page.
+    viewportWidth: 1440,
+    viewportHeight: 900,
     defaultCommandTimeout: 8000,
     env: { apiUrl: 'http://localhost:8081/api' },
     supportFile: 'cypress/support/e2e.js',

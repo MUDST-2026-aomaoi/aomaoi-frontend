@@ -6,6 +6,8 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { Dropdown } from '../../components/ui/Dropdown';
+import { Pagination } from '../../components/ui/Pagination';
+import { useFitRows, usePagedList } from '../../hooks/usePageSize';
 import { DateInput } from '../../components/ui/DateInput';
 import { Avatar } from '../../components/ui/Avatar';
 import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
@@ -54,9 +56,9 @@ function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, su
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">{t('wlog.addTitle')}</h3>
-        <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
+      <div className="mb-4 flex items-center justify-between border-b border-[#E6F0D6] pb-3">
+        <h3 className="text-xl font-extrabold tracking-tight text-farm-primary">{t('wlog.addTitle')}</h3>
+        <button type="button" onClick={onCancel} className="rounded-full p-1.5 text-[#8A8F85] transition hover:bg-[#E6F0D6]/70 hover:text-[#2E4A1F]">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -128,7 +130,7 @@ function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, su
           )}
         </div>
 
-        <div className="rounded-lg bg-farm-sidebar px-5 py-4 text-white">
+        <div className="rounded-2xl bg-[#2E4A1F] px-5 py-4 text-white">
           <p data-test="worklog-preview-summary" className="text-xs text-white/60">{previewValid ? config.summaryText(computedValues) : config.formulaLabel}</p>
           <div className="mt-1 flex items-center justify-between">
             <span className="text-sm font-medium text-white/90">{t('wlog.totalWage')}</span>
@@ -204,8 +206,12 @@ export default function WorkLog() {
     }
   }
 
+  const { ref: tableRef, pageSize } = useFitRows();
+  const pager = usePagedList(filtered, pageSize);
+  const pageItems = pager.pageItems;
+
   return (
-    <div>
+    <div className="flex min-h-full flex-col">
       <PageHeader title={t('wlog.pageTitle')} />
 
       <TableToolbar
@@ -239,9 +245,9 @@ export default function WorkLog() {
         />
       </TableToolbar>
 
-      <div tabIndex={0} role="region" aria-label={t('wlog.tableLabel')} className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="w-full min-w-[640px] border-collapse text-center text-xs sm:text-sm">
-          <thead className="sticky top-0 z-10 bg-[#3F5C2B] text-white">
+      <div ref={tableRef} tabIndex={0} role="region" aria-label={t('wlog.tableLabel')} className="overflow-x-auto rounded-[20px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+        <table className="rtable w-full min-w-[560px] border-collapse text-center text-xs sm:text-sm">
+          <thead className="sticky top-0 z-10 bg-[#2E4A1F] text-white">
             <tr>
               <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">{t('col.name')}</th>
               <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.date')}</th>
@@ -252,29 +258,29 @@ export default function WorkLog() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((entry) => {
+            {pageItems.map((entry) => {
               const config = WORK_LOG_TYPES[entry.type];
               return (
-                <tr key={entry.id} data-test="worklog-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
+                <tr key={entry.id} data-test="worklog-row" className="border-b border-[#F0F2EA] transition-colors last:border-0 hover:bg-[#E6F0D6]/50">
                   <td className="px-4 py-3 text-left font-medium sm:px-6 sm:py-4 text-gray-800">
                     <div className="flex items-center gap-3">
                       <Avatar src={allWorkers.find((w) => String(w.id) === String(entry.workerId))?.avatar} name={getWorkerName(entry.workerId)} />
                       <span>{getWorkerName(entry.workerId)}</span>
                     </div>
                   </td>
-                  <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">
+                  <td data-label={t('col.date')} className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">
                     {entry.startDate && entry.endDate && entry.startDate !== entry.endDate
                       ? `${formatDate(entry.startDate)} - ${formatDate(entry.endDate)}`
                       : formatDateLong(entry.startDate || entry.date)}
                   </td>
-                  <td className="px-3 py-3 sm:px-4 sm:py-4">
-                    <span data-test="worklog-row-type" className={`inline-block min-w-17.5 rounded-full px-4 py-1.5 text-xs font-bold ${config.badgeClass}`}>
+                  <td data-label={t('col.workType')} className="px-3 py-3 sm:px-4 sm:py-4">
+                    <span data-test="worklog-row-type" className={`inline-block min-w-17.5 rounded-full px-4 py-1.5 text-xs font-bold bg-[#E6F0D6] text-[#2E4A1F]`}>
                       {config.labelTh}
                     </span>
                   </td>
-                  <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800" data-test="worklog-row-qty">{config.primaryQty(entry)}</td>
-                  <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">{config.primaryUnit}</td>
-                  <td className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-4 sm:pr-6 font-medium text-gray-800" data-test="worklog-row-wages">{formatBaht(entry.total)}</td>
+                  <td data-label={t('col.qty')} className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800" data-test="worklog-row-qty">{config.primaryQty(entry)}</td>
+                  <td data-label={t('col.unit')} className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">{config.primaryUnit}</td>
+                  <td data-label={t('col.wages')} className="px-3 py-3 pr-4 text-right sm:px-4 sm:py-4 sm:pr-6 font-medium text-gray-800" data-test="worklog-row-wages">{formatBaht(entry.total)}</td>
                 </tr>
               );
             })}
@@ -288,6 +294,7 @@ export default function WorkLog() {
           </tbody>
         </table>
       </div>
+      <Pagination pager={pager} />
 
       {modalState === 'form' && (
         <ModalShell onClose={() => setModalState(null)} className="w-full sm:w-112.5">

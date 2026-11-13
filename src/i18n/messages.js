@@ -21,6 +21,8 @@ export const MESSAGES = {
   // ---- login ----
   'login.title': { th: 'เข้าสู่ระบบ', en: 'LOG IN' },
   'login.subtitle': { th: 'ระบบบริหารจัดการบัญชีไร่อ้อย', en: 'Sugarcane Farm Accounting Management' },
+  'login.welcome': { th: 'ยินดีต้อนรับกลับ', en: 'Welcome back' },
+  'login.tagline': { th: 'บันทึกค่าแรงไร่อ้อย ง่าย ครบ โปร่งใส', en: 'Sugarcane payroll, simple and transparent' },
   'login.username': { th: 'ชื่อผู้ใช้', en: 'username' },
   'login.password': { th: 'รหัสผ่าน', en: 'password' },
   'login.usernamePlaceholder': { th: 'กรอกชื่อผู้ใช้', en: 'enter your username' },
@@ -55,7 +57,7 @@ export const MESSAGES = {
   'wl.unit.tank': { th: 'ถัง', en: 'tanks' },
   'wl.field.workDate': { th: 'วันที่ทำงาน', en: 'Work date' },
   'wl.field.rows': { th: 'จำนวนแถว', en: 'Rows' },
-  'wl.field.waPerRow': { th: 'วา/แถว (มาตรฐาน)', en: 'Wa per row (standard)' },
+  'wl.field.waPerRow': { th: 'วา/แถว', en: 'Wa per row' },
   'wl.field.furrows': { th: 'จำนวนร่อง', en: 'Furrows' },
   'wl.field.waPerFurrow': { th: 'วา/ร่อง', en: 'Wa per furrow' },
   'wl.field.startDate': { th: 'วันที่เริ่ม', en: 'Start date' },
@@ -107,6 +109,10 @@ export const MESSAGES = {
   'worker.searchActivity': { th: 'ค้นหากิจกรรม', en: 'Search your activity' },
   'worker.searchDate': { th: 'เลือกวันที่', en: 'Select date' },
   'worker.to': { th: 'ถึง', en: 'to' },
+  'wh.statToday': { th: 'งานวันนี้', en: 'Today' },
+  'wh.statMonth': { th: 'งานเดือนนี้', en: 'This month' },
+  'wh.statAll': { th: 'งานทั้งหมด', en: 'All time' },
+  'wh.statUnit': { th: 'รายการ', en: 'jobs' },
   'wh.subtitle': { th: 'ประวัติการทำงานทั้งหมดของคุณ', en: 'Here is the history of overall data' },
   'wh.tableLabel': { th: 'ประวัติการทำงาน', en: 'Work history' },
   'wh.col.date': { th: 'วันที่', en: 'Date' },
@@ -249,7 +255,7 @@ export const MESSAGES = {
   'fb.pageTitle': { th: 'สรุปบัญชีคนงาน', en: 'Financial Balance' },
   'fb.totalEarnings': { th: 'รายได้รวม', en: 'Total earnings' },
   'fb.totalAdvances': { th: 'เบิกล่วงหน้ารวม', en: 'Total advances' },
-  'fb.totalDebt': { th: 'หนี้คงค้างรวม', en: 'Total outstanding debt' },
+  'fb.totalDebt': { th: 'หนี้คงค้างรวม', en: 'Total debt owed' },
   'fb.search': { th: 'ค้นหาชื่อหรือชื่อเล่น', en: 'Search name or nickname' },
   'fb.tableLabel': { th: 'ยอดคงเหลือคนงาน', en: 'Worker balances' },
   'fb.col.earnings': { th: 'รายได้', en: 'Earnings' },
@@ -267,6 +273,9 @@ export const MESSAGES = {
   'common.items': { th: 'รายการ', en: 'items' },
   'dash.payrollOverview': { th: 'ภาพรวมค่าแรง', en: 'Payroll Overview' },
   'dash.tooltipTotal': { th: 'ยอดรวม', en: 'Total' },
+  'pager.showing': { th: 'แสดง {from}–{to} จาก {total}', en: 'Showing {from}–{to} of {total}' },
+  'pager.prev': { th: 'หน้าก่อนหน้า', en: 'Previous page' },
+  'pager.next': { th: 'หน้าถัดไป', en: 'Next page' },
   'dash.breakdownByTask': { th: 'สัดส่วนค่าแรงตามประเภทงาน', en: 'Payroll Breakdown by Task' },
   'common.noItemsYet': { th: 'ยังไม่มีรายการ', en: 'No items yet' },
 
@@ -336,7 +345,12 @@ export const MESSAGES = {
   'audit.empty': { th: 'ไม่พบบันทึกที่ตรงกับเงื่อนไข', en: 'No logs found matching your criteria.' },
 
   // ---- pages/superadmin/Dashboard.jsx ----
-  'dash.breakdownByFarms': { th: 'สัดส่วนค่าแรงตามฟาร์ม', en: 'Payroll Breakdown by Farms' },
+  'dash.trend6m': { th: 'แนวโน้ม 6 เดือน', en: '6-month trend' },
+  'dash.vsLastMonth': { th: 'เทียบเดือนก่อน', en: 'vs last month' },
+  'dash.clearSelection': { th: 'ล้างการเลือก', en: 'Clear' },
+  'dash.others': { th: 'อื่นๆ', en: 'Others' },
+  'dash.moreFarms': { th: '+{n} ฟาร์ม', en: '+{n} farms' },
+  'dash.breakdownByFarms': { th: 'สัดส่วนค่าแรง', en: 'Payroll Breakdown' },
 
   // ---- fallbacks ----
   'common.unknownName': { th: 'ไม่ทราบชื่อ', en: 'Unknown name' },

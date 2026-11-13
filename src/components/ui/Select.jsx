@@ -8,7 +8,7 @@ export const Select = forwardRef(function Select({ label, error, children, class
       <div className="relative">
         <select
           ref={ref}
-          className={`w-full appearance-none rounded-lg border border-farm-secondary/50 bg-white px-3 py-2 pr-9 text-sm text-farm-text outline-none focus:border-farm-primary focus:ring-1 focus:ring-farm-primary ${className}`}
+          className={`w-full appearance-none rounded-xl border border-[#E4E9DA] bg-white px-3 py-2 pr-9 text-sm text-farm-text outline-none transition focus:border-[#4F7A2B] focus:ring-2 focus:ring-[#A8D04A]/40 ${className}`}
           {...props}
         >
           {children}

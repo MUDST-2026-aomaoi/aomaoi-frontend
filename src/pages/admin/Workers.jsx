@@ -84,9 +84,9 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
 
   return (
     <form onSubmit={handleSubmit((data) => onSubmit({ ...data, avatar: avatarPreview ?? undefined }))}>
-      <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">{t('wk.editTitle')}</h3>
-        <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
+      <div className="mb-4 flex items-center justify-between border-b border-[#E6F0D6] pb-3">
+        <h3 className="text-xl font-extrabold tracking-tight text-farm-primary">{t('wk.editTitle')}</h3>
+        <button type="button" onClick={onCancel} className="rounded-full p-1.5 text-[#8A8F85] transition hover:bg-[#E6F0D6]/70 hover:text-[#2E4A1F]">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -96,7 +96,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-gray-300 bg-gray-50 text-gray-400 hover:border-farm-primary"
+          className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-[#A8D04A] bg-[#E6F0D6]/50 text-[#4F7A2B] transition hover:border-[#4F7A2B] hover:bg-[#E6F0D6]"
         >
           {avatarPreview ? (
             <>
@@ -126,10 +126,10 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
             </button>
           </div>
         ) : (
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <div className="rounded-2xl bg-[#F4F6F0] p-4">
             <div className="mb-3 flex items-center justify-between">
               <h4 className="text-sm font-bold text-gray-700">{t('wk.changePasswordTitle')}</h4>
-              <button type="button" onClick={() => setShowPasswordChange(false)} className="text-gray-400 hover:text-gray-600">
+              <button type="button" onClick={() => setShowPasswordChange(false)} className="rounded-full p-1.5 text-[#8A8F85] transition hover:bg-[#E6F0D6]/70 hover:text-[#2E4A1F]">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -140,7 +140,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder={t('wk.newPasswordPlaceholder')}
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-farm-primary focus:outline-none focus:ring-1 focus:ring-farm-primary"
+                className="flex-1 rounded-xl border border-[#E4E9DA] bg-white px-3 py-2 text-sm outline-none transition focus:border-[#4F7A2B] focus:ring-2 focus:ring-[#A8D04A]/40"
               />
               <Button type="button" data-test="worker-resetpw-save" variant="primary" onClick={handleResetPassword} disabled={isChangingPassword}>
                 {isChangingPassword ? t('common.changing') : t('common.savePassword')}
@@ -192,9 +192,9 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
 
   return (
     <form onSubmit={handleSubmit((data) => onSubmit({ ...data, avatar: avatarPreview ?? undefined }))}>
-      <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">{t('wk.addTitle')}</h3>
-        <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
+      <div className="mb-4 flex items-center justify-between border-b border-[#E6F0D6] pb-3">
+        <h3 className="text-xl font-extrabold tracking-tight text-farm-primary">{t('wk.addTitle')}</h3>
+        <button type="button" onClick={onCancel} className="rounded-full p-1.5 text-[#8A8F85] transition hover:bg-[#E6F0D6]/70 hover:text-[#2E4A1F]">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -204,7 +204,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-gray-300 bg-gray-50 text-gray-400 hover:border-farm-primary hover:text-farm-primary"
+          className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-[#A8D04A] bg-[#E6F0D6]/50 text-[#4F7A2B] transition hover:border-[#4F7A2B] hover:bg-[#E6F0D6]"
         >
           {avatarPreview ? (
             <img src={avatarPreview} alt="Preview" className="h-full w-full object-cover" />
@@ -232,7 +232,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
         </button>
       </div>
 
-      <div className="mb-6 mt-3 flex items-start gap-2 rounded-md bg-[#FEF3C7] p-3 text-xs text-[#92400E]">
+      <div className="mb-6 mt-3 flex items-start gap-2 rounded-2xl bg-[#FEF3C7]/80 p-3.5 text-xs text-[#92400E]">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
         <p>{t('wk.tempPwNote')}</p>
       </div>
@@ -251,7 +251,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
 
 // Summary tiles above the cards; each one is also a filter (press again to clear).
 const ATTENDANCE_TILES = [
-  { filter: 'PRESENT', label: 'att.present', count: 'present', dot: 'bg-green-600', text: 'text-green-700' },
+  { filter: 'PRESENT', label: 'att.present', count: 'present', dot: 'bg-[#4F7A2B]', text: 'text-[#4F7A2B]' },
   { filter: 'LEAVE', label: 'att.leave', count: 'leave', dot: 'bg-amber-500', text: 'text-amber-600' },
   { filter: 'ABSENT', label: 'att.absent', count: 'absent', dot: 'bg-red-600', text: 'text-red-600' },
   { filter: 'unchecked', label: 'att.unchecked', count: 'unchecked', dot: 'bg-gray-400', text: 'text-gray-700' },
@@ -401,7 +401,7 @@ export default function Workers() {
     <div>
       <PageHeader title={t('wk.pageTitle')} />
 
-      <div className="mb-4 rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-4">
+      <div className="mb-4 rounded-[20px] bg-white p-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex w-full items-center gap-2 sm:w-auto">
             <DateInput
@@ -420,13 +420,13 @@ export default function Workers() {
                 type="button"
                 data-test="attendance-back-today"
                 onClick={() => setDate(today)}
-                className="shrink-0 whitespace-nowrap rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-farm-primary hover:bg-gray-50"
+                className="shrink-0 whitespace-nowrap rounded-lg border border-[#E4E9DA] px-3 py-1.5 text-xs font-semibold text-farm-primary hover:bg-[#E6F0D6]/50"
               >
                 {t('att.backToToday')}
               </button>
             )}
           </div>
-          <div data-test="attendance-summary" className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4">
+          <div data-test="attendance-summary" className="grid min-w-0 basis-full grid-cols-2 gap-2 sm:grid-cols-4 xl:flex-1 xl:basis-0">
             {ATTENDANCE_TILES.map((tile) => {
               const selected = attendanceFilter === tile.filter;
               const highlight = tile.filter === 'unchecked' && counts.unchecked > 0;
@@ -437,8 +437,8 @@ export default function Workers() {
                   data-test={`attendance-stat-${tile.filter}`}
                   aria-pressed={selected}
                   onClick={() => setAttendanceFilter(selected ? 'all' : tile.filter)}
-                  className={`flex min-w-0 items-center justify-between gap-2 rounded-lg border bg-white px-3 py-2 text-left transition-colors hover:bg-gray-50 ${
-                    selected ? 'border-farm-primary ring-1 ring-farm-primary' : highlight ? 'border-gray-400' : 'border-gray-200'
+                  className={`flex min-w-0 items-center justify-between gap-2 rounded-lg border bg-white px-3 py-2 text-left transition-colors hover:bg-[#E6F0D6]/50 ${
+                    selected ? 'border-farm-primary ring-1 ring-farm-primary' : highlight ? 'border-gray-400' : 'border-[#E4E9DA]'
                   }`}
                 >
                   <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-gray-600">
@@ -517,7 +517,7 @@ export default function Workers() {
               onKeyDown={(event) => {
                 if (event.target === event.currentTarget && event.key === 'Enter') open();
               }}
-              className={`flex cursor-pointer flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5 ${inactive ? 'opacity-60' : ''}`}
+              className={`flex cursor-pointer flex-col rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(46,74,31,0.08)] sm:p-5 ${inactive ? 'opacity-60' : ''}`}
             >
               <div className="flex items-start gap-3">
                 <Avatar src={worker.avatar} name={worker.fullName} className="h-12 w-12 text-base" />
@@ -565,7 +565,7 @@ export default function Workers() {
               </div>
 
               {!inactive && (
-                <div className="mt-3 border-t border-gray-100 pt-3">
+                <div className="mt-3 border-t border-[#EEF1E6] pt-3">
                   <AttendanceButtons
                     status={record?.status ?? null}
                     onSelect={(next) => changeAttendance(worker, next)}
@@ -625,7 +625,7 @@ export default function Workers() {
 
       {modal?.mode === 'delete' && (
         <ModalShell onClose={closeModal} className="flex w-full flex-col items-center text-center sm:w-100">
-          <button type="button" onClick={closeModal} className="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
+          <button type="button" onClick={closeModal} className="absolute right-4 top-4 rounded-full p-1.5 text-[#8A8F85] transition hover:bg-[#E6F0D6]/70 hover:text-[#2E4A1F]">
             <X className="h-5 w-5" />
           </button>
           <AlertTriangle className="mb-4 h-16 w-16 stroke-[1.5] text-red-600" />

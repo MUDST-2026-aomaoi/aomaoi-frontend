@@ -5,10 +5,10 @@ import { Dropdown } from '../../components/ui/Dropdown';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useAuthStore } from '../../controller/authController';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
-import { formatDate, formatBaht, formatAmount, monthShort } from '../../lib/format';
+import { formatDate, formatBaht, formatAmount } from '../../lib/format';
 import { useT, periodOptions } from '../../i18n';
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList, PieChart, Pie } from 'recharts';
+import { TaskZones } from '../../components/dashboard/TaskZones';
 
 const TASK_BAR_COLORS = {
   cutting: '#224213',
@@ -42,6 +42,7 @@ export default function WorkerDashboard() {
   const currentUser = useAuthStore(state => state.currentUser);
   const myWorkerId = currentUser?.id || '1';
   const [taskPeriod, setTaskPeriod] = useState('month');
+  const [activeTask, setActiveTask] = useState(null);
   
   const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
   const fetchMyBalance = useWorkLogStore((s) => s.fetchMyBalance);
@@ -114,28 +115,14 @@ export default function WorkerDashboard() {
     });
   }, [filteredTaskEntries, taskPeriodTotal, t]);
 
-  const chartBars = useMemo(() => {
-    const now = new Date();
-    return Array.from({ length: 5 }, (_, i) => {
-      const d = new Date(now.getFullYear(), now.getMonth() - (4 - i), 1);
-      const year = d.getFullYear();
-      const month = d.getMonth();
-      
-      const count = myEntries.filter(e => {
-        if (!e.date) return false;
-        const [ey, em] = e.date.split('-');
-        return Number(ey) === year && Number(em) - 1 === month;
-      }).length;
-      
-      return { label: monthShort(month), value: count };
-    });
-  }, [myEntries, t]);
+  const zones = useMemo(() => statsBoxes.map((s) => ({ id: s.id, label: s.title, pct: s.pct, color: s.color })), [statsBoxes]);
+  const activeStat = statsBoxes.find((s) => s.id === activeTask);
 
   return (
     <div className="flex flex-col gap-4 w-full pb-2">
       
       {/* 1. แถบแจ้งเตือนด้านบน */}
-      <div className="flex flex-wrap items-center justify-between gap-2 bg-white border border-gray-200 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm sm:text-base font-normal text-farm-text shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-white rounded-[20px] px-4 py-3 text-sm sm:text-base font-normal text-farm-text shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="text-[#91712A] shrink-0">
             <Clock size={22} strokeWidth={2.5} />
@@ -162,9 +149,9 @@ export default function WorkerDashboard() {
       </div>
 
       {/* 2. Top Cards (3 กล่องตาม Figma 544:1026) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Earning */}
-        <div className="sm:col-span-2 lg:col-span-2 bg-[#3F4F3A] rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col justify-between min-h-[130px] sm:min-h-[150px]">
+        <div className="col-span-2 bg-[#2E4A1F] rounded-[20px] p-4 sm:p-5 text-white shadow-sm flex flex-col justify-between min-h-[130px] sm:min-h-[150px]">
           <div className="flex items-center gap-3 sm:gap-4 mb-1">
             <div className="bg-white text-[#91712A] p-2 sm:p-2.5 rounded-lg shrink-0">
               <Wallet size={26} />
@@ -180,55 +167,35 @@ export default function WorkerDashboard() {
         </div>
 
         {/* Total SalaryAdvance */}
-        <div className="col-span-1 bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-h-[120px] sm:min-h-[150px]">
+        <div className="col-span-1 bg-white rounded-[20px] p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex flex-col justify-between min-h-[120px] sm:min-h-[150px]">
           <div>
-            <h2 className="text-lg sm:text-xl font-semibold text-farm-text">{t('wd.totalAdvance')}</h2>
+            <h2 className="text-base sm:text-xl font-semibold text-farm-text">{t('wd.totalAdvance')}</h2>
             <p className="text-[12px] sm:text-[13px] text-gray-400 font-normal mt-1">{t('wd.overviewRemaining')}</p>
           </div>
-          <div data-test="worker-total-advance" className="text-2xl sm:text-3xl xl:text-[36px] font-bold text-[#2E5119] leading-none tracking-tight mt-3 sm:mt-0">
-            {formatAmount(totalSalaryAdvance)} <span className="text-lg sm:text-[20px] font-semibold ml-1 tracking-normal">{t('common.thb')}</span>
+          <div data-test="worker-total-advance" className="flex flex-wrap items-baseline gap-x-1 text-xl sm:text-3xl xl:text-[36px] font-bold text-[#2E5119] leading-none tracking-tight mt-3 sm:mt-0 break-all">
+            {formatAmount(totalSalaryAdvance)} <span className="text-sm sm:text-[20px] font-semibold tracking-normal">{t('common.thb')}</span>
           </div>
         </div>
 
         {/* RemainingBalance */}
-        <div className="col-span-1 bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-h-[120px] sm:min-h-[150px]">
+        <div className="col-span-1 bg-white rounded-[20px] p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex flex-col justify-between min-h-[120px] sm:min-h-[150px]">
           <div>
-            <h2 className="text-lg sm:text-xl font-semibold text-farm-text">{t('wd.remaining')}</h2>
+            <h2 className="text-base sm:text-xl font-semibold text-farm-text">{t('wd.remaining')}</h2>
             <p className="text-[12px] sm:text-[13px] text-gray-400 font-normal mt-1">{t('wd.overviewRemaining')}</p>
           </div>
-          <div data-test="worker-remaining-balance" className={`text-2xl sm:text-3xl xl:text-[36px] font-bold leading-none tracking-tight mt-3 sm:mt-0 ${isInDebt ? 'text-[#C80303]' : 'text-[#2E5119]'}`}>
-            {formatAmount(remainingBalance)} <span className="text-lg sm:text-[20px] font-semibold ml-1 tracking-normal">{t('common.thb')}</span>
+          <div data-test="worker-remaining-balance" className={`flex flex-wrap items-baseline gap-x-1 text-xl sm:text-3xl xl:text-[36px] font-bold leading-none tracking-tight mt-3 sm:mt-0 break-all ${isInDebt ? 'text-[#C80303]' : 'text-[#2E5119]'}`}>
+            {formatAmount(remainingBalance)} <span className="text-sm sm:text-[20px] font-semibold tracking-normal">{t('common.thb')}</span>
           </div>
         </div>
       </div>
 
-      {/* 3. Middle Row: Total Work Done (Bar Chart) & Tasks (Donut + Breakdown + Period Filter) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-[323px]">
+      {/* 3. Tasks: isometric zones + breakdown + period filter */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-stretch">
         
-        {/* Bar Chart: Total Work Done */}
-        <div className="bg-white rounded-xl p-4 sm:px-7 sm:py-5 shadow-sm border border-gray-100 flex flex-col min-w-0">
-          <h3 className="text-farm-text font-bold text-lg sm:text-[22px] mb-2">{t('wd.totalWorkDone')}</h3>
-          <div className="flex-1 w-full min-h-[220px] sm:min-h-[235px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartBars} margin={{ top: 20, right: 10, left: -25, bottom: 0 }} barSize={46}>
-                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#9ca3af', fontWeight: 'normal' }} dy={8} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#9ca3af', fontWeight: 'normal' }} />
-                <Tooltip cursor={{ fill: 'transparent' }} />
-                <Bar dataKey="value" fill="#D9D9D9" activeBar={{ fill: '#2E5119' }} radius={[4, 4, 0, 0]}>
-                  {chartBars.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index === chartBars.length - 1 ? '#2E5119' : '#D9D9D9'} />
-                  ))}
-                  <LabelList dataKey="value" position="top" style={{ fill: '#111827', fontSize: 13, fontWeight: '500' }} dy={-6} />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
         {/* Tasks (Donut Chart + 4 Task Cards + Period Select Dropdown) */}
-        <div className="bg-white rounded-xl p-4 sm:px-7 sm:py-5 shadow-sm border border-gray-100 flex flex-col min-w-0">
+        <div className="lg:col-span-3 bg-white rounded-[20px] p-4 sm:px-7 sm:py-5 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex flex-col min-w-0">
           <div className="flex items-center justify-between gap-2 mb-4">
-            <h3 className="text-farm-text font-bold text-lg sm:text-[22px]">{t('wd.tasks')}</h3>
+            <h3 className="text-farm-text font-extrabold text-lg sm:text-xl">{t('wd.tasks')}</h3>
             <Dropdown
               value={taskPeriod}
               onChange={setTaskPeriod}
@@ -239,53 +206,22 @@ export default function WorkerDashboard() {
           </div>
 
           <div className="flex-1 flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-6">
-            {/* Donut Chart ด้านซ้าย (จัดกึ่งกลางในพื้นที่ฝั่งซ้ายอย่างสมมาตร) */}
-            <div className="flex-1 flex items-center justify-center">
-              <div className="relative w-[190px] h-[190px] sm:w-[210px] sm:h-[210px] flex items-center justify-center shrink-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={statsBoxes}
-                      innerRadius="55%"
-                      outerRadius="92%"
-                      dataKey="pct"
-                      stroke="none"
-                      paddingAngle={2}
-                      startAngle={90}
-                      endAngle={-270}
-                      labelLine={false}
-                      label={({ cx, cy, midAngle, innerRadius, outerRadius, value }) => {
-                        const RADIAN = Math.PI / 180;
-                        const radius = innerRadius + (outerRadius - innerRadius) * 0.52;
-                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                        if (value === 0) return null;
-                        return (
-                          <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight="bold">
-                            {`${value}%`}
-                          </text>
-                        );
-                      }}
-                    >
-                      {statsBoxes.map((entry) => (
-                        <Cell key={`cell-${entry.id}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-                
-                <div className="absolute inset-0 m-auto flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-[14px] font-bold text-farm-text leading-tight">{t('common.total')}</span>
-                  <span data-test="worker-tasks-total" className="text-[20px] font-bold text-farm-text leading-tight my-1">{formatAmount(taskPeriodTotal)}</span>
-                  <span className="text-[14px] font-bold text-farm-text leading-tight">{t('common.baht')}</span>
-                </div>
+            {/* Isometric work zones: tap a zone or card to see that task's pay */}
+            <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-2 w-full">
+              <TaskZones zones={zones} activeId={activeTask} onActive={setActiveTask} className="max-w-[320px]" />
+              <div className="text-center leading-tight">
+                <p className="text-xs text-[#8A8F85]">{activeStat ? activeStat.title : t('common.total')}</p>
+                <p className="text-2xl font-extrabold text-[#1A1A1A]">
+                  <span data-test="worker-tasks-total">{activeStat ? activeStat.thbStr : formatAmount(taskPeriodTotal)}</span>{' '}
+                  <span className="text-sm font-semibold text-[#8A8F85]">{t('common.baht')}</span>
+                </p>
               </div>
             </div>
 
             {/* 4 Task Breakdown Cards ด้านขวา (กว้าง 200px ตรงกับ Dropdown ด้านบนเป๊ะตาม Figma บนจอ sm ขึ้นไป, และ 2 คอลัมน์บนจอมือถือ) */}
             <div className="w-full grid grid-cols-2 gap-2.5 sm:flex sm:flex-col sm:w-[200px] shrink-0">
               {statsBoxes.map((stat) => (
-                <div key={stat.id} data-test={`worker-task-card-${stat.id}`} className="flex items-center bg-white rounded-[6px] shadow-[0_2px_8px_rgba(0,0,0,0.07)] border border-gray-100/80 overflow-hidden h-[46px]">
+                <div key={stat.id} data-test={`worker-task-card-${stat.id}`} onMouseEnter={() => setActiveTask(stat.id)} onMouseLeave={() => setActiveTask(null)} onClick={() => setActiveTask(activeTask === stat.id ? null : stat.id)} className={`flex items-center bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden h-[46px] cursor-pointer transition ${activeTask && activeTask !== stat.id ? 'opacity-40' : ''} ${activeTask === stat.id ? 'ring-2 ring-[#A8D04A]' : ''}`}>
                   <div className="w-[10px] sm:w-[13px] self-stretch shrink-0" style={{ backgroundColor: stat.color }}></div>
                   <div className="flex-1 flex items-center justify-between pl-2 sm:pl-2.5 pr-2.5 sm:pr-3 py-1 min-w-0">
                     <div className="flex flex-col justify-center text-left leading-tight min-w-0">
@@ -301,13 +237,11 @@ export default function WorkerDashboard() {
           </div>
         </div>
 
-      </div>
-
-      {/* 4. Bottom Row: Recent Activity (เต็มความกว้างด้านล่างตาม Figma 544:1026) */}
-      <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col">
+      {/* 4. Recent Activity (ข้าง Tasks บนจอใหญ่) */}
+      <div className="lg:col-span-2 min-w-0 bg-white rounded-[20px] p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.04)] flex flex-col">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-farm-text font-bold text-lg sm:text-[20px]">{t('wd.recentActivity')}</h3>
-          <Link to="/history" className="text-sm sm:text-[16px] font-medium text-farm-text hover:text-[#708238] flex items-center gap-1.5">
+          <Link to="/history" className="text-sm sm:text-[16px] font-medium text-farm-text hover:text-[#4F7A2B] flex items-center gap-1.5">
             More <ArrowRight size={20} strokeWidth={2.5} />
           </Link>
         </div>
@@ -316,7 +250,7 @@ export default function WorkerDashboard() {
           {recentActivities.map((item) => {
             const Icon = WORK_LOG_TYPES[item.type].icon;
             return (
-              <div key={item.id} className="flex items-center justify-between gap-2 bg-white border border-[#F2F2F2] rounded-lg px-3 sm:px-4 py-2.5 shadow-[0_2px_6px_rgba(0,0,0,0.04)]">
+              <div key={item.id} className="flex items-center justify-between gap-2 bg-[#F8FAF3] rounded-xl px-3 sm:px-4 py-2.5">
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                   <div className="text-[#C09644] shrink-0">
                     <Icon size={24} strokeWidth={2.2} />
@@ -338,6 +272,8 @@ export default function WorkerDashboard() {
             <p className="text-center text-gray-400 py-6 text-sm">{t('wd.noHistory')}</p>
           )}
         </div>
+      </div>
+
       </div>
 
     </div>

@@ -1,27 +1,23 @@
 import { useMemo, useState, useEffect } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
+import { FarmArchipelago } from '../../components/dashboard/FarmArchipelago';
 import { useFarmStore } from '../../store/useFarmStore';
 import { useAdminStore } from '../../store/useAdminStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { useAuthStore } from '../../controller/authController';
-import { monthShort } from '../../lib/format';
 import { getLocale, periodOptions, useT } from '../../i18n';
 
 const RADIAN = Math.PI / 180;
-const FARM_LINE_COLORS = ['#3b82f6', '#ef4444', '#22c55e'];
-const FARM_DONUT_COLORS = ['#1F3C28', '#6A9E48', '#B4D355'];
+const FARM_DONUT_COLORS = ['#2E4A1F', '#4F7A2B', '#A8D04A', '#7DA33A', '#C98626'];
+const OTHER_COLOR = '#B9C0AE';
+const TOP_N = 5;
+const MAX_TILES = 8;
 
 function formatNumber(n) {
   return Number(n).toLocaleString(getLocale(), { maximumFractionDigits: 0 });
-}
-
-function formatCompactBaht(n) {
-  if (n >= 1e6) return `฿ ${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `฿ ${Math.round(n / 1e3)}K`;
-  return `฿ ${n}`;
 }
 
 const renderPercentLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
@@ -41,12 +37,6 @@ function PeriodSelect({ value, onChange }) {
   return <Dropdown value={value} onChange={onChange} options={periodOptions(t)} className="w-32" />;
 }
 
-function farmValueForPeriod(farm, period) {
-  if (period === 'day') return Math.round(farm.monthlyWages / 30);
-  if (period === 'year') return farm.totalWages;
-  return farm.monthlyWages;
-}
-
 export default function SuperAdminDashboard() {
   const t = useT();
   const allFarms = useFarmStore((s) => s.farms);
@@ -63,9 +53,9 @@ export default function SuperAdminDashboard() {
     fetchWorkers();
   }, [fetchFarms, fetchAdmins, fetchEntries, fetchWorkers]);
 
-  const [trendPeriod, setTrendPeriod] = useState('month');
   const [trendFarmFilter, setTrendFarmFilter] = useState('all');
   const [breakdownPeriod, setBreakdownPeriod] = useState('month');
+  const [hovered, setHovered] = useState(null);
 
   const farms = useMemo(() => allFarms.filter((f) => f.status !== 'inactive'), [allFarms]);
   const admins = useMemo(() => allAdmins.filter((a) => a.status !== 'inactive'), [allAdmins]);
@@ -73,42 +63,25 @@ export default function SuperAdminDashboard() {
   const allEntries = useWorkLogStore((s) => s.entries);
   const allWorkers = useWorkerStore((s) => s.workers);
 
-  const totalAllTime = useMemo(() => allEntries.reduce((sum, e) => sum + e.total, 0), [allEntries]);
-  
+  // KPI cards follow the farm picked on the map / donut (all farms when nothing is picked).
+  const scopedEntries = useMemo(() => {
+    if (trendFarmFilter === 'all') return allEntries;
+    return allEntries.filter((e) => {
+      const worker = allWorkers.find((w) => String(w.id) === String(e.workerId));
+      return worker && String(worker.farmId) === String(trendFarmFilter);
+    });
+  }, [allEntries, allWorkers, trendFarmFilter]);
+
+  const totalAllTime = useMemo(() => scopedEntries.reduce((sum, e) => sum + e.total, 0), [scopedEntries]);
+
   const totalThisMonth = useMemo(() => {
     const now = new Date();
-    return allEntries.filter(e => {
+    return scopedEntries.filter((e) => {
       if (!e.date) return false;
       const [y, m] = e.date.split('-');
       return Number(y) === now.getFullYear() && Number(m) === now.getMonth() + 1;
     }).reduce((sum, e) => sum + e.total, 0);
-  }, [allEntries]);
-
-  const monthlyTrend = useMemo(() => {
-    const now = new Date();
-    return Array.from({ length: 6 }, (_, i) => {
-      const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
-      const year = d.getFullYear();
-      const month = d.getMonth();
-      const point = { name: monthShort(month) };
-      
-      farms.forEach((f) => {
-        point[f.id] = 0;
-      });
-
-      allEntries.forEach(entry => {
-        if (!entry.date) return;
-        const [y, m] = entry.date.split('-');
-        if (Number(y) === year && Number(m) - 1 === month) {
-          const worker = allWorkers.find(w => String(w.id) === String(entry.workerId));
-          if (worker && worker.farmId) {
-            point[worker.farmId] = (point[worker.farmId] || 0) + entry.total;
-          }
-        }
-      });
-      return point;
-    });
-  }, [farms, allEntries, allWorkers, t]);
+  }, [scopedEntries]);
 
   const breakdown = useMemo(() => {
     return farms.map((f, idx) => {
@@ -148,10 +121,38 @@ export default function SuperAdminDashboard() {
 
   const breakdownTotal = useMemo(() => breakdown.reduce((sum, e) => sum + e.value, 0), [breakdown]);
 
-  const visibleTrendFarms = useMemo(
-    () => farms.filter((f) => trendFarmFilter === 'all' || f.id === trendFarmFilter),
-    [farms, trendFarmFilter]
-  );
+  // Farms grow without limit: rank by payroll, show the top few and fold the rest into "others".
+  const ranked = useMemo(() => [...breakdown].sort((x, y) => y.value - x.value), [breakdown]);
+  const pct = (v) => (breakdownTotal > 0 ? Math.round((v / breakdownTotal) * 100) : 0);
+  const maxValue = ranked[0]?.value || 0;
+
+  const donutData = useMemo(() => {
+    if (ranked.length <= TOP_N) return ranked;
+    const rest = ranked.slice(TOP_N).reduce((sum, e) => sum + e.value, 0);
+    return [...ranked.slice(0, TOP_N), { key: 'others', name: t('dash.others'), color: OTHER_COLOR, value: rest }];
+  }, [ranked, t]);
+
+  const heroFarms = useMemo(() => {
+    const list = ranked.length > MAX_TILES ? ranked.slice(0, MAX_TILES - 1) : ranked;
+    return list.map((f) => ({ id: f.key, name: f.name, value: f.value, share: maxValue > 0 ? f.value / maxValue : 0, percent: pct(f.value), color: f.color }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ranked, maxValue, breakdownTotal]);
+
+  const overflow = useMemo(() => {
+    if (ranked.length <= MAX_TILES) return null;
+    const rest = ranked.slice(MAX_TILES - 1);
+    const value = rest.reduce((sum, e) => sum + e.value, 0);
+    return { count: rest.length, value, percent: pct(value) };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ranked, breakdownTotal]);
+
+  const moreLabel = useMemo(() => (n) => t('dash.moreFarms', { n }), [t]);
+
+  const selectedName = farms.find((f) => f.id === trendFarmFilter)?.name;
+  const toggleFarm = (id) => setTrendFarmFilter((cur) => (cur === id ? 'all' : id));
+  const active = hovered ?? (trendFarmFilter === 'all' ? null : trendFarmFilter);
+  // Donut centre follows hover first, then the selected farm, else the grand total.
+  const focusEntry = active ? [...donutData, ...breakdown].find((e) => e.key === active) : null;
 
   const currentUser = useAuthStore((s) => s.currentUser);
 
@@ -160,141 +161,120 @@ export default function SuperAdminDashboard() {
       <PageHeader title={t('nav.dashboard')} />
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 font-medium text-gray-600">{t('dash.totalPaid')}</p>
+        <div className="flex flex-col justify-center rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-5">
+          <p className="mb-1 font-medium text-gray-600">{t('dash.totalPaid')}{selectedName && <span className="ml-1.5 text-xs font-semibold text-[#4F7A2B]">· {selectedName}</span>}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold sm:text-4xl text-[#205e2e]">{formatNumber(totalAllTime)}</h3>
             <span className="font-medium text-gray-400">{t('common.baht')}</span>
           </div>
         </div>
-        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 font-medium text-gray-600">{t('dash.paidThisMonth')}</p>
+        <div className="flex flex-col justify-center rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-5">
+          <p className="mb-1 font-medium text-gray-600">{t('dash.paidThisMonth')}{selectedName && <span className="ml-1.5 text-xs font-semibold text-[#4F7A2B]">· {selectedName}</span>}</p>
           <div className="flex items-baseline gap-2">
             <h3 className="text-2xl font-bold sm:text-4xl text-gray-700">{formatNumber(totalThisMonth)}</h3>
             <span className="font-medium text-gray-400">{t('common.baht')}</span>
           </div>
         </div>
-        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 font-medium text-gray-600">{t('nav.farms')}</p>
+        <div className="flex flex-col justify-center rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-5">
+          <p className="mb-1 font-medium text-gray-600">{t('nav.farms')}{selectedName && <span className="ml-1.5 text-xs font-semibold text-[#4F7A2B]">· {selectedName}</span>}</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold sm:text-4xl text-gray-700">{farms.length}</h3>
+            <h3 className="text-2xl font-bold sm:text-4xl text-gray-700">{trendFarmFilter === 'all' ? farms.length : 1}</h3>
             <span className="font-medium text-gray-400">{t('farm.unit')}</span>
           </div>
         </div>
-        <div className="flex flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-          <p className="mb-1 font-medium text-gray-600">{t('farm.allAdmins')}</p>
+        <div className="flex flex-col justify-center rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-5">
+          <p className="mb-1 font-medium text-gray-600">{t('farm.allAdmins')}{selectedName && <span className="ml-1.5 text-xs font-semibold text-[#4F7A2B]">· {selectedName}</span>}</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold sm:text-4xl text-gray-700">{admins.length}</h3>
+            <h3 className="text-2xl font-bold sm:text-4xl text-gray-700">{trendFarmFilter === 'all' ? admins.length : admins.filter((a) => String(a.farmId) === String(trendFarmFilter)).length}</h3>
             <span className="font-medium text-gray-400">{t('common.people')}</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
-        <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
-            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">{t('dash.payrollOverview')}</h3>
-            <div className="flex w-full min-w-0 gap-2 sm:w-auto">
-              <PeriodSelect value={trendPeriod} onChange={setTrendPeriod} />
-              <Dropdown
-                value={trendFarmFilter}
-                onChange={setTrendFarmFilter}
-                className="min-w-0 flex-1 sm:w-44 sm:flex-none"
-                options={[{ value: 'all', label: t('adm.allFarms') }, ...farms.map((f) => ({ value: f.id, label: f.name }))]}
-              />
-            </div>
-          </div>
-
-          <div className="h-56 w-full sm:h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={monthlyTrend} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical stroke="#f0f0f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} tickFormatter={formatCompactBaht} width={64} />
-                <Tooltip formatter={(value, key) => [`${formatNumber(value)} ${t('common.baht')}`, farms.find((f) => f.id === key)?.name ?? key]} />
-                {visibleTrendFarms.map((f) => {
-                  const color = FARM_LINE_COLORS[farms.indexOf(f) % FARM_LINE_COLORS.length];
-                  return (
-                    <Area
-                      key={f.id}
-                      type="monotone"
-                      dataKey={f.id}
-                      name={f.name}
-                      stroke={color}
-                      strokeWidth={2}
-                      fill={color}
-                      fillOpacity={0.15}
-                      dot={{ r: 3, fill: color }}
-                    />
-                  );
-                })}
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-            {visibleTrendFarms.map((f) => (
-              <div key={f.id} className="flex items-center gap-2 text-xs text-gray-600">
-                <span
-                  className="h-2.5 w-2.5 rounded-full"
-                  style={{ background: FARM_LINE_COLORS[farms.indexOf(f) % FARM_LINE_COLORS.length] }}
-                />
-                {f.name}
-              </div>
-            ))}
-          </div>
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-5">
+        <div className="relative min-w-0 lg:col-span-3 lg:flex lg:items-start">
+          <FarmArchipelago
+            farms={heroFarms}
+            overflow={overflow}
+            hoveredId={active}
+            onHover={setHovered}
+            onSelect={toggleFarm}
+            unit={t('common.baht')}
+            moreLabel={moreLabel}
+            formatValue={formatNumber}
+            className="max-w-[880px]"
+          />
         </div>
 
-        <div className="flex min-w-0 flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
+        <div className="min-w-0 rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-5 lg:col-span-2">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="min-w-0 text-base font-bold text-gray-900 sm:text-lg">{t('dash.breakdownByFarms')}</h3>
+            <h3 className="min-w-0 text-sm font-bold text-[#1A1A1A] sm:text-base">{t('dash.breakdownByFarms')}</h3>
             <PeriodSelect value={breakdownPeriod} onChange={setBreakdownPeriod} />
           </div>
 
-          <div className="flex flex-1 flex-col items-center justify-center gap-6 min-[1400px]:flex-row min-[1400px]:gap-8">
-            <div className="relative h-50 w-50 shrink-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={breakdown}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={65}
-                    outerRadius={100}
-                    paddingAngle={2}
-                    stroke="none"
-                    labelLine={false}
-                    label={renderPercentLabel}
-                  >
-                    {breakdown.map((entry) => (
-                      <Cell key={entry.key} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-xs text-gray-600">{t('common.total')}</p>
-                <p className="text-xl font-bold text-gray-900">{formatNumber(breakdownTotal)}</p>
-                <p className="text-xs text-gray-600">{t('common.baht')}</p>
-              </div>
-            </div>
-            <div className="grid w-full grid-cols-2 gap-2 min-[1400px]:w-auto min-[1400px]:min-w-56">
-              {breakdown.map((entry) => (
-                <div key={entry.key} className="flex min-w-0 items-stretch overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm">
-                  <div className="w-1.5 shrink-0" style={{ backgroundColor: entry.color }} />
-                  <div className="flex min-w-0 flex-1 items-center justify-between gap-2 px-2.5 py-2">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-gray-800">{entry.name}</p>
-                      <p className="truncate text-xs text-gray-500">{formatNumber(entry.value)} {t('common.baht')}</p>
-                    </div>
-                    <span className="shrink-0 text-sm font-bold text-gray-800">
-                      {breakdownTotal > 0 ? Math.round((entry.value / breakdownTotal) * 100) : 0}%
-                    </span>
-                  </div>
-                </div>
-              ))}
+          <div className="relative mx-auto h-48 w-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={donutData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={62}
+                  outerRadius={94}
+                  paddingAngle={2}
+                  cornerRadius={6}
+                  stroke="none"
+                  isAnimationActive={false}
+                  onMouseEnter={(_, i) => setHovered(donutData[i]?.key ?? null)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={(_, i) => donutData[i] && donutData[i].key !== 'others' && toggleFarm(donutData[i].key)}
+                  style={{ cursor: 'pointer' }}
+                  labelLine={false}
+                  label={renderPercentLabel}
+                >
+                  {donutData.map((entry) => (
+                    <Cell key={entry.key} fill={entry.color} opacity={active && active !== entry.key ? 0.3 : 1} style={{ transition: 'opacity .2s', outline: 'none' }} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-7 text-center leading-tight">
+              <p className="max-w-full truncate text-[11px] text-[#8A8F85]">{focusEntry?.name ?? t('common.total')}</p>
+              <p className="text-xl font-extrabold text-[#1A1A1A]">{formatNumber(focusEntry ? focusEntry.value : breakdownTotal)}</p>
+              <p className="text-[11px] text-[#8A8F85]">{t('common.baht')}</p>
             </div>
           </div>
+
+          <ul className="mt-2 flex flex-col gap-0.5">
+            {donutData.map((entry) => (
+              <li key={entry.key}>
+                <button
+                  type="button"
+                  disabled={entry.key === 'others'}
+                  onMouseEnter={() => setHovered(entry.key)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => toggleFarm(entry.key)}
+                  className={`relative flex w-full items-center gap-2 overflow-hidden rounded-lg px-2 py-1.5 text-left text-xs transition ${active && active !== entry.key ? 'opacity-40' : ''} ${
+                    trendFarmFilter === entry.key ? 'bg-[#E6F0D6]' : entry.key === 'others' ? '' : 'hover:bg-[#F1F5E8]'
+                  }`}
+                >
+                  <span aria-hidden className="absolute inset-y-0 left-0 rounded-lg opacity-15" style={{ width: `${pct(entry.value)}%`, backgroundColor: entry.color }} />
+                  <span className="relative h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: entry.color }} />
+                  <span className="relative min-w-0 flex-1 truncate font-medium text-[#1A1A1A]">{entry.name}</span>
+                  <span className="relative text-[#8A8F85]">{formatNumber(entry.value)}</span>
+                  <span className="relative w-9 text-right font-bold text-[#2E4A1F]">{pct(entry.value)}%</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {selectedName && (
+            <div className="mt-2 flex justify-center">
+              <button type="button" onClick={() => setTrendFarmFilter('all')} className="rounded-full px-3 py-1 text-xs font-semibold text-[#4F7A2B] hover:bg-[#E6F0D6]">
+                {t('dash.clearSelection')}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=TASA+Orbiter:wght@400..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
@@ -57,3 +58,76 @@ body {
 .react-datepicker-popper.react-datepicker-popper {
   z-index: 70;
 }
+
+/* ---- Dashboard theme (scoped; other admin pages unaffected) ---- */
+.dash-theme {
+  --d-bg: #F4F6F0;
+  --d-forest: #2E4A1F;
+  --d-leaf: #4F7A2B;
+  --d-lime: #A8D04A;
+  --d-pale: #E6F0D6;
+  --d-text: #1A1A1A;
+  --d-muted: #8A8F85;
+  --d-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', sans-serif;
+  color: var(--d-text);
+  background: var(--d-bg);
+  min-height: 100%;
+  margin: -1rem;
+  padding: 1rem;
+}
+@media (min-width: 640px) { .dash-theme { margin: -1.5rem; padding: 1.5rem; } }
+@media (min-width: 768px) { .dash-theme { margin: -2rem; padding: 2rem; } }
+
+.dash-theme .dash-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: var(--d-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.dash-theme .dash-card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(46, 74, 31, 0.08);
+}
+.dash-theme .dash-row { transition: background-color 0.15s ease; }
+.dash-theme .dash-row:hover { background: rgba(230, 240, 214, 0.6); }
+
+/* ---- Admin skin: same airy look as the dashboard, for every admin page ---- */
+.admin-skin {
+  font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Thai', sans-serif;
+  color: #1A1A1A;
+}
+.admin-skin ::selection { background: #E6F0D6; }
+
+/* Number inputs: no native spinner arrows (they collide with inline unit suffixes). */
+.admin-skin input[type='number']::-webkit-outer-spin-button,
+.admin-skin input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.admin-skin input[type='number'] { -moz-appearance: textfield; appearance: textfield; }
+
+/* Tables turn into stacked cards on phones (cells carry data-label). */
+@media (max-width: 767px) {
+  .rtable { min-width: 0 !important; }
+  .rtable thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .rtable, .rtable tbody, .rtable tr, .rtable td { display: block; width: 100%; }
+  .rtable tr { padding: 10px 16px; border-bottom: 1px solid #F0F2EA; }
+  .rtable tr:last-child { border-bottom: 0; }
+  .rtable td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 5px 0 !important; text-align: right !important; border: 0 !important; }
+  .rtable td[data-label]::before { content: attr(data-label); flex-shrink: 0; text-align: left; font-size: 12px; font-weight: 500; color: #8A8F85; }
+  .rtable td:not([data-label]) { justify-content: flex-start; padding-bottom: 8px !important; }
+}
+
+/* Browser autofill paints inputs blue; keep the inputs white like the rest of the skin. */
+.admin-skin input:-webkit-autofill,
+.admin-skin input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset;
+  -webkit-text-fill-color: #374151;
+  transition: background-color 9999s ease-out 0s;
+}
+
+@keyframes login-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.login-float { animation: login-float 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .login-float { animation: none; } }
+

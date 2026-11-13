@@ -11,11 +11,11 @@ export default {
       },
       colors: {
         farm: {
-          primary: '#435834',
+          primary: '#2E4A1F',
           secondary: '#C4B99D',
           accent: '#D1A344',
-          bg: '#F9FAFB',
-          text: '#2C2C2C',
+          bg: '#F4F6F0',
+          text: '#1A1A1A',
           sidebar: '#2B4222',
           sidebarActive: '#425F33',
           sidebarText: '#D1D5DB',

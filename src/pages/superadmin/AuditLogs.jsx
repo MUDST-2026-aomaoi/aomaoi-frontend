@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAuditLogStore } from '../../store/useAuditLogStore';
 import { auditLogController } from '../../controller/auditLogController';
 import { RefreshCw, AlertCircle } from 'lucide-react';
@@ -7,6 +7,8 @@ import { DateInput } from '../../components/ui/DateInput';
 import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { getLocale, useT } from '../../i18n';
+import { Pagination } from '../../components/ui/Pagination';
+import { useFitRows, usePagedList } from '../../hooks/usePageSize';
 
 export default function AuditLogs() {
   const t = useT();
@@ -37,7 +39,7 @@ export default function AuditLogs() {
   };
 
   // Filter logs by search text and date
-  const filtered = auditLogs.filter((log) => {
+  const filtered = useMemo(() => auditLogs.filter((log) => {
     const searchLower = search.toLowerCase();
     const matchSearch = 
       ((log.performedBy || log.actionBy) && (log.performedBy || log.actionBy).toLowerCase().includes(searchLower)) ||
@@ -61,10 +63,14 @@ export default function AuditLogs() {
     }
 
     return matchSearch && matchDate;
-  });
+  }), [auditLogs, search, dateFilter]);
+
+  const { ref: tableRef, pageSize } = useFitRows();
+  const pager = usePagedList(filtered, pageSize);
+  const pageItems = pager.pageItems;
 
   return (
-    <div>
+    <div className="flex min-h-full flex-col">
       <PageHeader title={t('audit.pageTitle')} />
 
       <TableToolbar
@@ -104,9 +110,9 @@ export default function AuditLogs() {
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
-          <thead className="bg-[#3F5C2B] text-white">
+      <div ref={tableRef} className="overflow-x-auto rounded-[20px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+        <table className="rtable w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
+          <thead className="bg-[#2E4A1F] text-white">
             <tr>
               <th className="px-4 py-3.5 font-medium">{t('audit.col.time')}</th>
               <th className="px-4 py-3.5 font-medium">{t('audit.col.by')}</th>
@@ -125,23 +131,23 @@ export default function AuditLogs() {
                 <td colSpan="5" className="py-8 text-gray-400 text-center">{t('audit.empty')}</td>
               </tr>
             ) : (
-              filtered.map((log) => (
-                <tr key={log.id} data-test="audit-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
-                  <td className="px-4 py-3 sm:py-4 text-gray-800">
+              pageItems.map((log) => (
+                <tr key={log.id} data-test="audit-row" className="border-b border-[#F0F2EA] transition-colors last:border-0 hover:bg-[#E6F0D6]/50">
+                  <td data-label={t('audit.col.time')} className="px-4 py-3 sm:py-4 text-gray-800">
                     {formatDateLong(log.timestamp || log.createdAt)}
                   </td>
-                  <td className="px-4 py-3 sm:py-4 font-semibold text-gray-800">
+                  <td data-label={t('audit.col.by')} className="px-4 py-3 sm:py-4 font-semibold text-gray-800">
                     {log.performedBy || log.actionBy || '-'}
                   </td>
-                  <td className="px-4 py-3 sm:py-4">
+                  <td data-label={t('audit.col.action')} className="px-4 py-3 sm:py-4">
                     <span data-test="audit-row-action" className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 border border-blue-200">
                       {log.action}
                     </span>
                   </td>
-                  <td className="px-4 py-3 sm:py-4 text-gray-800">
+                  <td data-label={t('audit.col.target')} className="px-4 py-3 sm:py-4 text-gray-800">
                     {log.targetUser || '-'}
                   </td>
-                  <td className="px-4 py-3 sm:py-4 text-left text-gray-600 max-w-xs truncate" title={log.details}>
+                  <td data-label={t('audit.col.details')} className="px-4 py-3 sm:py-4 text-left text-gray-600 max-w-xs truncate" title={log.details}>
                     {log.details || '-'}
                   </td>
                 </tr>
@@ -150,6 +156,7 @@ export default function AuditLogs() {
           </tbody>
         </table>
       </div>
+      <Pagination pager={pager} />
     </div>
   );
 }

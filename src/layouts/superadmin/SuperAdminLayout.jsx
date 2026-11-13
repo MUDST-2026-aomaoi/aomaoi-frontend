@@ -20,7 +20,7 @@ export function SuperAdminLayout({ children }) {
 
   return (
     <SidebarContext.Provider value={sidebarContext}>
-      <div className="relative flex h-dvh overflow-hidden bg-farm-bg">
+      <div className="admin-skin relative flex h-dvh overflow-hidden bg-[#F4F6F0]">
         <SuperAdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="flex min-w-0 flex-1 flex-col">
           <main className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">

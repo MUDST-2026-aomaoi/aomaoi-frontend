@@ -46,9 +46,9 @@ function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
 
   return (
     <form onSubmit={handleSubmit((data) => onSubmit({ ...data, image: imagePreview ?? undefined }))}>
-      <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">{title}</h3>
-        <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
+      <div className="mb-4 flex items-center justify-between border-b border-[#E6F0D6] pb-3">
+        <h3 className="text-xl font-extrabold tracking-tight text-farm-primary">{title}</h3>
+        <button type="button" onClick={onCancel} className="rounded-full p-1.5 text-[#8A8F85] transition hover:bg-[#E6F0D6]/70 hover:text-[#2E4A1F]">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -71,7 +71,7 @@ function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
         <Input data-test="farm-form-location" label={t('farm.location')} {...register('location')} error={errors.location?.message} />
       </div>
 
-      <div className="mb-6 flex items-start gap-2 rounded-md bg-[#FEF3C7] p-3 text-xs text-[#92400E]">
+      <div className="mb-6 flex items-start gap-2 rounded-2xl bg-[#FEF3C7]/80 p-3.5 text-xs text-[#92400E]">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
         <p>{t('farm.note')}</p>
       </div>
@@ -179,21 +179,21 @@ export default function AllFarms() {
       <PageHeader title={t('nav.farms')} />
 
       <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-4">
-        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-5">
+        <div className="flex min-w-0 flex-col justify-center rounded-[20px] bg-white p-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-5">
           <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">{t('nav.farms')}</p>
           <div className="flex items-baseline gap-1 sm:gap-2">
             <h3 className="text-2xl font-bold text-gray-700 sm:text-3xl">{visibleFarms.length}</h3>
             <span className="text-xs font-medium text-gray-400 sm:text-base">{t('farm.unit')}</span>
           </div>
         </div>
-        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-5">
+        <div className="flex min-w-0 flex-col justify-center rounded-[20px] bg-white p-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-5">
           <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">{t('farm.allAdmins')}</p>
           <div className="flex items-baseline gap-1 sm:gap-2">
             <h3 className="text-2xl font-bold text-gray-700 sm:text-3xl">{admins.length}</h3>
             <span className="text-xs font-medium text-gray-400 sm:text-base">{t('common.people')}</span>
           </div>
         </div>
-        <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-5">
+        <div className="flex min-w-0 flex-col justify-center rounded-[20px] bg-white p-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-5">
           <p className="mb-1 truncate text-xs font-medium text-gray-600 sm:text-base">{t('farm.allWorkers')}</p>
           <div className="flex items-baseline gap-1 sm:gap-2">
             <h3 className="text-2xl font-bold text-gray-700 sm:text-3xl">{totalWorkers}</h3>
@@ -222,7 +222,7 @@ export default function AllFarms() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {filtered.map((farm) => (
-          <div key={farm.id} data-test="farm-card" className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+          <div key={farm.id} data-test="farm-card" className="overflow-hidden rounded-[20px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
             <div className="relative flex h-40 items-center justify-center overflow-hidden bg-linear-to-br from-farm-primary to-[#1F3C28]">
               {farm.image ? (
                 <img src={farm.image} alt={farm.name} className="h-full w-full object-cover" />
@@ -253,7 +253,7 @@ export default function AllFarms() {
               <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
                 <MapPin className="h-4 w-4" /> {farm.location}
               </p>
-              <div className="mt-4 grid grid-cols-3 divide-x divide-gray-100 border-t border-gray-100 pt-4">
+              <div className="mt-4 grid grid-cols-3 divide-x divide-gray-100 border-t border-[#EEF1E6] pt-4">
                 <div>
                   <p className="text-xs text-gray-500">{t('farm.cardWorkers')}</p>
                   <p className="text-lg font-bold text-gray-800">{farm.workerCount}</p>

@@ -7,6 +7,8 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { DateInput } from '../../components/ui/DateInput';
 import { Dropdown } from '../../components/ui/Dropdown';
+import { Pagination } from '../../components/ui/Pagination';
+import { usePageSize, usePagedList } from '../../hooks/usePageSize';
 import { Input } from '../../components/ui/Input';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { PageHeader } from '../../layouts/admin/PageHeader';
@@ -106,6 +108,10 @@ export default function AdvanceSalary() {
     }
   }
 
+  const pageSize = usePageSize({ rowHeight: 57, reserved: 400, min: 5, max: 9 });
+  const pager = usePagedList(sorted, pageSize);
+  const pageItems = pager.pageItems;
+
   return (
     <div>
       <PageHeader title={t('adv.pageTitle')} />
@@ -201,9 +207,9 @@ export default function AdvanceSalary() {
 
         <Card className="min-w-0 p-4 sm:p-6">
           <h2 className="mb-4 text-lg font-bold text-farm-text sm:mb-6">{t('adv.recent')}</h2>
-          <div tabIndex={0} role="region" aria-label={t('adv.recent')} className="max-h-[32rem] overflow-auto rounded-lg border border-gray-200">
-            <table className="w-full min-w-[560px] border-collapse text-center text-xs sm:text-sm">
-              <thead className="sticky top-0 bg-[#3F5C2B] text-white">
+          <div tabIndex={0} role="region" aria-label={t('adv.recent')} className="max-h-[32rem] overflow-auto rounded-2xl bg-white ring-1 ring-[#EEF1E6]">
+            <table className="rtable w-full min-w-[560px] border-collapse text-center text-xs sm:text-sm">
+              <thead className="sticky top-0 bg-[#2E4A1F] text-white">
                 <tr>
                   <th className="px-3 py-3 sm:px-4 font-medium">{t('col.date')}</th>
                   <th className="px-3 py-3 sm:px-4 text-left font-medium">{t('adv.col.worker')}</th>
@@ -213,29 +219,29 @@ export default function AdvanceSalary() {
                 </tr>
               </thead>
               <tbody>
-                {sorted.map((a) => {
+                {pageItems.map((a) => {
                   const cfg = ADVANCE_TYPES[a.type];
                   return (
-                    <tr key={a.id} data-test="advance-row" className="border-b border-gray-100 last:border-0 hover:bg-gray-50">
-                      <td className="px-3 py-3 sm:px-4 text-gray-800">{formatShortDate(a.advanceDate)}</td>
-                      <td className="px-3 py-3 sm:px-4 text-left">
+                    <tr key={a.id} data-test="advance-row" className="border-b border-[#F0F2EA] last:border-0 hover:bg-[#E6F0D6]/50">
+                      <td data-label={t('col.date')} className="px-3 py-3 sm:px-4 text-gray-800">{formatShortDate(a.advanceDate)}</td>
+                      <td data-label={t('adv.col.worker')} className="px-3 py-3 sm:px-4 text-left">
                         <div className="flex items-center gap-2">
                           <Avatar name={a.workerFullName} />
                           <span className="font-medium text-gray-800">{a.workerFullName}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td data-label={t('adv.col.type')} className="px-4 py-3">
                         <span
                           data-test="advance-row-type"
-                          className={`inline-block min-w-17.5 rounded-full px-3 py-1 text-xs font-bold ${cfg.badgeClass}`}
+                          className={`inline-block min-w-17.5 rounded-full px-3 py-1 text-xs font-bold bg-[#E6F0D6] text-[#2E4A1F]`}
                         >
                           {cfg.labelTh}
                         </span>
                       </td>
-                      <td className="px-3 py-3 sm:px-4 text-gray-800" data-test="advance-row-item">
+                      <td data-label={t('adv.col.detail')} className="px-3 py-3 sm:px-4 text-gray-800" data-test="advance-row-item">
                         {a.itemName || ''}
                       </td>
-                      <td className="px-3 py-3 sm:px-4 text-right font-medium text-gray-800" data-test="advance-row-amount">
+                      <td data-label={t('adv.col.value')} className="px-3 py-3 sm:px-4 text-right font-medium text-gray-800" data-test="advance-row-amount">
                         {formatAmount(a.amount)}
                       </td>
                     </tr>
@@ -251,6 +257,7 @@ export default function AdvanceSalary() {
               </tbody>
             </table>
           </div>
+          <Pagination pager={pager} />
         </Card>
       </div>
 
