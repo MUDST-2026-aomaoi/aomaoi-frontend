@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Avatar } from '../../components/ui/Avatar';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
@@ -10,7 +10,7 @@ import { TaskChip } from '../../components/dashboard/TaskChip';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
-import { formatDate, formatDateLong, formatBaht, monthShort, displayYear } from '../../lib/format';
+import { formatDate, formatDateLong, formatBaht } from '../../lib/format';
 import { getLocale, periodOptions, useT } from '../../i18n';
 
 const RADIAN = Math.PI / 180;
@@ -33,12 +33,6 @@ const CHIP_POS = {
 
 function formatNumber(n) {
   return Number(n).toLocaleString(getLocale(), { maximumFractionDigits: 0 });
-}
-
-function formatCompactBaht(n) {
-  if (n >= 1e6) return `฿ ${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `฿ ${Math.round(n / 1e3)}K`;
-  return `฿ ${n}`;
 }
 
 function isToday(dateStr) {
@@ -69,7 +63,7 @@ function renderPercentLabel({ cx, cy, midAngle, innerRadius, outerRadius, percen
 
 function PeriodSelect({ value, onChange }) {
   const t = useT();
-  return <Dropdown value={value} onChange={onChange} options={periodOptions(t)} className="min-w-0 flex-1 sm:w-32 sm:flex-none" />;
+  return <Dropdown value={value} onChange={onChange} options={periodOptions(t)} className="w-32 shrink-0" />;
 }
 
 export default function Dashboard() {
@@ -85,52 +79,15 @@ export default function Dashboard() {
     fetchEntries();
   }, [fetchWorkers, fetchEntries]);
 
-  const [trendTypeFilter, setTrendTypeFilter] = useState('all');
-  const [trendPeriod, setTrendPeriod] = useState('month');
   const [breakdownPeriod, setBreakdownPeriod] = useState('month');
+  // Task key under the pointer (donut slice or chip): everything else fades.
+  const [hovered, setHovered] = useState(null);
 
   const entriesThisMonth = useMemo(() => entries.filter((e) => isThisMonth(e.date)), [entries]);
   const entriesToday = useMemo(() => entries.filter((e) => isToday(e.date)), [entries]);
 
   const totalAllTime = useMemo(() => entries.reduce((sum, e) => sum + e.total, 0), [entries]);
   const totalThisMonth = useMemo(() => entriesThisMonth.reduce((sum, e) => sum + e.total, 0), [entriesThisMonth]);
-
-  const monthlyTrend = useMemo(() => {
-    const now = new Date();
-    const typedEntries = entries.filter((e) => trendTypeFilter === 'all' || e.type === trendTypeFilter);
-
-    if (trendPeriod === 'day') {
-      return Array.from({ length: 14 }, (_, i) => {
-        const d = new Date(now);
-        d.setDate(d.getDate() - (13 - i));
-        const total = typedEntries
-          .filter((e) => new Date(e.date).toDateString() === d.toDateString())
-          .reduce((sum, e) => sum + e.total, 0);
-        return { name: `${d.getDate()} ${monthShort(d.getMonth())}`, value: total };
-      });
-    }
-
-    if (trendPeriod === 'year') {
-      return Array.from({ length: 5 }, (_, i) => {
-        const year = now.getFullYear() - (4 - i);
-        const total = typedEntries
-          .filter((e) => new Date(e.date).getFullYear() === year)
-          .reduce((sum, e) => sum + e.total, 0);
-        return { name: String(displayYear(year)), value: total };
-      });
-    }
-
-    return Array.from({ length: 6 }, (_, i) => {
-      const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
-      const total = typedEntries
-        .filter((e) => {
-          const ed = new Date(e.date);
-          return ed.getFullYear() === d.getFullYear() && ed.getMonth() === d.getMonth();
-        })
-        .reduce((sum, e) => sum + e.total, 0);
-      return { name: monthShort(d.getMonth()), value: total };
-    });
-  }, [entries, trendTypeFilter, trendPeriod, t]);
 
   const breakdownEntries = useMemo(() => {
     if (breakdownPeriod === 'day') return entriesToday;
@@ -167,11 +124,17 @@ export default function Dashboard() {
     [breakdownEntries, breakdownTotal, t]
   );
 
+  const hoveredTask = hovered ? taskChips.find((c) => c.key === hovered) : null;
+
   const chipUnit = { items: t('common.items'), baht: t('common.baht') };
 
   const recentActivity = useMemo(
-    () => [...entries].sort((a, b) => b.date.localeCompare(a.date) || Number(b.id) - Number(a.id)).slice(0, 6),
-    [entries]
+    () =>
+      entries
+        .filter((e) => !hovered || e.type === hovered)
+        .sort((a, b) => b.date.localeCompare(a.date) || Number(b.id) - Number(a.id))
+        .slice(0, 4),
+    [entries, hovered]
   );
 
   return (
@@ -197,10 +160,10 @@ export default function Dashboard() {
       </div>
 
       {/* Row 2: hero + charts */}
-      <div className="mb-5 grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-5">
         <div className="relative min-w-0 lg:col-span-3 lg:flex lg:items-center">
           <div className="relative mx-auto w-full max-w-[900px]">
-            <div className="mx-auto w-full lg:w-[80%]" style={{ aspectRatio: FARM_VIEWS.iso.aspect }}>
+            <div className="mx-auto w-full lg:max-h-[max(420px,calc(100dvh-320px))] lg:w-[80%]" style={{ aspectRatio: FARM_VIEWS.iso.aspect }}>
               <FarmIsometric className="h-full w-full" />
             </div>
             {taskChips.map((c) => (
@@ -214,137 +177,102 @@ export default function Dashboard() {
                 unit={chipUnit}
                 className="absolute hidden lg:flex"
                 style={CHIP_POS[c.key]}
+                dimmed={hovered !== null && hovered !== c.key}
+                active={hovered === c.key}
+                onMouseEnter={() => setHovered(c.key)}
+                onMouseLeave={() => setHovered(null)}
               />
             ))}
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2 lg:hidden">
             {taskChips.map((c) => (
-              <TaskChip key={c.key} name={c.name} count={c.count} amount={formatNumber(c.value)} percent={c.percent} color={c.color} unit={chipUnit} className="shadow-[0_4px_20px_rgba(0,0,0,0.06)]" />
+              <TaskChip key={c.key} name={c.name} count={c.count} amount={formatNumber(c.value)} percent={c.percent} color={c.color} unit={chipUnit} className="shadow-[0_4px_20px_rgba(0,0,0,0.06)]" dimmed={hovered !== null && hovered !== c.key} active={hovered === c.key} onMouseEnter={() => setHovered(c.key)} onMouseLeave={() => setHovered(null)} />
             ))}
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-4 sm:gap-5 lg:col-span-2">
+        <div className="flex min-w-0 flex-col gap-4 sm:gap-5 lg:col-span-2 lg:justify-center">
           <div className="dash-card dash-card-lift p-4 sm:p-5">
             <div className="mb-2 flex items-center justify-between gap-2">
               <h3 className="min-w-0 text-sm font-bold text-[#1A1A1A] sm:text-base">{t('dash.breakdownByTask')}</h3>
               <PeriodSelect value={breakdownPeriod} onChange={setBreakdownPeriod} />
             </div>
-            <div className="relative mx-auto h-48 w-48">
+            <div className="relative mx-auto h-40 w-40">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={breakdown} cx="50%" cy="50%" innerRadius={58} outerRadius={90} paddingAngle={2} cornerRadius={6} dataKey="value" stroke="none" labelLine={false} label={renderPercentLabel}>
+                  <Pie
+                    data={breakdown}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={48}
+                    outerRadius={74}
+                    paddingAngle={2}
+                    cornerRadius={6}
+                    dataKey="value"
+                    stroke="none"
+                    isAnimationActive={false}
+                    labelLine={false}
+                    label={renderPercentLabel}
+                    onMouseEnter={(_, i) => setHovered(breakdown[i]?.key ?? null)}
+                    onMouseLeave={() => setHovered(null)}
+                  >
                     {breakdown.map((entry) => (
-                      <Cell key={entry.key} fill={entry.color} />
+                      <Cell key={entry.key} fill={entry.color} opacity={hovered && hovered !== entry.key ? 0.3 : 1} style={{ transition: 'opacity .2s', outline: 'none', cursor: 'pointer' }} />
                     ))}
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs font-medium text-[#8A8F85]">{t('common.total')}</span>
-                <span className="text-xl font-extrabold leading-tight text-[#1A1A1A]">{formatNumber(breakdownTotal)}</span>
+                <span className="max-w-full truncate px-6 text-xs font-medium text-[#8A8F85]">{hoveredTask ? hoveredTask.name : t('common.total')}</span>
+                <span className="text-xl font-extrabold leading-tight text-[#1A1A1A]">{formatNumber(hoveredTask ? hoveredTask.value : breakdownTotal)}</span>
                 <span className="text-xs font-medium text-[#8A8F85]">{t('common.baht')}</span>
               </div>
             </div>
           </div>
 
-          <div className="dash-card dash-card-lift min-w-0 p-4 sm:p-5">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <h3 className="min-w-0 text-sm font-bold text-[#1A1A1A] sm:text-base">{t('dash.payrollOverview')}</h3>
-              <div className="flex gap-2">
-                <PeriodSelect value={trendPeriod} onChange={setTrendPeriod} />
-                <Dropdown
-                  value={trendTypeFilter}
-                  onChange={setTrendTypeFilter}
-                  className="min-w-0 flex-1 sm:w-36 sm:flex-none"
-                  options={[
-                    { value: 'all', label: t('worker.allTypes') },
-                    ...WORK_LOG_ORDER.map((key) => ({ value: key, label: WORK_LOG_TYPES[key].labelTh })),
-                  ]}
-                />
+          {/* Work activity log: latest overall, or latest of the hovered task */}
+          <div className="dash-card min-w-0 p-4 sm:p-5">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2">
+                <h3 className="min-w-0 truncate text-sm font-bold text-[#1A1A1A] sm:text-base">{t('wlog.pageTitle')}</h3>
+                {hoveredTask && (
+                  <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white" style={{ backgroundColor: hoveredTask.color, color: hoveredTask.key === 'cutting' ? '#1A1A1A' : '#fff' }}>
+                    {hoveredTask.name}
+                  </span>
+                )}
               </div>
+              <Link to="/work" data-test="dashboard-worklog-more" className="flex shrink-0 items-center gap-1 text-sm font-semibold text-[#4F7A2B] hover:text-[#2E4A1F]">
+                More <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
-            <div className="h-44 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={monthlyTrend} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="dashArea" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#A8D04A" stopOpacity={0.55} />
-                      <stop offset="100%" stopColor="#A8D04A" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 4" vertical={false} stroke="#E8ECE0" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#8A8F85' }} dy={6} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#8A8F85' }} tickFormatter={formatCompactBaht} width={60} />
-                  <Tooltip
-                    cursor={{ stroke: '#A8D04A', strokeWidth: 1 }}
-                    contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 6px 20px rgba(0,0,0,0.1)' }}
-                    formatter={(value) => [`${formatNumber(value)} ${t('common.baht')}`, t('dash.tooltipTotal')]}
-                  />
-                  <Area type="monotone" dataKey="value" stroke="#4F7A2B" strokeWidth={2.5} fill="url(#dashArea)" dot={false} activeDot={{ r: 5, fill: '#2E4A1F', stroke: '#fff', strokeWidth: 2 }} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Row 3: activity log */}
-      <div className="dash-card overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 sm:px-6 sm:py-5">
-          <h3 className="min-w-0 text-sm font-bold text-[#1A1A1A] sm:text-base">{t('wlog.pageTitle')}</h3>
-          <Link to="/work" data-test="dashboard-worklog-more" className="flex items-center gap-1 text-sm font-semibold text-[#4F7A2B] hover:text-[#2E4A1F]">
-            More <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        <div tabIndex={0} role="region" aria-label={t('wlog.pageTitle')} className="overflow-x-auto">
-          <table className="rtable w-full min-w-[560px] border-collapse text-center text-xs sm:text-sm">
-            <thead className="bg-[#2E4A1F] text-white">
-              <tr>
-                <th className="px-5 py-3.5 text-left font-medium sm:px-6">{t('col.name')}</th>
-                <th className="px-3 py-3.5 font-medium sm:px-4">{t('col.date')}</th>
-                <th className="px-3 py-3.5 font-medium sm:px-4">{t('col.workType')}</th>
-                <th className="px-3 py-3.5 font-medium sm:px-4">{t('col.qty')}</th>
-                <th className="px-3 py-3.5 font-medium sm:px-4">{t('col.unit')}</th>
-                <th className="px-3 py-3.5 pr-5 text-right font-medium sm:px-4 sm:pr-6">{t('col.wages')}</th>
-              </tr>
-            </thead>
-            <tbody>
+            <ul aria-label={t('wlog.pageTitle')} className="min-h-[216px]">
               {recentActivity.map((entry) => {
                 const config = WORK_LOG_TYPES[entry.type];
                 const name = getWorkerName(entry.workerId);
+                const date =
+                  entry.startDate && entry.endDate && entry.startDate !== entry.endDate
+                    ? `${formatDate(entry.startDate)} - ${formatDate(entry.endDate)}`
+                    : formatDateLong(entry.startDate || entry.date);
                 return (
-                  <tr key={entry.id} className="dash-row border-b border-[#F0F2EA] last:border-0">
-                    <td className="px-5 py-3.5 text-left font-medium text-[#1A1A1A] sm:px-6">
-                      <div className="flex items-center gap-3">
-                        <Avatar src={workers.find((w) => String(w.id) === String(entry.workerId))?.avatar} name={name} />
-                        <span>{name}</span>
-                      </div>
-                    </td>
-                    <td data-label={t('col.date')} className="px-3 py-3.5 text-[#1A1A1A] sm:px-4">
-                      {entry.startDate && entry.endDate && entry.startDate !== entry.endDate
-                        ? `${formatDate(entry.startDate)} - ${formatDate(entry.endDate)}`
-                        : formatDateLong(entry.startDate || entry.date)}
-                    </td>
-                    <td data-label={t('col.workType')} className="px-3 py-3.5 sm:px-4">
-                      <span className="inline-block min-w-20 rounded-full bg-[#E6F0D6] px-4 py-1.5 text-xs font-bold text-[#2E4A1F]">{config.labelTh}</span>
-                    </td>
-                    <td data-label={t('col.qty')} className="px-3 py-3.5 text-[#1A1A1A] sm:px-4">{config.primaryQty(entry)}</td>
-                    <td data-label={t('col.unit')} className="px-3 py-3.5 text-[#1A1A1A] sm:px-4">{config.primaryUnit}</td>
-                    <td data-label={t('col.wages')} className="px-3 py-3.5 pr-5 text-right font-semibold text-[#1A1A1A] sm:px-4 sm:pr-6">{formatBaht(entry.total)}</td>
-                  </tr>
+                  <li key={entry.id} className="dash-row flex h-[54px] items-center gap-3 rounded-xl px-2">
+                    <Avatar src={workers.find((w) => String(w.id) === String(entry.workerId))?.avatar} name={name} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-[#1A1A1A]">{name}</p>
+                      <p className="truncate text-[11px] text-[#8A8F85]">
+                        {date} · {config.primaryQty(entry)} {config.primaryUnit}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-sm font-semibold text-[#1A1A1A]">{formatBaht(entry.total)}</p>
+                      <span className="inline-block rounded-full bg-[#E6F0D6] px-2 py-0.5 text-[10px] font-bold text-[#2E4A1F]">{config.labelTh}</span>
+                    </div>
+                  </li>
                 );
               })}
-              {recentActivity.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-8 text-[#8A8F85]">
-                    {t('common.noItemsYet')}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              {recentActivity.length === 0 && <li className="py-8 text-center text-sm text-[#8A8F85]">{t('common.noItemsYet')}</li>}
+            </ul>
+          </div>
         </div>
       </div>
     </div>

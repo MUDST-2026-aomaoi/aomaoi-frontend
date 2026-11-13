@@ -276,7 +276,7 @@ export const MESSAGES = {
   'pager.showing': { th: 'แสดง {from}–{to} จาก {total}', en: 'Showing {from}–{to} of {total}' },
   'pager.prev': { th: 'หน้าก่อนหน้า', en: 'Previous page' },
   'pager.next': { th: 'หน้าถัดไป', en: 'Next page' },
-  'dash.breakdownByTask': { th: 'สัดส่วนค่าแรงตามประเภทงาน', en: 'Payroll Breakdown by Task' },
+  'dash.breakdownByTask': { th: 'สัดส่วนค่าแรง', en: 'Payroll Breakdown' },
   'common.noItemsYet': { th: 'ยังไม่มีรายการ', en: 'No items yet' },
 
   // ---- pages/admin/Overview.jsx ----
