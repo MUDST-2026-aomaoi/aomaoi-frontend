@@ -83,7 +83,7 @@ function Zone({ type, a0, b0, share, active }) {
  * zones: [{ id, label, pct, color }] (4 items, in display order)
  * activeId / onActive: shared hover/selected zone id (null = none)
  */
-export function TaskZones({ zones, activeId, onActive, className = '' }) {
+export function TaskZones({ zones, activeId, onActive, className = '', showChips = true }) {
   const layout = useMemo(() => {
     const off = STEP / 2;
     const tiles = zones.map((z, i) => {
@@ -130,7 +130,7 @@ export function TaskZones({ zones, activeId, onActive, className = '' }) {
         ))}
       </svg>
 
-      {tiles.map((t) => (
+      {showChips && tiles.map((t) => (
         <button
           key={`chip-${t.id}`}
           type="button"

@@ -21,6 +21,8 @@ export const MESSAGES = {
   // ---- login ----
   'login.title': { th: 'เข้าสู่ระบบ', en: 'LOG IN' },
   'login.subtitle': { th: 'ระบบบริหารจัดการบัญชีไร่อ้อย', en: 'Sugarcane Farm Accounting Management' },
+  'login.welcome': { th: 'ยินดีต้อนรับกลับ', en: 'Welcome back' },
+  'login.tagline': { th: 'บันทึกค่าแรงไร่อ้อย ง่าย ครบ โปร่งใส', en: 'Sugarcane payroll, simple and transparent' },
   'login.username': { th: 'ชื่อผู้ใช้', en: 'username' },
   'login.password': { th: 'รหัสผ่าน', en: 'password' },
   'login.usernamePlaceholder': { th: 'กรอกชื่อผู้ใช้', en: 'enter your username' },

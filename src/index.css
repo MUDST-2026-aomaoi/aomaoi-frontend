@@ -115,3 +115,19 @@ body {
   .rtable td[data-label]::before { content: attr(data-label); flex-shrink: 0; text-align: left; font-size: 12px; font-weight: 500; color: #8A8F85; }
   .rtable td:not([data-label]) { justify-content: flex-start; padding-bottom: 8px !important; }
 }
+
+/* Browser autofill paints inputs blue; keep the inputs white like the rest of the skin. */
+.admin-skin input:-webkit-autofill,
+.admin-skin input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset;
+  -webkit-text-fill-color: #374151;
+  transition: background-color 9999s ease-out 0s;
+}
+
+@keyframes login-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.login-float { animation: login-float 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .login-float { animation: none; } }
+
