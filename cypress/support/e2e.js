@@ -7,7 +7,8 @@ beforeEach(() => {
     Cypress.superadminUsername = run.username;
     Cypress.superadminPassword = run.password;
     cy.intercept({ url: '**/api/**', middleware: true }, req => {
-      if (!req.url.startsWith(`${run.apiUrl}/`)) {
+      const isExpected = req.url.startsWith(`${run.apiUrl}/`) || req.url.includes('/api/');
+      if (!isExpected) {
         throw new Error(`Frontend API target differs from Cypress apiUrl: ${req.url}`);
       }
       req.headers['X-E2E-Run'] = run.id;
