@@ -25,6 +25,12 @@ npm run build     # build production
 npm run lint      # ตรวจโค้ดด้วย oxlint
 ```
 
+### Deploy บน Vercel
+
+- `vercel.json` rewrite ทุก path (ยกเว้น `/assets/`) ไปที่ `index.html` ให้ React Router จัดการ จึงเปิด `/login` หรือ refresh หน้าอื่นได้โดยไม่เจอ 404
+- ตั้ง Environment Variable `VITE_API_BASE_URL=https://aomaoi-backend.onrender.com/api` (ต้องมี `/api` ต่อท้าย) ใน Vercel → Project → Settings → Environment Variables
+- Vite ฝังค่านี้ตอน build จึงต้อง **Redeploy** หลังเปลี่ยน env ทุกครั้ง
+
 ## Cypress E2E
 
 ก่อนรัน E2E ให้เปิด Docker Compose จากโฟลเดอร์ `aomaoi-backend` ก่อน คำสั่งนี้จะ build และเปิดทั้งระบบ ได้แก่ PostgreSQL, Liquibase migration, backend และ frontend ไม่ต้องเปิด frontend หรือ backend แยกอีกชุด
