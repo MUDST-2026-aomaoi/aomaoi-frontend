@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,13 +11,17 @@ import { SuccessModal } from '../../components/ui/SuccessModal';
 import { Avatar } from '../../components/ui/Avatar';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
+import { DateInput } from '../../components/ui/DateInput';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerStore } from '../../store/useWorkerStore';
 import { workerService } from '../../service/workerService';
 import { tError } from '../../i18n/backendMessages';
-import { formatDateLong } from '../../lib/format';
+import { formatDateLong, isAttendanceClosed, todayBangkokISO } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 import { useT } from '../../i18n';
+import { AttendanceButtons } from '../../components/attendance/AttendanceButtons';
+import { LeaveNoteModal } from '../../components/attendance/LeaveNoteModal';
+import { useAttendanceStore } from '../../store/useAttendanceStore';
 
 const makeWorkerSchema = (t) => z.object({
   fullName: z.string().min(1, t('form.err.fullName')).regex(/^[^0-9]*$/, t('form.err.fullNameDigits')),
@@ -244,38 +249,119 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
   );
 }
 
+// Summary tiles above the cards; each one is also a filter (press again to clear).
+const ATTENDANCE_TILES = [
+  { filter: 'PRESENT', label: 'att.present', count: 'present', dot: 'bg-green-600', text: 'text-green-700' },
+  { filter: 'LEAVE', label: 'att.leave', count: 'leave', dot: 'bg-amber-500', text: 'text-amber-600' },
+  { filter: 'ABSENT', label: 'att.absent', count: 'absent', dot: 'bg-red-600', text: 'text-red-600' },
+  { filter: 'unchecked', label: 'att.unchecked', count: 'unchecked', dot: 'bg-gray-400', text: 'text-gray-700' },
+];
+
 export default function Workers() {
   const t = useT();
+  const navigate = useNavigate();
   const workers = useWorkerStore((s) => s.workers);
   const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
   const addWorker = useWorkerStore((s) => s.addWorker);
   const updateWorker = useWorkerStore((s) => s.updateWorker);
   const setWorkerStatus = useWorkerStore((s) => s.setWorkerStatus);
   const nextUsername = useWorkerStore((s) => s.nextUsername);
+  const records = useAttendanceStore((s) => s.records);
+  const fetchAttendance = useAttendanceStore((s) => s.fetchForDate);
+  const setAttendance = useAttendanceStore((s) => s.setStatus);
+  const markAllPresent = useAttendanceStore((s) => s.markAllPresent);
+
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [attendanceFilter, setAttendanceFilter] = useState('all');
+  // Attendance is only recorded for today (business time zone); the page follows midnight by itself.
+  const [today, setToday] = useState(todayBangkokISO());
+  // the day being checked: today, or a later day (only leave can be registered in advance)
+  const [date, setDate] = useState(todayBangkokISO());
+  const [closed, setClosed] = useState(isAttendanceClosed());
+  const [modal, setModal] = useState(null);
+  const [leaveFor, setLeaveFor] = useState(null);
 
   useEffect(() => {
     fetchWorkers();
   }, [fetchWorkers]);
 
-  const [search, setSearch] = useState('');
-  const [workerFilter, setWorkerFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [modal, setModal] = useState(null);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = todayBangkokISO();
+      setToday(now);
+      // midnight passed: a day that is now in the past can no longer be edited, fall back to today
+      setDate((selected) => (selected < now ? now : selected));
+      setClosed(isAttendanceClosed());
+    }, 30000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    fetchAttendance(date);
+  }, [date, fetchAttendance]);
+
+  const isFuture = date > today;
+  // today is locked after the closing time; a future day is always open (leave only)
+  const locked = closed && !isFuture;
+  const recordOf = (worker) => records[String(worker.id)];
+
+  const counts = useMemo(() => {
+    const result = { present: 0, leave: 0, absent: 0, unchecked: 0 };
+    workers.forEach((w) => {
+      if (w.status === 'inactive') return;
+      const status = records[String(w.id)]?.status;
+      if (status === 'PRESENT') result.present += 1;
+      else if (status === 'LEAVE') result.leave += 1;
+      else if (status === 'ABSENT') result.absent += 1;
+      else result.unchecked += 1;
+    });
+    return result;
+  }, [workers, records]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return workers.filter((w) => {
       const matchesSearch =
         !term ||
-        [w.fullName, w.nickname, w.username, w.phone].some((field) => field.toLowerCase().includes(term));
-      const matchesWorker = workerFilter === 'all' || w.id === workerFilter;
+        [w.fullName, w.nickname, w.username, w.phone].some((field) => (field ?? '').toLowerCase().includes(term));
       const matchesStatus = statusFilter === 'all' || w.status === statusFilter;
-      return matchesSearch && matchesWorker && matchesStatus;
+      const record = records[String(w.id)];
+      const matchesAttendance =
+        attendanceFilter === 'all' ||
+        (attendanceFilter === 'unchecked' ? w.status !== 'inactive' && !record : record?.status === attendanceFilter);
+      return matchesSearch && matchesStatus && matchesAttendance;
     });
-  }, [workers, search, workerFilter, statusFilter]);
+  }, [workers, records, search, statusFilter, attendanceFilter]);
 
   function closeModal() {
     setModal(null);
+  }
+
+  async function saveAttendance(worker, status, note) {
+    try {
+      await setAttendance({ workerId: worker.id, date, status, note });
+    } catch (error) {
+      console.error('Failed to save attendance', error);
+      alert(t('att.err.saveFailed') + ': ' + tError(error));
+    }
+  }
+
+  function changeAttendance(worker, next) {
+    if (next === 'LEAVE') {
+      setLeaveFor({ worker, note: recordOf(worker)?.note ?? '' });
+      return;
+    }
+    saveAttendance(worker, next, null);
+  }
+
+  async function handleAllPresent() {
+    try {
+      await markAllPresent(date);
+    } catch (error) {
+      console.error('Failed to mark everyone present', error);
+      alert(t('att.err.saveFailed') + ': ' + tError(error));
+    }
   }
 
   async function handleAddSubmit(data) {
@@ -315,6 +401,71 @@ export default function Workers() {
     <div>
       <PageHeader title={t('wk.pageTitle')} />
 
+      <div className="mb-4 rounded-xl border border-gray-100 bg-white p-3 shadow-sm sm:p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex w-full items-center gap-2 sm:w-auto">
+            <DateInput
+              value={date}
+              onChange={(value) => setDate(!value || value < today ? today : value)}
+              minDate={new Date(`${today}T00:00:00`)}
+              dataTest="attendance-date"
+              className="min-w-0 flex-1 sm:w-44 sm:flex-none"
+            />
+            {date === today ? (
+              <span data-test="attendance-today" className="shrink-0 rounded-full bg-farm-primary px-3 py-1 text-xs font-semibold text-white">
+                {t('att.todayBadge')}
+              </span>
+            ) : (
+              <button
+                type="button"
+                data-test="attendance-back-today"
+                onClick={() => setDate(today)}
+                className="shrink-0 whitespace-nowrap rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-farm-primary hover:bg-gray-50"
+              >
+                {t('att.backToToday')}
+              </button>
+            )}
+          </div>
+          <div data-test="attendance-summary" className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4">
+            {ATTENDANCE_TILES.map((tile) => {
+              const selected = attendanceFilter === tile.filter;
+              const highlight = tile.filter === 'unchecked' && counts.unchecked > 0;
+              return (
+                <button
+                  key={tile.filter}
+                  type="button"
+                  data-test={`attendance-stat-${tile.filter}`}
+                  aria-pressed={selected}
+                  onClick={() => setAttendanceFilter(selected ? 'all' : tile.filter)}
+                  className={`flex min-w-0 items-center justify-between gap-2 rounded-lg border bg-white px-3 py-2 text-left transition-colors hover:bg-gray-50 ${
+                    selected ? 'border-farm-primary ring-1 ring-farm-primary' : highlight ? 'border-gray-400' : 'border-gray-200'
+                  }`}
+                >
+                  <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-gray-600">
+                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${tile.dot}`} />
+                    <span className="truncate">{t(tile.label)}</span>
+                  </span>
+                  <span data-test={`attendance-count-${tile.filter}`} className={`text-lg font-bold ${tile.text}`}>
+                    {counts[tile.count]}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <Button
+            variant="outline"
+            data-test="attendance-bulk-present"
+            className="w-full whitespace-nowrap sm:w-auto"
+            disabled={closed || isFuture || counts.unchecked === 0}
+            onClick={handleAllPresent}
+          >
+            {t('att.allPresent')}
+          </Button>
+        </div>
+        {isFuture && <p data-test="attendance-future-hint" className="mt-2 text-xs text-amber-700">{t('att.futureHint')}</p>}
+        {locked && <p data-test="attendance-closed" className="mt-2 text-xs text-gray-500">{t('att.closed')}</p>}
+      </div>
+
       <TableToolbar
         search={search}
         onSearchChange={setSearch}
@@ -338,13 +489,6 @@ export default function Workers() {
         }
       >
         <Dropdown
-          value={workerFilter}
-          onChange={setWorkerFilter}
-          className={TOOLBAR_FILTER_CLASS}
-          dataTest="worker-name-filter"
-          options={[{ value: 'all', label: t('common.allWorkers') }, ...workers.map((w) => ({ value: w.id, label: w.fullName }))]}
-        />
-        <Dropdown
           value={statusFilter}
           onChange={setStatusFilter}
           className={TOOLBAR_FILTER_CLASS}
@@ -358,44 +502,40 @@ export default function Workers() {
         />
       </TableToolbar>
 
-      <div tabIndex={0} role="region" aria-label={t('wk.tableLabel')} className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
-          <thead className="sticky top-0 z-10 bg-[#3F5C2B] text-white">
-            <tr>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 pl-4 sm:pl-6 text-left font-medium">{t('col.name')}</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.nickname')}</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.username')}</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.phone')}</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.status')}</th>
-              <th className="px-3 py-3 font-medium sm:px-4 sm:py-3.5">{t('col.startDate')}</th>
-              <th className="px-3 py-3 sm:px-4 sm:py-3.5 pr-4 sm:pr-6 font-medium">{t('col.manage')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((worker) => (
-              <tr key={worker.id} data-test="worker-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
-                <td className="px-3 py-3 pl-4 text-left sm:px-4 sm:py-4 sm:pl-6">
-                  <div className="flex items-center justify-start gap-3">
-                    <Avatar src={worker.avatar} name={worker.fullName} />
-                    <span data-test="worker-row-name" className="font-semibold text-gray-800">{worker.fullName}</span>
-                  </div>
-                </td>
-                <td className="py-3 sm:py-4 px-3 sm:px-4 font-medium text-gray-800">{worker.nickname}</td>
-                <td className="py-3 sm:py-4 px-3 sm:px-4 text-gray-800">@{worker.username}</td>
-                <td className="py-3 sm:py-4 px-3 sm:px-4 text-gray-800">{worker.phone}</td>
-                <td className="py-3 sm:py-4 px-3 sm:px-4">
-                  <span data-test="worker-row-status" className={`inline-block min-w-20 whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[worker.status]}`}>
-                    {STATUS_LABEL[worker.status]}
-                  </span>
-                </td>
-                <td className="py-3 sm:py-4 px-3 sm:px-4 text-gray-800">{formatDateLong(worker.joinedDate)}</td>
-                <td className="py-3 sm:py-4 px-3 pr-4 sm:px-4 sm:pr-6 text-center" data-test="worker-row-manage">
-                  {worker.status !== 'inactive' ? (
-                    <div className="flex items-center justify-center gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
+        {filtered.map((worker) => {
+          const inactive = worker.status === 'inactive';
+          const record = recordOf(worker);
+          const open = () => navigate(`/workers/${worker.id}`);
+          return (
+            <div
+              key={worker.id}
+              data-test="worker-row"
+              role="link"
+              tabIndex={0}
+              onClick={open}
+              onKeyDown={(event) => {
+                if (event.target === event.currentTarget && event.key === 'Enter') open();
+              }}
+              className={`flex cursor-pointer flex-col rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5 ${inactive ? 'opacity-60' : ''}`}
+            >
+              <div className="flex items-start gap-3">
+                <Avatar src={worker.avatar} name={worker.fullName} className="h-12 w-12 text-base" />
+                <div className="min-w-0 flex-1">
+                  <p data-test="worker-row-name" className="truncate font-semibold text-gray-800">{worker.fullName}</p>
+                  <p className="truncate text-sm text-gray-500">{worker.nickname} · @{worker.username}</p>
+                  <p className="truncate text-sm text-gray-500">{worker.phone}</p>
+                </div>
+                <div data-test="worker-row-manage" className="flex shrink-0 items-center gap-3 pt-0.5">
+                  {!inactive ? (
+                    <>
                       <button
                         type="button"
                         data-test="worker-edit"
-                        onClick={() => setModal({ mode: 'edit', worker })}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setModal({ mode: 'edit', worker });
+                        }}
                         className="text-gray-700 transition-colors hover:text-black"
                       >
                         <Edit className="h-5 w-5" />
@@ -403,28 +543,66 @@ export default function Workers() {
                       <button
                         type="button"
                         data-test="worker-delete"
-                        onClick={() => setModal({ mode: 'delete', worker })}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setModal({ mode: 'delete', worker });
+                        }}
                         className="text-red-500 transition-colors hover:text-red-700"
                       >
                         <Trash2 className="h-5 w-5" />
                       </button>
-                    </div>
+                    </>
                   ) : (
                     <span className="text-gray-400">-</span>
                   )}
-                </td>
-              </tr>
-            ))}
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={7} className="py-8 text-gray-400">
-                  {t('wk.empty')}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                </div>
+              </div>
+
+              <div className="mt-3 flex items-center gap-2">
+                <span data-test="worker-row-status" className={`inline-block min-w-20 whitespace-nowrap rounded-full px-4 py-1.5 text-center text-xs font-bold ${STATUS_STYLE[worker.status]}`}>
+                  {STATUS_LABEL[worker.status]}
+                </span>
+              </div>
+
+              {!inactive && (
+                <div className="mt-3 border-t border-gray-100 pt-3">
+                  <AttendanceButtons
+                    status={record?.status ?? null}
+                    onSelect={(next) => changeAttendance(worker, next)}
+                    disabled={locked}
+                    disabledStatuses={isFuture ? ['PRESENT', 'ABSENT'] : []}
+                  />
+                  <div className="mt-1.5 min-h-5 text-xs text-gray-500">
+                    {!record && <span data-test="attendance-unchecked" className="text-gray-400">{t('att.unchecked')}</span>}
+                    {record?.status === 'LEAVE' && record.note && (
+                      <span data-test="attendance-note-text">{record.note}</span>
+                    )}
+                    {record?.autoRecorded && (
+                      <span data-test="attendance-auto" className="ml-1 text-gray-400">({t('att.auto')})</span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+        {filtered.length === 0 && (
+          <p className="col-span-full py-8 text-center text-gray-400">{t('wk.empty')}</p>
+        )}
       </div>
+
+      {leaveFor && (
+        <LeaveNoteModal
+          workerName={leaveFor.worker.fullName}
+          initialNote={leaveFor.note}
+          onCancel={() => setLeaveFor(null)}
+          onConfirm={(note) => {
+            const { worker } = leaveFor;
+            setLeaveFor(null);
+            saveAttendance(worker, 'LEAVE', note);
+          }}
+        />
+      )}
 
       {modal?.mode === 'add' && (
         <ModalShell onClose={closeModal} className="w-full sm:w-112.5">

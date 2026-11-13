@@ -129,6 +129,18 @@ Cypress.Commands.add('seedWorkLog', (payload, adminToken) => {
     .then((res) => res.body);
 });
 
+// Admin-recorded attendance: { workerId, date: 'YYYY-MM-DD', status: PRESENT|LEAVE|ABSENT, note }
+Cypress.Commands.add('seedAttendance', (payload, adminToken) => {
+  return cy
+    .request({
+      method: 'PUT',
+      url: apiUrl('/attendance'),
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: payload,
+    })
+    .then((res) => res.body);
+});
+
 Cypress.Commands.add('seedSalaryAdvance', (payload, adminToken) => {
   return cy
     .request({

@@ -4,6 +4,7 @@ import AuthGuard from './components/auth/AuthGuard';
 import { AdminLayout } from './layouts/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import Workers from './pages/admin/Workers';
+import WorkerDetail from './pages/admin/WorkerDetail';
 import WorkLog from './pages/admin/WorkLog';
 import Overview from './pages/admin/Overview';
 import AdvanceSalary from './pages/admin/AdvanceSalary';
@@ -78,6 +79,7 @@ function App() {
         {/* Admin-Only Routes */}
         <Route element={<AuthGuard allowedRoles={['admin']}><AdminLayout /></AuthGuard>}>
           <Route path="/workers" element={<Workers />} />
+          <Route path="/workers/:id" element={<WorkerDetail />} />
           <Route path="/work" element={<WorkLog />} />
           <Route path="/advance-salary" element={<AdvanceSalary />} />
           <Route path="/financial-balance" element={<FinancialBalance />} />

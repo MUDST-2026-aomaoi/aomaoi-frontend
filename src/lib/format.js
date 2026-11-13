@@ -60,3 +60,18 @@ export function localizeDateText(text) {
   const m = /^(\d{2}\/\d{2}\/)(\d{4})$/.exec(text || '');
   return m ? `${m[1]}${displayYear(Number(m[2]))}` : text;
 }
+
+/** Today as YYYY-MM-DD in the business time zone (same day the backend uses, whatever the browser's zone is). */
+export function todayBangkokISO() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+}
+
+/** Attendance for today is locked from this hour (Asia/Bangkok). Same default as the backend (18:00). */
+export const ATTENDANCE_CLOSING_HOUR = 18;
+
+export function isAttendanceClosed() {
+  const hour = Number(
+    new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Bangkok', hour: 'numeric', hourCycle: 'h23' }).format(new Date())
+  );
+  return hour >= ATTENDANCE_CLOSING_HOUR;
+}
