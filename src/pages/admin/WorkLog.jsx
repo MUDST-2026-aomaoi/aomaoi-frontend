@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { Pagination } from '../../components/ui/Pagination';
+import { TableSkeletonRows } from '../../components/ui/Skeleton';
 import { useFitRows, usePagedList } from '../../hooks/usePageSize';
 import { DateInput } from '../../components/ui/DateInput';
 import { Avatar } from '../../components/ui/Avatar';
@@ -33,7 +34,7 @@ function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, su
     control,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(config.schema),
     defaultValues: {
@@ -143,7 +144,7 @@ function EntryForm({ type, onTypeChange, workerId, onWorkerIdChange, workers, su
         <Button type="button" data-test="worklog-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" data-test="worklog-form-submit" className="flex-1">
+        <Button type="submit" data-test="worklog-form-submit" className="flex-1" loading={isSubmitting}>
           {t('common.confirm')}
         </Button>
       </div>
@@ -158,6 +159,7 @@ export default function WorkLog() {
   const allEntries = useWorkLogStore((s) => s.entries);
   const addEntry = useWorkLogStore((s) => s.addEntry);
   const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
+  const entriesLoaded = useWorkLogStore((s) => s.loaded);
   const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
 
   useEffect(() => {
@@ -284,7 +286,8 @@ export default function WorkLog() {
                 </tr>
               );
             })}
-            {filtered.length === 0 && (
+            {!entriesLoaded && <TableSkeletonRows cols={6} cellClassName="px-3 py-3.5 sm:px-4 sm:py-4" />}
+            {entriesLoaded && filtered.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-8 text-gray-400">
                   {t('common.noItems')}

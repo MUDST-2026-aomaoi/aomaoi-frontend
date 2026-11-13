@@ -4,13 +4,15 @@ import { t } from '../i18n';
 
 export const useAdminStore = create((set, get) => ({
   admins: [],
+  loaded: false, // first fetch settled (success or failure)
 
   fetchAdmins: async () => {
     try {
       const data = await adminService.getAllAdmins();
-      set({ admins: data });
+      set({ admins: data, loaded: true });
     } catch (error) {
       console.error("Failed to fetch admins", error);
+      set({ loaded: true });
     }
   },
 

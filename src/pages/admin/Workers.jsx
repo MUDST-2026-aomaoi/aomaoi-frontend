@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { UserPlus, Edit, Trash2, X, AlertTriangle, ImagePlus, Info, Shuffle } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
+import { WorkerCardSkeleton } from '../../components/ui/Skeleton';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { Avatar } from '../../components/ui/Avatar';
@@ -50,7 +51,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(makeWorkerSchema(t)), defaultValues: worker });
 
   function handleAvatarChange(e) {
@@ -163,7 +164,7 @@ function EditWorkerForm({ worker, onSubmit, onCancel, onResetPasswordSuccess }) 
         <Button type="button" data-test="worker-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" data-test="worker-form-submit" className="flex-1">
+        <Button type="submit" data-test="worker-form-submit" className="flex-1" loading={isSubmitting}>
           {t('common.confirm')}
         </Button>
       </div>
@@ -179,7 +180,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
     register,
     handleSubmit,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(makeAddWorkerSchema(t)), defaultValues });
 
   function handleAvatarChange(e) {
@@ -241,7 +242,7 @@ function AddWorkerForm({ defaultValues, onSubmit, onCancel }) {
         <Button type="button" data-test="worker-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" data-test="worker-form-submit" className="flex-1">
+        <Button type="submit" data-test="worker-form-submit" className="flex-1" loading={isSubmitting}>
           {t('common.confirm')}
         </Button>
       </div>
@@ -262,6 +263,7 @@ export default function Workers() {
   const navigate = useNavigate();
   const workers = useWorkerStore((s) => s.workers);
   const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
+  const workersLoaded = useWorkerStore((s) => s.loaded);
   const addWorker = useWorkerStore((s) => s.addWorker);
   const updateWorker = useWorkerStore((s) => s.updateWorker);
   const setWorkerStatus = useWorkerStore((s) => s.setWorkerStatus);
@@ -586,7 +588,8 @@ export default function Workers() {
             </div>
           );
         })}
-        {filtered.length === 0 && (
+        {!workersLoaded && Array.from({ length: 6 }, (_, i) => <WorkerCardSkeleton key={i} index={i} />)}
+        {workersLoaded && filtered.length === 0 && (
           <p className="col-span-full py-8 text-center text-gray-400">{t('wk.empty')}</p>
         )}
       </div>

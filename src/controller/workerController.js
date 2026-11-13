@@ -4,13 +4,15 @@ import { t } from '../i18n';
 
 export const useWorkerStore = create((set, get) => ({
   workers: [],
+  loaded: false, // first fetch settled (success or failure)
 
   fetchWorkers: async () => {
     try {
       const data = await workerService.getAllWorkers();
-      set({ workers: data });
+      set({ workers: data, loaded: true });
     } catch (error) {
       console.error("Failed to fetch workers", error);
+      set({ loaded: true });
     }
   },
 

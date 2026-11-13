@@ -20,6 +20,7 @@ import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 import { useT } from '../../i18n';
 import { Pagination } from '../../components/ui/Pagination';
+import { TableSkeletonRows } from '../../components/ui/Skeleton';
 import { useFitRows, usePagedList } from '../../hooks/usePageSize';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,7 +52,7 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(makeAdminSchema(t)),
     defaultValues: { ...admin, email: admin?.email ?? '', farmId: admin?.farmId == null ? '' : String(admin.farmId) },
@@ -121,7 +122,7 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
         <Button type="button" data-test="admin-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" data-test="admin-form-submit" className="flex-1">
+        <Button type="submit" data-test="admin-form-submit" className="flex-1" loading={isSubmitting}>
           {t('common.confirm')}
         </Button>
       </div>
@@ -138,7 +139,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
     control,
     handleSubmit,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(makeAddAdminSchema(t)), defaultValues });
 
   function handleAvatarChange(e) {
@@ -219,7 +220,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
         <Button type="button" data-test="admin-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" data-test="admin-form-submit" className="flex-1">
+        <Button type="submit" data-test="admin-form-submit" className="flex-1" loading={isSubmitting}>
           {t('common.confirm')}
         </Button>
       </div>
@@ -237,6 +238,7 @@ export default function AdminsManagement() {
   const allFarms = useFarmStore((s) => s.farms);
   const getFarmName = useFarmStore((s) => s.getFarmName);
   const fetchAdmins = useAdminStore((s) => s.fetchAdmins);
+  const adminsLoaded = useAdminStore((s) => s.loaded);
   const fetchFarms = useFarmStore((s) => s.fetchFarms);
 
   useEffect(() => {
@@ -412,7 +414,8 @@ export default function AdminsManagement() {
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && (
+            {!adminsLoaded && <TableSkeletonRows cols={8} />}
+            {adminsLoaded && filtered.length === 0 && (
               <tr>
                 <td colSpan={8} className="py-8 text-gray-400">
                   {t('adm.empty')}

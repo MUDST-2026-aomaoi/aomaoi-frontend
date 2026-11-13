@@ -4,13 +4,15 @@ import { t } from '../i18n';
 
 export const useFarmStore = create((set, get) => ({
   farms: [],
+  loaded: false, // first fetch settled (success or failure)
 
   fetchFarms: async () => {
     try {
       const data = await farmService.getAllFarms();
-      set({ farms: data });
+      set({ farms: data, loaded: true });
     } catch (error) {
       console.error("Failed to fetch farms", error);
+      set({ loaded: true });
     }
   },
 

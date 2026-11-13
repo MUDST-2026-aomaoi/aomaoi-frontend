@@ -264,6 +264,7 @@ export const MESSAGES = {
   'fb.debtAmount': { th: 'ติดหนี้ {amount}', en: 'In debt {amount}' },
   'fb.loading': { th: 'กำลังโหลด...', en: 'Loading...' },
   'common.loading': { th: 'กำลังโหลด...', en: 'Loading...' },
+  'loader.slow': { th: 'กำลังรอเซิร์ฟเวอร์ อาจใช้เวลาสักครู่…', en: 'Waiting for the server — this can take a moment…' },
 
   // ---- pages/admin/Dashboard.jsx ----
   'dash.totalPaid': { th: 'ยอดชำระรวม', en: 'Total paid' },

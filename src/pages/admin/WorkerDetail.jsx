@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Avatar } from '../../components/ui/Avatar';
 import { ModalShell } from '../../components/ui/ModalShell';
+import { ListSkeleton, LoadingBlock } from '../../components/ui/Skeleton';
 import { AttendanceButtons } from '../../components/attendance/AttendanceButtons';
 import { LeaveNoteModal } from '../../components/attendance/LeaveNoteModal';
 import { PageHeader } from '../../layouts/admin/PageHeader';
@@ -50,8 +51,10 @@ export default function WorkerDetail() {
   const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
   const entries = useWorkLogStore((s) => s.entries);
   const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
+  const entriesLoaded = useWorkLogStore((s) => s.loaded);
   const advances = useSalaryAdvanceStore((s) => s.advances);
   const fetchAdvances = useSalaryAdvanceStore((s) => s.fetchAdvances);
+  const advancesLoaded = useSalaryAdvanceStore((s) => s.loaded);
   const balances = useWorkerBalanceStore((s) => s.balances);
   const fetchBalances = useWorkerBalanceStore((s) => s.fetchBalances);
 
@@ -154,9 +157,11 @@ export default function WorkerDetail() {
         <Link to="/workers" className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-farm-primary hover:underline">
           <ArrowLeft className="h-4 w-4" /> {t('wkd.back')}
         </Link>
-        <p data-test="worker-detail-missing" className="py-8 text-center text-gray-400">
-          {loadedWorkers ? t('wkd.notFound') : t('common.loading')}
-        </p>
+        {loadedWorkers ? (
+          <p data-test="worker-detail-missing" className="py-8 text-center text-gray-400">{t('wkd.notFound')}</p>
+        ) : (
+          <LoadingBlock className="py-16" />
+        )}
       </div>
     );
   }
@@ -252,7 +257,9 @@ export default function WorkerDetail() {
       </Section>
 
       <Section title={t('wkd.workHistory')} testId="worker-detail-work">
-        {myEntries.length === 0 ? (
+        {!entriesLoaded ? (
+          <ListSkeleton />
+        ) : myEntries.length === 0 ? (
           <p className="py-4 text-center text-gray-400">{t('wkd.noWork')}</p>
         ) : (
           <div className="overflow-x-auto">
@@ -288,7 +295,9 @@ export default function WorkerDetail() {
       </Section>
 
       <Section title={t('wkd.advanceHistory')} testId="worker-detail-advances-list">
-        {myAdvances.length === 0 ? (
+        {!advancesLoaded ? (
+          <ListSkeleton />
+        ) : myAdvances.length === 0 ? (
           <p className="py-4 text-center text-gray-400">{t('wkd.noAdvance')}</p>
         ) : (
           <div className="overflow-x-auto">

@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../controller/authController';
 import { useT } from '../../i18n';
 import { tError } from '../../i18n/backendMessages';
+import { Spinner } from '../ui/Spinner';
 
 export default function SetPasswordModal({ onSuccess }) {
   const t = useT();
@@ -17,6 +18,7 @@ export default function SetPasswordModal({ onSuccess }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,6 +35,7 @@ export default function SetPasswordModal({ onSuccess }) {
       setErrorMessage(t('setpw.err.mismatch'));
       return;
     }
+    setIsSaving(true);
     try {
       // Assuming api wrapper handles the JWT token
       const { default: api } = await import('../../service/api');
@@ -46,6 +49,8 @@ export default function SetPasswordModal({ onSuccess }) {
       console.error("Failed to change password", error);
       const msg = tError(error, t('setpw.err.failed'));
       setErrorMessage(msg);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -148,8 +153,11 @@ export default function SetPasswordModal({ onSuccess }) {
           <button
             type="submit"
             data-test="setpw-submit"
-            className="mt-2 w-full py-4 bg-[#3B5323] hover:bg-[#2f4319] text-white font-bold text-[14px] tracking-widest rounded-2xl transition-colors"
+            disabled={isSaving}
+            aria-busy={isSaving || undefined}
+            className="mt-2 flex w-full items-center justify-center gap-2.5 py-4 bg-[#3B5323] hover:bg-[#2f4319] text-white font-bold text-[14px] tracking-widest rounded-2xl transition-colors disabled:cursor-wait"
           >
+            {isSaving && <Spinner className="h-4 w-4" />}
             {t('setpw.submit')}
           </button>
         </form>

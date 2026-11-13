@@ -8,6 +8,7 @@ import { Card } from '../../components/ui/Card';
 import { DateInput } from '../../components/ui/DateInput';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { Pagination } from '../../components/ui/Pagination';
+import { TableSkeletonRows } from '../../components/ui/Skeleton';
 import { usePageSize, usePagedList } from '../../hooks/usePageSize';
 import { Input } from '../../components/ui/Input';
 import { SuccessModal } from '../../components/ui/SuccessModal';
@@ -58,6 +59,7 @@ export default function AdvanceSalary() {
   const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
   const advances = useSalaryAdvanceStore((s) => s.advances);
   const fetchAdvances = useSalaryAdvanceStore((s) => s.fetchAdvances);
+  const advancesLoaded = useSalaryAdvanceStore((s) => s.loaded);
   const addAdvance = useSalaryAdvanceStore((s) => s.addAdvance);
 
   const [submitError, setSubmitError] = useState('');
@@ -195,7 +197,7 @@ export default function AdvanceSalary() {
             </div>
 
             <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:gap-4">
-              <Button type="submit" variant="accent" data-test="advance-save-btn" className="flex-1" disabled={isSubmitting}>
+              <Button type="submit" variant="accent" data-test="advance-save-btn" className="flex-1" loading={isSubmitting}>
                 {t('adv.save')}
               </Button>
               <Button type="button" variant="subtle" data-test="advance-reset-btn" className="flex-1" onClick={handleReset}>
@@ -247,7 +249,8 @@ export default function AdvanceSalary() {
                     </tr>
                   );
                 })}
-                {sorted.length === 0 && (
+                {!advancesLoaded && <TableSkeletonRows rows={5} cols={5} cellClassName="px-3 py-3.5 sm:px-4" />}
+                {advancesLoaded && sorted.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-8 text-gray-400">
                       {t('common.noItems')}

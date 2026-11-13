@@ -12,6 +12,7 @@ export const useWorkLogStore = create((set, get) => ({
       set({ entries: data, loaded: true });
     } catch (error) {
       console.error('Failed to fetch work logs:', error);
+      set({ loaded: true });
     }
   },
 
