@@ -4,10 +4,10 @@ import { useMemo } from 'react';
 // single-farm illustration). Plot look is seeded by farm id, so existing farms never change when
 // new ones are added; cane density/height follow the farm's payroll share.
 
-const YAW = (28 * Math.PI) / 180;
+export const YAW = (28 * Math.PI) / 180;
 const PITCH = (35 * Math.PI) / 180;
-const COS = Math.cos(YAW);
-const SIN = Math.sin(YAW);
+export const COS = Math.cos(YAW);
+export const SIN = Math.sin(YAW);
 const KY = Math.sin(PITCH);
 const TILE = 100;
 const GAP = 36;
@@ -15,7 +15,7 @@ const STEP = TILE + GAP;
 const THICK = 12;
 const SPRITE_ROOM = 46; // headroom above a plot for cane/trees
 
-const proj = (a, b) => [a * COS - b * SIN, (a * SIN + b * COS) * KY];
+export const proj = (a, b) => [a * COS - b * SIN, (a * SIN + b * COS) * KY];
 
 function hash(value) {
   let h = 2166136261;
@@ -39,7 +39,7 @@ function rng(seed) {
 
 const pts = (list) => list.map((p) => p.join(',')).join(' ');
 
-function caneSprite(key, [x, y], h) {
+export function caneSprite(key, [x, y], h) {
   const tops = [[-3, 0.9], [0, 1], [3, 0.85]].map(([dx, k]) => [x + dx, y - h * k]);
   const stalks = tops.map(([tx, ty], i) => `M${x + [-3, 0, 3][i]} ${y} L${tx} ${ty}`).join(' ');
   const leaves = tops.map(([tx, ty]) => `M${tx} ${ty} q-6 -1 -9 5 M${tx} ${ty} q6 -1 9 5 M${tx} ${ty} q-1 -5 -4 -8 M${tx} ${ty} q1 -5 4 -8`).join(' ');
@@ -52,11 +52,11 @@ function caneSprite(key, [x, y], h) {
   );
 }
 
-function sproutSprite(key, [x, y]) {
+export function sproutSprite(key, [x, y]) {
   return <path key={key} d={`M${x} ${y} l0 -5 M${x} ${y - 3} l-3 -3 M${x} ${y - 3} l3 -3`} stroke="#A8D04A" strokeWidth="1.6" strokeLinecap="round" fill="none" />;
 }
 
-function treeSprite(key, [x, y], s = 1) {
+export function treeSprite(key, [x, y], s = 1) {
   return (
     <g key={key} transform={`translate(${x} ${y}) scale(${s})`}>
       <ellipse cx="0" cy="1" rx="9" ry="3" fill="#2E4A1F" opacity="0.18" />

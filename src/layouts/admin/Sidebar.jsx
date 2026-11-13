@@ -37,10 +37,11 @@ function Label({ show, children }) {
 function NavItems({ t, items, showLabels, onNavigate }) {
   return (
     <nav className="flex flex-col gap-1.5">
-      {items.map(({ to, key, Icon }) => (
+      {items.map(({ to, key, Icon, testId }) => (
         <NavLink
           key={to}
           to={to}
+          data-test={testId}
           title={showLabels ? undefined : t(key)}
           aria-label={t(key)}
           onClick={onNavigate}

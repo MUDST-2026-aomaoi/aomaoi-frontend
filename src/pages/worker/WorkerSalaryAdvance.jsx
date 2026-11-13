@@ -16,7 +16,7 @@ const CustomDateInput = forwardRef(({ value, onClick, placeholder, dataTest }, r
       value={localizeDateText(value)}
       placeholder={placeholder}
       data-test={dataTest}
-      className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-500 outline-none text-sm shadow-sm focus:border-[#708238] cursor-pointer"
+      className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-[#E4E9DA] bg-white text-gray-500 text-sm shadow-[0_4px_20px_rgba(0,0,0,0.04)] outline-none transition focus:border-[#4F7A2B] focus:ring-2 focus:ring-[#A8D04A]/40 cursor-pointer"
     />
     <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
   </div>
@@ -107,23 +107,23 @@ export default function WorkerSalaryAdvance() {
   return (
     <div className="flex flex-col w-full pb-20">
       {/* Subtitle ใต้ Header */}
-      <p className="text-gray-400 font-medium text-sm sm:text-[18px] mb-5 sm:mb-8 mt-[-12px] sm:mt-[-20px]">
+      <p className="-mt-2 mb-5 text-sm text-[#8A8F85] sm:mb-6 sm:text-base">
         {t('wsa.subtitle')}
       </p>
 
       {/* แถบค้นหาและฟิลเตอร์ */}
-      <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 mb-6">
         {/* Search & Dropdown Group: บนมือถืออยู่แถวเดียวกันคนละครึ่ง 50/50, บน Desktop วางเรียงต่อกัน */}
-        <div className="flex items-center gap-2.5 sm:gap-4 w-full sm:w-auto sm:flex-1 sm:max-w-[590px]">
+        <div className="flex items-center gap-2.5 sm:gap-4 w-full sm:w-auto sm:flex-1">
           {/* Search */}
-          <div className="relative flex-1 min-w-0 sm:min-w-[220px] sm:max-w-[360px]">
+          <div className="relative flex-1 min-w-0 sm:min-w-[220px]">
             <input
               type="text"
               placeholder={t('worker.searchActivity')}
               data-test="worker-advance-search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-3.5 sm:pl-5 pr-10 sm:pr-12 py-2.5 bg-white border border-gray-200 rounded-lg text-farm-text outline-none text-xs sm:text-sm placeholder:text-gray-400 shadow-sm focus:border-[#708238]"
+              className="w-full pl-3.5 sm:pl-5 pr-10 sm:pr-12 py-2.5 rounded-xl border border-[#E4E9DA] bg-white text-farm-text text-xs sm:text-sm placeholder:text-gray-400 shadow-[0_4px_20px_rgba(0,0,0,0.04)] outline-none transition focus:border-[#4F7A2B] focus:ring-2 focus:ring-[#A8D04A]/40"
             />
             <Search size={18} className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
@@ -133,7 +133,7 @@ export default function WorkerSalaryAdvance() {
             <div
               data-test="worker-advance-type-filter"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2.5 bg-white border border-gray-200 rounded-lg outline-none text-xs sm:text-sm shadow-sm cursor-pointer flex items-center justify-between transition-colors focus:border-[#708238]"
+              className="w-full pl-3 sm:pl-4 pr-8 sm:pr-10 py-2.5 rounded-xl border border-[#E4E9DA] bg-white text-xs sm:text-sm shadow-[0_4px_20px_rgba(0,0,0,0.04)] cursor-pointer flex items-center justify-between outline-none transition focus:border-[#4F7A2B] focus:ring-2 focus:ring-[#A8D04A]/40"
             >
               <span className={`truncate ${filterType === '' ? 'text-gray-400' : 'text-gray-600'}`}>
                 {selectedOptionLabel}
@@ -142,7 +142,7 @@ export default function WorkerSalaryAdvance() {
             <ChevronDown size={18} className="absolute right-2.5 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
 
             {isDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-full min-w-[160px] bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+              <div className="absolute top-full left-0 mt-1 w-full min-w-[160px] rounded-2xl bg-white p-2 shadow-[0_12px_32px_rgba(46,74,31,0.12)] ring-1 ring-black/5 z-50 max-h-72 overflow-y-auto">
                 {ADVANCE_OPTIONS.map((opt) => (
                   <div
                     key={opt.value}
@@ -151,8 +151,8 @@ export default function WorkerSalaryAdvance() {
                       setFilterType(opt.value);
                       setIsDropdownOpen(false);
                     }}
-                    className={`px-4 py-2.5 text-xs sm:text-sm cursor-pointer transition-colors hover:bg-gray-50 ${
-                      filterType === opt.value ? 'bg-gray-50 text-farm-text font-bold' : 'text-gray-600'
+                    className={`rounded-lg px-3 py-2.5 text-xs sm:text-sm cursor-pointer transition-colors hover:bg-[#E6F0D6]/60 ${
+                      filterType === opt.value ? 'font-semibold text-gray-900' : 'text-gray-600'
                     }`}
                   >
                     {opt.label}
@@ -188,34 +188,34 @@ export default function WorkerSalaryAdvance() {
       </div>
 
       {/* ตาราง */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
-        <div tabIndex={0} role="region" aria-label={t('wsa.tableLabel')} className="overflow-x-auto w-full">
-          <table data-test="worker-advance-table" className="w-full table-fixed text-center border-collapse min-w-[560px] md:min-w-[800px]">
+      <div className="rounded-[20px] bg-white p-4 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)] w-full">
+        <div tabIndex={0} role="region" aria-label={t('wsa.tableLabel')} className="w-full overflow-x-auto rounded-2xl ring-1 ring-[#EEF1E6]">
+          <table data-test="worker-advance-table" className="rtable w-full table-fixed text-center border-collapse min-w-[560px] md:min-w-[800px]">
             <colgroup>
               <col className="w-1/4" />
               <col className="w-1/4" />
               <col className="w-1/4" />
               <col className="w-1/4" />
             </colgroup>
-            <thead className="bg-[#E8E8E8] border-b border-gray-200 sticky top-0 z-10">
+            <thead className="bg-[#2E4A1F] text-white sticky top-0 z-10">
               <tr>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wh.col.date')}</th>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wsa.col.item')}</th>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wsa.col.type')}</th>
-                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center text-[#3E2E1F] font-bold text-[14px] sm:text-[15px]">{t('wsa.col.amount')}</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-[14px] sm:text-[15px]">{t('wh.col.date')}</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-[14px] sm:text-[15px]">{t('wsa.col.item')}</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-[14px] sm:text-[15px]">{t('wsa.col.type')}</th>
+                <th className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-[14px] sm:text-[15px]">{t('wsa.col.amount')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-[#F0F2EA]">
               {filteredData.length > 0 ? (
                 filteredData.map((item) => (
-                  <tr key={item.id} data-test="worker-advance-row" className="hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[13px] sm:text-[14px] whitespace-nowrap">
+                  <tr key={item.id} data-test="worker-advance-row" className="hover:bg-[#E6F0D6]/50 transition-colors">
+                    <td data-label={t('wh.col.date')} className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[13px] sm:text-[14px] whitespace-nowrap">
                       {item.displayDate}
                     </td>
-                    <td className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[13px] sm:text-[14px]">
+                    <td data-label={t('wsa.col.item')} className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[13px] sm:text-[14px]">
                       {item.itemName || '-'}
                     </td>
-                    <td className="py-3 px-3 sm:py-4 sm:px-6 text-center">
+                    <td data-label={t('wsa.col.type')} className="py-3 px-3 sm:py-4 sm:px-6 text-center">
                       <span
                         data-test="worker-advance-row-type"
                         className={`inline-block min-w-[80px] sm:min-w-[88px] px-3 sm:px-4 py-1 rounded-full text-[12px] sm:text-[13px] font-medium ${item.badgeClass}`}
@@ -223,7 +223,7 @@ export default function WorkerSalaryAdvance() {
                         {item.typeLabel}
                       </span>
                     </td>
-                    <td className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[14px] sm:text-[15px] whitespace-nowrap">
+                    <td data-label={t('wsa.col.amount')} className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[14px] sm:text-[15px] whitespace-nowrap">
                       {formatAmount(item.amount)} <span className="ml-1">{t('common.baht')}</span>
                     </td>
                   </tr>
