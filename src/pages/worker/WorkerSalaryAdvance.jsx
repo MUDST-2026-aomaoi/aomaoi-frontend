@@ -2,6 +2,7 @@ import { useState, useMemo, forwardRef, useEffect, useRef } from 'react';
 import { Search, Calendar, ChevronDown } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import { DatePickerPopperContainer } from '../../components/ui/DatePickerPopperContainer';
+import { TableSkeletonRows } from '../../components/ui/Skeleton';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { useT, getDateFnsLocale } from '../../i18n';
@@ -46,6 +47,7 @@ export default function WorkerSalaryAdvance() {
   const ADVANCE_BADGE = advanceBadge(t);
   const myAdvances = useSalaryAdvanceStore((s) => s.myAdvances);
   const fetchMyAdvances = useSalaryAdvanceStore((s) => s.fetchMyAdvances);
+  const myAdvancesLoaded = useSalaryAdvanceStore((s) => s.myLoaded);
 
   useEffect(() => {
     fetchMyAdvances();
@@ -206,7 +208,9 @@ export default function WorkerSalaryAdvance() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F0F2EA]">
-              {filteredData.length > 0 ? (
+              {!myAdvancesLoaded ? (
+                <TableSkeletonRows cols={4} rowClassName="" cellClassName="py-3.5 px-3 sm:py-4 sm:px-6" />
+              ) : filteredData.length > 0 ? (
                 filteredData.map((item) => (
                   <tr key={item.id} data-test="worker-advance-row" className="hover:bg-[#E6F0D6]/50 transition-colors">
                     <td data-label={t('wh.col.date')} className="py-3 px-3 sm:py-4 sm:px-6 text-center font-medium text-farm-text text-[13px] sm:text-[14px] whitespace-nowrap">

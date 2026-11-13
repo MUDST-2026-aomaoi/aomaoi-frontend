@@ -124,6 +124,126 @@ body {
   transition: background-color 9999s ease-out 0s;
 }
 
+/* ---- Loading states (TopLoader, Spinner, Skeleton) ----
+   In the components layer so Tailwind utilities (h-*, w-*, rounded-*) can size each instance. */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@layer components {
+  /* Top progress bar. Resting state is off-screen and transparent; TopLoader.jsx animates it with WAAPI. */
+  .top-loader {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 100;
+    height: 3px;
+    pointer-events: none;
+  }
+  .top-loader-bar {
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  .top-loader-fill {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 0 9999px 9999px 0;
+    background: linear-gradient(90deg, #2E4A1F 0%, #4F7A2B 45%, #A8D04A 100%);
+  }
+  /* Light sweeping along the bar; only runs while the bar is active. */
+  .top-loader-fill::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 30%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    transform: translateX(-100%);
+    animation: top-loader-sheen 1.4s linear infinite paused;
+  }
+  .top-loader[data-active] .top-loader-fill::before { animation-play-state: running; }
+  /* Soft glow at the leading edge. */
+  .top-loader-peg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 96px;
+    height: 100%;
+    border-radius: 9999px;
+    box-shadow: 0 0 12px #A8D04A, 0 0 4px #A8D04A;
+    opacity: 0.9;
+  }
+
+  /* "Taking a while" note under the bar. Transitions (not keyframes) so a flicker of slow/fast can't stack. */
+  .loader-pill {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    padding: 8px 16px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 10px 30px rgba(46, 74, 31, 0.16), inset 0 0 0 1px rgba(46, 74, 31, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: 13px;
+    font-weight: 500;
+    color: #2E4A1F;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -8px) scale(0.96);
+    transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out), visibility 0s linear 200ms;
+  }
+  .loader-pill[data-show='true'] {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0) scale(1);
+    transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out), visibility 0s;
+  }
+
+  .loader-spin {
+    animation: loader-spin 0.7s linear infinite, loader-fade-in 150ms var(--ease-out);
+  }
+
+  .loader-block { animation: loader-fade-in 240ms var(--ease-out) 150ms both; }
+
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: #EDF1E6;
+    animation: loader-fade-in 240ms var(--ease-out) calc(150ms + var(--sk-delay, 0ms)) both;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+    transform: translateX(-100%);
+    animation: skeleton-sheen 1.6s linear var(--sk-delay, 0ms) infinite;
+  }
+}
+
+@keyframes top-loader-sheen { to { transform: translateX(340%); } }
+@keyframes loader-spin { to { transform: rotate(360deg); } }
+@keyframes loader-fade-in { from { opacity: 0; } }
+@keyframes skeleton-sheen { to { transform: translateX(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .top-loader-fill::before,
+  .skeleton::after { display: none; }
+  .loader-spin { animation-duration: 1.6s, 150ms; }
+  .loader-pill,
+  .loader-pill[data-show='true'] { transform: translate(-50%, 0); }
+}
+
 @keyframes login-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }

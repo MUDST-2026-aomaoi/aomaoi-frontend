@@ -7,6 +7,7 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
+import { FarmCardSkeleton } from '../../components/ui/Skeleton';
 import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
@@ -33,7 +34,7 @@ function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(makeFarmSchema(t)), defaultValues });
 
   function handleImageChange(e) {
@@ -80,7 +81,7 @@ function FarmForm({ title, defaultValues, onSubmit, onCancel }) {
         <Button type="button" data-test="farm-form-cancel" variant="outline" className="flex-1" onClick={onCancel}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" data-test="farm-form-submit" className="flex-1">
+        <Button type="submit" data-test="farm-form-submit" className="flex-1" loading={isSubmitting}>
           {t('common.confirm')}
         </Button>
       </div>
@@ -95,6 +96,7 @@ export default function AllFarms() {
   const updateFarm = useFarmStore((s) => s.updateFarm);
   const setFarmStatus = useFarmStore((s) => s.setFarmStatus);
   const fetchFarms = useFarmStore((s) => s.fetchFarms);
+  const farmsLoaded = useFarmStore((s) => s.loaded);
   const allAdmins = useAdminStore((s) => s.admins);
   const fetchAdmins = useAdminStore((s) => s.fetchAdmins);
   const allEntries = useWorkLogStore((s) => s.entries);
@@ -270,7 +272,8 @@ export default function AllFarms() {
             </div>
           </div>
         ))}
-        {filtered.length === 0 && <p className="col-span-full py-8 text-center text-gray-400">{t('farm.empty')}</p>}
+        {!farmsLoaded && Array.from({ length: 3 }, (_, i) => <FarmCardSkeleton key={i} index={i} />)}
+        {farmsLoaded && filtered.length === 0 && <p className="col-span-full py-8 text-center text-gray-400">{t('farm.empty')}</p>}
       </div>
 
       {modal?.mode === 'add' && (

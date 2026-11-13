@@ -3,6 +3,7 @@ import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../controller/authController';
 import { LanguageSwitch } from '../../components/ui/LanguageSwitch';
+import { Spinner } from '../../components/ui/Spinner';
 import { TaskZones } from '../../components/dashboard/TaskZones';
 import { useT } from '../../i18n';
 import { translateBackendMessage } from '../../i18n/backendMessages';
@@ -133,8 +134,10 @@ export default function Login() {
               type="submit"
               data-test="login-submit"
               disabled={isLoading}
-              className="mt-2 w-full rounded-full bg-[#2E4A1F] py-3.5 text-sm font-bold tracking-widest text-white shadow-[0_10px_24px_rgba(46,74,31,0.25)] transition hover:bg-[#3F6B27] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+              aria-busy={isLoading || undefined}
+              className="mt-2 flex w-full items-center justify-center gap-2.5 rounded-full bg-[#2E4A1F] py-3.5 text-sm font-bold tracking-widest text-white shadow-[0_10px_24px_rgba(46,74,31,0.25)] transition hover:bg-[#3F6B27] active:scale-[0.99] disabled:cursor-wait disabled:bg-[#3F6B27]"
             >
+              {isLoading && <Spinner className="h-4 w-4" />}
               {isLoading ? t('login.submitting') : t('login.submit')}
             </button>
           </form>

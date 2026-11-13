@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AuthGuard from './components/auth/AuthGuard';
+import { TopLoader } from './components/ui/TopLoader';
 
 import { AdminLayout } from './layouts/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
@@ -60,6 +61,7 @@ function RoleBasedDashboard() {
 function App() {
   return (
     <BrowserRouter>
+      <TopLoader />
       <Routes>
         <Route path="/login" element={<Login />} />
 

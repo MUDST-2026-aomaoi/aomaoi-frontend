@@ -14,6 +14,7 @@ export const auditLogController = {
       setError('Failed to fetch audit logs');
     } finally {
       setLoading(false);
+      useAuditLogStore.setState({ loaded: true });
     }
   }
 };
