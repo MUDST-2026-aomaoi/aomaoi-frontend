@@ -24,7 +24,7 @@ export function Pagination({ pager, className = '' }) {
   const to = Math.min(total, page * pageSize);
 
   return (
-    <nav aria-label="Pagination" data-test="pagination" className={`mt-4 flex flex-col items-center gap-2 sm:grid sm:grid-cols-[1fr_auto_1fr] ${className}`}>
+    <nav aria-label="Pagination" data-test="pagination" className={`mt-auto pt-4 flex flex-col items-center gap-2 sm:grid sm:grid-cols-[1fr_auto_1fr] ${className}`}>
       <p className="text-xs text-[#8A8F85] sm:justify-self-start">{t('pager.showing', { from, to, total })}</p>
       <div className="flex items-center gap-1.5 sm:col-start-2">
         <button

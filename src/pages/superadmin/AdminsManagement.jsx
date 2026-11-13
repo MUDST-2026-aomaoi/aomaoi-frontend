@@ -19,6 +19,8 @@ import { tError } from '../../i18n/backendMessages';
 import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 import { useT } from '../../i18n';
+import { Pagination } from '../../components/ui/Pagination';
+import { useFitRows, usePagedList } from '../../hooks/usePageSize';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -65,9 +67,9 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
 
   return (
     <form onSubmit={handleSubmit((data) => onSubmit({ ...data, avatar: avatarPreview ?? undefined }))}>
-      <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">{t('adm.editTitle')}</h3>
-        <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
+      <div className="mb-4 flex items-center justify-between border-b border-[#E6F0D6] pb-3">
+        <h3 className="text-xl font-extrabold tracking-tight text-farm-primary">{t('adm.editTitle')}</h3>
+        <button type="button" onClick={onCancel} className="rounded-full p-1.5 text-[#8A8F85] transition hover:bg-[#E6F0D6]/70 hover:text-[#2E4A1F]">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -77,7 +79,7 @@ function EditAdminForm({ admin, farms, onSubmit, onCancel }) {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-gray-300 bg-gray-50 text-gray-400 hover:border-farm-primary"
+          className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-[#A8D04A] bg-[#E6F0D6]/50 text-[#4F7A2B] transition hover:border-[#4F7A2B] hover:bg-[#E6F0D6]"
         >
           {avatarPreview ? (
             <>
@@ -149,9 +151,9 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
 
   return (
     <form onSubmit={handleSubmit((data) => onSubmit({ ...data, avatar: avatarPreview ?? undefined }))}>
-      <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-        <h3 className="text-lg font-bold text-farm-primary">{t('adm.addTitle')}</h3>
-        <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
+      <div className="mb-4 flex items-center justify-between border-b border-[#E6F0D6] pb-3">
+        <h3 className="text-xl font-extrabold tracking-tight text-farm-primary">{t('adm.addTitle')}</h3>
+        <button type="button" onClick={onCancel} className="rounded-full p-1.5 text-[#8A8F85] transition hover:bg-[#E6F0D6]/70 hover:text-[#2E4A1F]">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -161,7 +163,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-gray-300 bg-gray-50 text-gray-400 hover:border-farm-primary hover:text-farm-primary"
+          className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-[#A8D04A] bg-[#E6F0D6]/50 text-[#4F7A2B] transition hover:border-[#4F7A2B] hover:bg-[#E6F0D6]"
         >
           {avatarPreview ? (
             <img src={avatarPreview} alt="Preview" className="h-full w-full object-cover" />
@@ -208,7 +210,7 @@ function AddAdminForm({ defaultValues, farms, onSubmit, onCancel }) {
         </button>
       </div>
 
-      <div className="mb-6 mt-3 flex items-start gap-2 rounded-md bg-[#FEF3C7] p-3 text-xs text-[#92400E]">
+      <div className="mb-6 mt-3 flex items-start gap-2 rounded-2xl bg-[#FEF3C7]/80 p-3.5 text-xs text-[#92400E]">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
         <p>{t('adm.tempPwNote')}</p>
       </div>
@@ -296,8 +298,12 @@ export default function AdminsManagement() {
     }
   }
 
+  const { ref: tableRef, pageSize } = useFitRows();
+  const pager = usePagedList(filtered, pageSize);
+  const pageItems = pager.pageItems;
+
   return (
-    <div>
+    <div className="flex min-h-full flex-col">
       <PageHeader title={t('adm.pageTitle')} />
 
       <TableToolbar
@@ -343,9 +349,9 @@ export default function AdminsManagement() {
         />
       </TableToolbar>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
-          <thead className="bg-[#3F5C2B] text-white">
+      <div ref={tableRef} className="overflow-x-auto rounded-[20px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+        <table className="rtable w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
+          <thead className="bg-[#2E4A1F] text-white">
             <tr>
               <th className="px-4 py-3.5 font-medium">{t('col.name')}</th>
               <th className="px-4 py-3.5 font-medium">{t('col.username')}</th>
@@ -358,29 +364,29 @@ export default function AdminsManagement() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((admin) => (
-              <tr key={admin.id} data-test="admin-row" className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50">
+            {pageItems.map((admin) => (
+              <tr key={admin.id} data-test="admin-row" className="border-b border-[#F0F2EA] transition-colors last:border-0 hover:bg-[#E6F0D6]/50">
                 <td className="px-4 py-3 sm:py-4 text-left">
                   <div className="flex items-center justify-start gap-3 pl-2">
                     <Avatar src={admin.avatar} name={admin.fullName} />
                     <span data-test="admin-row-name" className="font-semibold text-gray-800">{admin.fullName}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 sm:py-4 text-gray-800">{admin.username}</td>
-                <td className="px-4 py-3 sm:py-4 text-gray-800">{admin.phone}</td>
-                <td data-test="admin-row-email" className="px-4 py-3 sm:py-4 text-gray-800">{admin.email || '-'}</td>
-                <td className="px-4 py-3 sm:py-4">
+                <td data-label={t('col.username')} className="px-4 py-3 sm:py-4 text-gray-800">{admin.username}</td>
+                <td data-label={t('col.phone')} className="px-4 py-3 sm:py-4 text-gray-800">{admin.phone}</td>
+                <td data-label={t('col.email')} data-test="admin-row-email" className="px-4 py-3 sm:py-4 text-gray-800">{admin.email || '-'}</td>
+                <td data-label={t('col.farm')} className="px-4 py-3 sm:py-4">
                   <span className="inline-block rounded-full bg-farm-secondary/40 px-3 py-1 text-xs font-medium text-farm-text">
                     {getFarmName(admin.farmId)}
                   </span>
                 </td>
-                <td className="px-4 py-3 sm:py-4">
+                <td data-label={t('col.status')} className="px-4 py-3 sm:py-4">
                   <span data-test="admin-row-status" className={`inline-block min-w-20 whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE[admin.status]}`}>
                     {STATUS_LABEL[admin.status]}
                   </span>
                 </td>
-                <td className="px-4 py-3 sm:py-4 text-gray-800">{formatDateLong(admin.joinedDate)}</td>
-                <td className="px-4 py-3 sm:py-4" data-test="admin-row-manage">
+                <td data-label={t('col.startDate')} className="px-4 py-3 sm:py-4 text-gray-800">{formatDateLong(admin.joinedDate)}</td>
+                <td data-label={t('col.manage')} className="px-4 py-3 sm:py-4" data-test="admin-row-manage">
                   {admin.status !== 'inactive' ? (
                     <div className="flex items-center justify-center gap-4">
                       <button
@@ -416,6 +422,7 @@ export default function AdminsManagement() {
           </tbody>
         </table>
       </div>
+      <Pagination pager={pager} />
 
       {modal?.mode === 'add' && (
         <ModalShell onClose={closeModal} className="sm:w-112.5">

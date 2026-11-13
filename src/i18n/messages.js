@@ -339,7 +339,12 @@ export const MESSAGES = {
   'audit.empty': { th: 'ไม่พบบันทึกที่ตรงกับเงื่อนไข', en: 'No logs found matching your criteria.' },
 
   // ---- pages/superadmin/Dashboard.jsx ----
-  'dash.breakdownByFarms': { th: 'สัดส่วนค่าแรงตามฟาร์ม', en: 'Payroll Breakdown by Farms' },
+  'dash.trend6m': { th: 'แนวโน้ม 6 เดือน', en: '6-month trend' },
+  'dash.vsLastMonth': { th: 'เทียบเดือนก่อน', en: 'vs last month' },
+  'dash.clearSelection': { th: 'ล้างการเลือก', en: 'Clear' },
+  'dash.others': { th: 'อื่นๆ', en: 'Others' },
+  'dash.moreFarms': { th: '+{n} ฟาร์ม', en: '+{n} farms' },
+  'dash.breakdownByFarms': { th: 'สัดส่วนค่าแรง', en: 'Payroll Breakdown' },
 
   // ---- fallbacks ----
   'common.unknownName': { th: 'ไม่ทราบชื่อ', en: 'Unknown name' },

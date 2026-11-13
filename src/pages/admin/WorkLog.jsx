@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { Pagination } from '../../components/ui/Pagination';
-import { usePageSize, usePagedList } from '../../hooks/usePageSize';
+import { useFitRows, usePagedList } from '../../hooks/usePageSize';
 import { DateInput } from '../../components/ui/DateInput';
 import { Avatar } from '../../components/ui/Avatar';
 import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
@@ -206,12 +206,12 @@ export default function WorkLog() {
     }
   }
 
-  const pageSize = usePageSize({ rowHeight: 65, reserved: 320 });
+  const { ref: tableRef, pageSize } = useFitRows();
   const pager = usePagedList(filtered, pageSize);
   const pageItems = pager.pageItems;
 
   return (
-    <div>
+    <div className="flex min-h-full flex-col">
       <PageHeader title={t('wlog.pageTitle')} />
 
       <TableToolbar
@@ -245,7 +245,7 @@ export default function WorkLog() {
         />
       </TableToolbar>
 
-      <div tabIndex={0} role="region" aria-label={t('wlog.tableLabel')} className="overflow-x-auto rounded-[20px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+      <div ref={tableRef} tabIndex={0} role="region" aria-label={t('wlog.tableLabel')} className="overflow-x-auto rounded-[20px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
         <table className="rtable w-full min-w-[560px] border-collapse text-center text-xs sm:text-sm">
           <thead className="sticky top-0 z-10 bg-[#2E4A1F] text-white">
             <tr>

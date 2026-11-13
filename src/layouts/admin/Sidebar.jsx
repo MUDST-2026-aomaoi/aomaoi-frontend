@@ -7,7 +7,7 @@ import { useLangStore } from '../../store/useLangStore';
 import { useT } from '../../i18n';
 import { LanguageSwitch } from '../../components/ui/LanguageSwitch';
 
-const ITEMS = [
+export const ADMIN_NAV_ITEMS = [
   { to: '/dashboard', key: 'nav.dashboard', Icon: LayoutGrid },
   { to: '/workers', key: 'nav.workers', Icon: Users },
   { to: '/work', key: 'nav.workLog', Icon: FileText },
@@ -34,10 +34,10 @@ function Label({ show, children }) {
   return <span className={`whitespace-nowrap transition-opacity duration-150 ${show ? 'opacity-100' : 'opacity-0'}`}>{children}</span>;
 }
 
-function NavItems({ t, showLabels, onNavigate }) {
+function NavItems({ t, items, showLabels, onNavigate }) {
   return (
     <nav className="flex flex-col gap-1.5">
-      {ITEMS.map(({ to, key, Icon }) => (
+      {items.map(({ to, key, Icon }) => (
         <NavLink
           key={to}
           to={to}
@@ -113,7 +113,11 @@ function Brand({ showLabels }) {
   );
 }
 
-export function Sidebar({ open = false, onClose }) {
+export function Sidebar(props) {
+  return <RailSidebar items={ADMIN_NAV_ITEMS} ariaLabel="Admin navigation" {...props} />;
+}
+
+export function RailSidebar({ items, ariaLabel, open = false, onClose }) {
   const t = useT();
   const desktop = useDesktop();
   const [expanded, setExpanded] = useState(false);
@@ -136,10 +140,10 @@ export function Sidebar({ open = false, onClose }) {
     return (
       <div className="relative hidden h-full w-[88px] shrink-0 md:block">
         <div ref={ref} className="absolute bottom-4 left-4 top-4 z-40 transition-[width] duration-200 ease-out" style={{ width: expanded ? 232 : 64 }}>
-          <aside id="admin-sidebar" aria-label="Admin navigation" className={`flex h-full flex-col overflow-hidden rounded-3xl ${CARD}`}>
+          <aside id="admin-sidebar" aria-label={ariaLabel} className={`flex h-full flex-col overflow-hidden rounded-3xl ${CARD}`}>
             <Brand showLabels={expanded} />
             <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2">
-              <NavItems t={t} showLabels={expanded} onNavigate={() => setExpanded(false)} />
+              <NavItems t={t} items={items} showLabels={expanded} onNavigate={() => setExpanded(false)} />
             </div>
             <div className="px-2 pb-1">
               <button
@@ -169,7 +173,7 @@ export function Sidebar({ open = false, onClose }) {
       {open && <div className="fixed inset-0 z-30 bg-[#2E4A1F]/30 backdrop-blur-[2px]" onClick={onClose} aria-hidden="true" />}
       <aside
         id="admin-sidebar"
-        aria-label="Admin navigation"
+        aria-label={ariaLabel}
         className={`fixed inset-y-3 left-3 z-40 flex w-64 flex-col overflow-hidden rounded-3xl transition-transform duration-200 ease-out ${CARD} ${open ? 'translate-x-0' : '-translate-x-[110%]'}`}
       >
         <div className="flex items-center">
@@ -181,7 +185,7 @@ export function Sidebar({ open = false, onClose }) {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-2 py-2">
-          <NavItems t={t} showLabels onNavigate={onClose} />
+          <NavItems t={t} items={items} showLabels onNavigate={onClose} />
         </div>
         <Footer t={t} showLabels />
       </aside>

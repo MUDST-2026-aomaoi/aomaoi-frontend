@@ -3,7 +3,7 @@ import { Avatar } from '../../components/ui/Avatar';
 import { STATUS_STYLE } from '../../config/status';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { Pagination } from '../../components/ui/Pagination';
-import { usePageSize, usePagedList } from '../../hooks/usePageSize';
+import { useFitRows, usePagedList } from '../../hooks/usePageSize';
 import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerBalanceStore } from '../../store/useWorkerBalanceStore';
@@ -78,12 +78,12 @@ export default function FinancialBalance() {
     [balances, workerFilter]
   );
 
-  const pageSize = usePageSize({ rowHeight: 65, reserved: 445 });
+  const { ref: tableRef, pageSize } = useFitRows();
   const pager = usePagedList(filtered, pageSize);
   const pageItems = pager.pageItems;
 
   return (
-    <div>
+    <div className="flex min-h-full flex-col">
       <PageHeader title={t('fb.pageTitle')} />
 
       <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
@@ -120,7 +120,7 @@ export default function FinancialBalance() {
         </div>
       )}
 
-      <div tabIndex={0} role="region" aria-label={t('fb.tableLabel')} className="overflow-x-auto rounded-[20px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+      <div ref={tableRef} tabIndex={0} role="region" aria-label={t('fb.tableLabel')} className="overflow-x-auto rounded-[20px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
         <table className="rtable w-full min-w-[600px] border-collapse text-center text-xs sm:text-sm">
           <thead className="sticky top-0 z-10 bg-[#2E4A1F] text-white">
             <tr>
