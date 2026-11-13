@@ -144,7 +144,7 @@ export default function Dashboard() {
     return (
       <div className="dash-theme">
         <PageHeader title={t('nav.dashboard')} />
-        <LoadingBlock className="py-24" />
+        <LoadingBlock fill />
       </div>
     );
   }
