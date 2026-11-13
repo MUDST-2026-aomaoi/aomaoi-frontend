@@ -8,7 +8,7 @@ import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToo
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { getLocale, useT } from '../../i18n';
 import { Pagination } from '../../components/ui/Pagination';
-import { TableSkeletonRows } from '../../components/ui/Skeleton';
+import { TableLoadingRow } from '../../components/ui/Loader';
 import { useFitRows, usePagedList } from '../../hooks/usePageSize';
 
 export default function AuditLogs() {
@@ -124,7 +124,7 @@ export default function AuditLogs() {
           </thead>
           <tbody>
             {!loaded || (isLoading && auditLogs.length === 0) ? (
-              <TableSkeletonRows cols={5} />
+              <TableLoadingRow cols={5} />
             ) : filtered.length === 0 ? (
               <tr>
                 <td colSpan="5" className="py-8 text-gray-400 text-center">{t('audit.empty')}</td>

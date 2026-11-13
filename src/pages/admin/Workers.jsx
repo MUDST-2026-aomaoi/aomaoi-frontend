@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { UserPlus, Edit, Trash2, X, AlertTriangle, ImagePlus, Info, Shuffle } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { WorkerCardSkeleton } from '../../components/ui/Skeleton';
+import { LoadingBlock } from '../../components/ui/Loader';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
 import { Avatar } from '../../components/ui/Avatar';
@@ -588,7 +588,7 @@ export default function Workers() {
             </div>
           );
         })}
-        {!workersLoaded && Array.from({ length: 6 }, (_, i) => <WorkerCardSkeleton key={i} index={i} />)}
+        {!workersLoaded && <LoadingBlock className="col-span-full py-16" />}
         {workersLoaded && filtered.length === 0 && (
           <p className="col-span-full py-8 text-center text-gray-400">{t('wk.empty')}</p>
         )}

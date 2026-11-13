@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useAuthStore } from '../../controller/authController';
+import { LoadingBlock } from '../../components/ui/Loader';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
 import { formatDate, formatBaht, formatAmount } from '../../lib/format';
 import { useT, periodOptions } from '../../i18n';
@@ -46,6 +47,7 @@ export default function WorkerDashboard() {
   
   const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
   const fetchMyBalance = useWorkLogStore((s) => s.fetchMyBalance);
+  const entriesLoaded = useWorkLogStore((s) => s.loaded);
   useEffect(() => {
     fetchEntries();
     fetchMyBalance();
@@ -117,6 +119,8 @@ export default function WorkerDashboard() {
 
   const zones = useMemo(() => statsBoxes.map((s) => ({ id: s.id, label: s.title, pct: s.pct, color: s.color })), [statsBoxes]);
   const activeStat = statsBoxes.find((s) => s.id === activeTask);
+
+  if (!entriesLoaded) return <LoadingBlock className="py-24" />;
 
   return (
     <div className="flex flex-col gap-4 w-full pb-2">

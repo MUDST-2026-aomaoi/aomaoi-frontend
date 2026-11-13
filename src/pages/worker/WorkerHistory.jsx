@@ -2,7 +2,7 @@ import { useState, useMemo, forwardRef, useEffect, useRef } from 'react';
 import { Search, Calendar, ChevronDown } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import { DatePickerPopperContainer } from '../../components/ui/DatePickerPopperContainer';
-import { TableSkeletonRows } from '../../components/ui/Skeleton';
+import { TableLoadingRow } from '../../components/ui/Loader';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
@@ -246,7 +246,7 @@ export default function WorkerHistory() {
             </thead>
             <tbody className="divide-y divide-[#F0F2EA]">
               {!entriesLoaded ? (
-                <TableSkeletonRows cols={5} rowClassName="" cellClassName="py-3.5 px-3 sm:py-4 sm:px-6" />
+                <TableLoadingRow cols={5} />
               ) : filteredData.length > 0 ? (
                 filteredData.map((item) => (
                   <tr key={item.id} className="hover:bg-[#E6F0D6]/50 transition-colors">
