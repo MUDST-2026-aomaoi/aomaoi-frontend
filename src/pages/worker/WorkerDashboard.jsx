@@ -120,7 +120,7 @@ export default function WorkerDashboard() {
   const zones = useMemo(() => statsBoxes.map((s) => ({ id: s.id, label: s.title, pct: s.pct, color: s.color, icon: s.icon })), [statsBoxes]);
   const activeStat = statsBoxes.find((s) => s.id === activeTask);
 
-  if (!entriesLoaded) return <LoadingBlock className="py-24" />;
+  if (!entriesLoaded) return <LoadingBlock fill />;
 
   return (
     <div className="flex flex-col gap-4 w-full pb-2">

@@ -166,7 +166,7 @@ export default function SuperAdminDashboard() {
     return (
       <div>
         <PageHeader title={t('nav.dashboard')} />
-        <LoadingBlock className="py-24" />
+        <LoadingBlock fill />
       </div>
     );
   }

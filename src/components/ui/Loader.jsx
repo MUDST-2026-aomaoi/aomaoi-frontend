@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useT } from '../../i18n';
+import { useNetworkStore } from '../../store/useNetworkStore';
 
 /**
  * Indeterminate loader: a ring whose arc grows and shrinks as it turns, around a swaying seedling.
@@ -23,13 +25,35 @@ export function SproutLoader({ size = 56 }) {
   );
 }
 
-/** Loader + label for a region whose data has not arrived yet. Fades in late, so a fast response never flashes it. */
-export function LoadingBlock({ label, className = 'py-12', size = 56 }) {
+/**
+ * Loader + label for a region whose data has not arrived yet. Fades in late, so a fast response never flashes it.
+ * `fill` centers it in the space under the page header (for whole-page loads).
+ * If the wait runs long, the "waiting for the server" note appears here, under the label, rather than as a
+ * second loader elsewhere. Its line is reserved up front so nothing jumps when it shows.
+ */
+export function LoadingBlock({ label, className = 'py-12', size = 56, fill = false }) {
   const t = useT();
+  const slow = useNetworkStore((s) => s.slow);
+  const mountLoader = useNetworkStore((s) => s.mountLoader);
+  const unmountLoader = useNetworkStore((s) => s.unmountLoader);
+
+  useEffect(() => {
+    mountLoader();
+    return unmountLoader;
+  }, [mountLoader, unmountLoader]);
+
   return (
-    <div role="status" className={`loader-block flex w-full flex-col items-center justify-center gap-3 text-sm font-medium text-[#6B7264] ${className}`}>
+    <div
+      role="status"
+      className={`loader-block flex w-full flex-col items-center justify-center gap-3 text-sm font-medium text-[#6B7264] ${fill ? 'min-h-[calc(100dvh-11rem)]' : className}`}
+    >
       <SproutLoader size={size} />
-      <span>{label ?? t('common.loading')}</span>
+      <span className="flex flex-col items-center gap-1 text-center">
+        <span>{label ?? t('common.loading')}</span>
+        <span className={`max-w-xs text-xs font-normal text-[#8A8F85] transition-opacity duration-200 ${slow ? 'visible opacity-100' : 'invisible opacity-0'}`}>
+          {t('loader.slow')}
+        </span>
+      </span>
     </div>
   );
 }

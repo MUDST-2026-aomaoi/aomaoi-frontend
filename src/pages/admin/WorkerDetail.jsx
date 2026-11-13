@@ -160,7 +160,7 @@ export default function WorkerDetail() {
         {loadedWorkers ? (
           <p data-test="worker-detail-missing" className="py-8 text-center text-gray-400">{t('wkd.notFound')}</p>
         ) : (
-          <LoadingBlock className="py-16" />
+          <LoadingBlock fill />
         )}
       </div>
     );
