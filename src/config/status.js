@@ -1,7 +1,7 @@
 export const STATUS_STYLE = {
-  active: 'bg-[#dcfce7] text-[#166534]',
-  pending: 'bg-[#fef08a] text-[#854d0e]',
-  inactive: 'bg-[#fecdd3] text-[#991b1b]',
+  active: 'bg-[#E6F0D6] text-[#2E4A1F]',
+  pending: 'bg-[#FEF3C7] text-[#92400E]',
+  inactive: 'bg-[#FEE2E2] text-[#991B1B]',
 };
 
 import { t } from '../i18n';

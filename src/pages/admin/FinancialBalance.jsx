@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Avatar } from '../../components/ui/Avatar';
 import { STATUS_STYLE } from '../../config/status';
 import { Dropdown } from '../../components/ui/Dropdown';
+import { Pagination } from '../../components/ui/Pagination';
+import { usePageSize, usePagedList } from '../../hooks/usePageSize';
 import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { useWorkerBalanceStore } from '../../store/useWorkerBalanceStore';
@@ -16,15 +18,15 @@ const statusOptions = (t) => [
 
 function SummaryTile({ label, value, tone = 'text-gray-700', dataTest }) {
   const t = useT();
-  // Same sizing as the Dashboard stat cards. Unit wraps under the number on very narrow screens.
+  // Three tiles always share one row: type scales up with the screen, label may wrap to 2 lines.
   return (
-    <div className="flex min-w-0 flex-col justify-center rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
-      <p className="mb-1 truncate text-sm font-medium text-gray-600 sm:text-base">{label}</p>
-      <div className="flex flex-wrap items-baseline gap-x-2">
-        <h3 data-test={dataTest} className={`text-2xl font-bold sm:text-3xl ${tone}`}>
+    <div className="flex min-w-0 flex-col justify-between rounded-2xl bg-white p-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:rounded-[20px] sm:p-4 lg:p-5">
+      <p className="mb-1 text-xs font-medium leading-snug text-gray-600 sm:text-sm lg:text-base">{label}</p>
+      <div className="flex flex-wrap items-baseline gap-x-1.5">
+        <h3 data-test={dataTest} className={`text-lg font-bold leading-tight sm:text-2xl lg:text-3xl ${tone}`}>
           {value}
         </h3>
-        <span className="text-sm font-medium text-gray-400">{t('common.baht')}</span>
+        <span className="text-[11px] font-medium text-gray-400 sm:text-sm">{t('common.baht')}</span>
       </div>
     </div>
   );
@@ -76,11 +78,15 @@ export default function FinancialBalance() {
     [balances, workerFilter]
   );
 
+  const pageSize = usePageSize({ rowHeight: 65, reserved: 445 });
+  const pager = usePagedList(filtered, pageSize);
+  const pageItems = pager.pageItems;
+
   return (
     <div>
       <PageHeader title={t('fb.pageTitle')} />
 
-      <div className="mb-6 grid grid-cols-3 gap-3 sm:gap-4">
+      <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
         <SummaryTile label={t('fb.totalEarnings')} value={formatAmount(totals.earnings)} tone="text-[#205e2e]" dataTest="balance-total-earnings" />
         <SummaryTile label={t('fb.totalAdvances')} value={formatAmount(totals.advances)} dataTest="balance-total-advances" />
         <SummaryTile label={t('fb.totalDebt')} value={formatAmount(totals.debt)} tone="text-red-600" dataTest="balance-total-debt" />
@@ -114,9 +120,9 @@ export default function FinancialBalance() {
         </div>
       )}
 
-      <div tabIndex={0} role="region" aria-label={t('fb.tableLabel')} className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="w-full min-w-[720px] border-collapse text-center text-xs sm:text-sm">
-          <thead className="sticky top-0 z-10 bg-[#3F5C2B] text-white">
+      <div tabIndex={0} role="region" aria-label={t('fb.tableLabel')} className="overflow-x-auto rounded-[20px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+        <table className="rtable w-full min-w-[600px] border-collapse text-center text-xs sm:text-sm">
+          <thead className="sticky top-0 z-10 bg-[#2E4A1F] text-white">
             <tr>
               <th className="px-4 py-3 text-left sm:px-6 sm:py-3.5 font-medium">{t('col.name')}</th>
               <th className="px-3 py-3 sm:px-4 sm:py-3.5 font-medium">{t('col.nickname')}</th>
@@ -127,11 +133,11 @@ export default function FinancialBalance() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((b) => (
+            {pageItems.map((b) => (
               <tr
                 key={b.workerId}
                 data-test="balance-row"
-                className="border-b border-gray-100 transition-colors last:border-0 hover:bg-gray-50"
+                className="border-b border-[#F0F2EA] transition-colors last:border-0 hover:bg-[#E6F0D6]/50"
               >
                 <td className="px-4 py-3 text-left sm:px-6 sm:py-4">
                   <div className="flex items-center gap-3">
@@ -139,20 +145,20 @@ export default function FinancialBalance() {
                     <span className="font-semibold text-gray-800">{b.fullName}</span>
                   </div>
                 </td>
-                <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">{b.nickname || '-'}</td>
-                <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800" data-test="balance-row-earnings">
+                <td data-label={t('col.nickname')} className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800">{b.nickname || '-'}</td>
+                <td data-label={t('fb.col.earnings')} className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800" data-test="balance-row-earnings">
                   {formatAmount(b.totalEarnings)}
                 </td>
-                <td className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800" data-test="balance-row-advances">
+                <td data-label={t('fb.col.advances')} className="px-3 py-3 sm:px-4 sm:py-4 text-gray-800" data-test="balance-row-advances">
                   {formatAmount(b.totalAdvances)}
                 </td>
-                <td
+                <td data-label={t('fb.col.balance')}
                   className={`px-3 py-3 sm:px-4 sm:py-4 font-semibold ${b.inDebt ? 'text-red-600' : 'text-farm-primary'}`}
                   data-test="balance-row-remaining"
                 >
                   {formatAmount(b.remainingBalance)}
                 </td>
-                <td className="px-3 py-3 pr-4 sm:px-4 sm:py-4 sm:pr-6" data-test="balance-row-status">
+                <td data-label={t('col.status')} className="px-3 py-3 pr-4 sm:px-4 sm:py-4 sm:pr-6" data-test="balance-row-status">
                   {b.inDebt ? (
                     <span className={`inline-block rounded-full px-4 py-1.5 text-xs font-bold ${STATUS_STYLE.inactive}`}>{t('fb.debtAmount', { amount: formatAmount(b.outstandingDebt) })}</span>
                   ) : (
@@ -171,6 +177,7 @@ export default function FinancialBalance() {
           </tbody>
         </table>
       </div>
+      <Pagination pager={pager} />
     </div>
   );
 }

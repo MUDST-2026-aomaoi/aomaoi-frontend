@@ -23,7 +23,7 @@ const monthKey = (year, month) => `${year}-${pad(month + 1)}`;
 
 function Section({ title, children, testId }) {
   return (
-    <section data-test={testId} className="mb-6 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
+    <section data-test={testId} className="mb-6 rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-6">
       <h3 className="mb-4 text-base font-bold text-gray-900 sm:text-lg">{title}</h3>
       {children}
     </section>
@@ -33,7 +33,7 @@ function Section({ title, children, testId }) {
 function StatTile({ label, value, tone = 'text-gray-700', testId }) {
   const t = useT();
   return (
-    <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+    <div className="min-w-0 rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
       <p className="mb-1 truncate text-sm font-medium text-gray-600">{label}</p>
       <div className="flex flex-wrap items-baseline gap-x-2">
         <span data-test={testId} className={`text-2xl font-bold ${tone}`}>{value}</span>
@@ -172,7 +172,7 @@ export default function WorkerDetail() {
         <ArrowLeft className="h-4 w-4" /> {t('wkd.back')}
       </Link>
 
-      <div className="mb-6 flex flex-wrap items-center gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6">
+      <div className="mb-6 flex flex-wrap items-center gap-4 rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-6">
         <Avatar src={worker.avatar} name={worker.fullName} className="h-16 w-16 text-2xl" />
         <div className="min-w-0 flex-1">
           <h2 data-test="worker-detail-name" className="truncate text-xl font-bold text-gray-900">{worker.fullName}</h2>
@@ -200,11 +200,11 @@ export default function WorkerDetail() {
       <Section title={t('wkd.attendance')} testId="worker-detail-attendance">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <button type="button" data-test="attendance-prev-month" aria-label={t('wkd.prevMonth')} onClick={() => shiftMonth(-1)} className="rounded-lg border border-gray-200 p-1.5 text-gray-600 hover:bg-gray-50">
+            <button type="button" data-test="attendance-prev-month" aria-label={t('wkd.prevMonth')} onClick={() => shiftMonth(-1)} className="rounded-lg border border-[#E4E9DA] p-1.5 text-gray-600 hover:bg-[#E6F0D6]/50">
               <ChevronLeft className="h-4 w-4" />
             </button>
             <span data-test="attendance-month-title" className="min-w-36 text-center font-semibold text-gray-800">{monthTitle}</span>
-            <button type="button" data-test="attendance-next-month" aria-label={t('wkd.nextMonth')} onClick={() => shiftMonth(1)} className="rounded-lg border border-gray-200 p-1.5 text-gray-600 hover:bg-gray-50">
+            <button type="button" data-test="attendance-next-month" aria-label={t('wkd.nextMonth')} onClick={() => shiftMonth(1)} className="rounded-lg border border-[#E4E9DA] p-1.5 text-gray-600 hover:bg-[#E6F0D6]/50">
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
@@ -234,7 +234,7 @@ export default function WorkerDetail() {
                 onClick={() => setSelectedDay(date)}
                 title={record?.note || undefined}
                 className={`flex aspect-square flex-col items-center justify-center rounded-lg border text-sm transition-colors ${
-                  record ? ATTENDANCE_STYLE[record.status].cell : 'border-gray-100 bg-white text-gray-700 hover:bg-gray-50'
+                  record ? ATTENDANCE_STYLE[record.status].cell : 'border-[#EEF1E6] bg-white text-gray-700 hover:bg-[#E6F0D6]/50'
                 } ${date === today ? 'ring-2 ring-farm-primary' : ''} ${clickable ? 'cursor-pointer' : 'cursor-default'}`}
               >
                 <span className="font-semibold">{Number(date.slice(8))}</span>
@@ -256,9 +256,9 @@ export default function WorkerDetail() {
           <p className="py-4 text-center text-gray-400">{t('wkd.noWork')}</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[480px] text-left text-sm">
+            <table className="rtable w-full min-w-[480px] text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-gray-500">
+                <tr className="border-b border-[#F0F2EA] text-gray-500">
                   <th className="py-2 pr-4 font-medium">{t('col.date')}</th>
                   <th className="py-2 pr-4 font-medium">{t('col.workType')}</th>
                   <th className="py-2 pr-4 font-medium">{t('col.qty')}</th>
@@ -269,15 +269,15 @@ export default function WorkerDetail() {
                 {myEntries.map((entry) => {
                   const config = WORK_LOG_TYPES[entry.type];
                   return (
-                    <tr key={entry.id} className="border-b border-gray-50 last:border-0">
-                      <td className="py-2 pr-4 text-gray-700">
+                    <tr key={entry.id} className="border-b border-[#F0F2EA] last:border-0">
+                      <td data-label={t('col.date')} className="py-2 pr-4 text-gray-700">
                         {entry.startDate && entry.endDate && entry.startDate !== entry.endDate
                           ? `${formatDate(entry.startDate)} - ${formatDate(entry.endDate)}`
                           : formatDate(entry.startDate || entry.date)}
                       </td>
-                      <td className="py-2 pr-4 text-gray-700">{config?.labelTh ?? entry.type}</td>
-                      <td className="py-2 pr-4 text-gray-700">{config ? `${config.primaryQty(entry)} ${config.primaryUnit}` : ''}</td>
-                      <td className="py-2 text-right font-medium text-gray-800">{formatAmount(entry.total)}</td>
+                      <td data-label={t('col.workType')} className="py-2 pr-4 text-gray-700">{config?.labelTh ?? entry.type}</td>
+                      <td data-label={t('col.qty')} className="py-2 pr-4 text-gray-700">{config ? `${config.primaryQty(entry)} ${config.primaryUnit}` : ''}</td>
+                      <td data-label={t('col.wages')} className="py-2 text-right font-medium text-gray-800">{formatAmount(entry.total)}</td>
                     </tr>
                   );
                 })}
@@ -292,9 +292,9 @@ export default function WorkerDetail() {
           <p className="py-4 text-center text-gray-400">{t('wkd.noAdvance')}</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[480px] text-left text-sm">
+            <table className="rtable w-full min-w-[480px] text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-gray-500">
+                <tr className="border-b border-[#F0F2EA] text-gray-500">
                   <th className="py-2 pr-4 font-medium">{t('col.date')}</th>
                   <th className="py-2 pr-4 font-medium">{t('adv.col.type')}</th>
                   <th className="py-2 pr-4 font-medium">{t('adv.col.detail')}</th>
@@ -303,11 +303,11 @@ export default function WorkerDetail() {
               </thead>
               <tbody>
                 {myAdvances.map((advance) => (
-                  <tr key={advance.id} className="border-b border-gray-50 last:border-0">
-                    <td className="py-2 pr-4 text-gray-700">{formatDate(advance.advanceDate)}</td>
-                    <td className="py-2 pr-4 text-gray-700">{advance.type === 'CASH' ? t('advance.cash') : t('advance.goods')}</td>
-                    <td className="py-2 pr-4 text-gray-700">{advance.itemName || ''}</td>
-                    <td className="py-2 text-right font-medium text-gray-800">{formatAmount(advance.amount)}</td>
+                  <tr key={advance.id} className="border-b border-[#F0F2EA] last:border-0">
+                    <td data-label={t('col.date')} className="py-2 pr-4 text-gray-700">{formatDate(advance.advanceDate)}</td>
+                    <td data-label={t('adv.col.type')} className="py-2 pr-4 text-gray-700">{advance.type === 'CASH' ? t('advance.cash') : t('advance.goods')}</td>
+                    <td data-label={t('adv.col.detail')} className="py-2 pr-4 text-gray-700">{advance.itemName || ''}</td>
+                    <td data-label={t('adv.col.value')} className="py-2 text-right font-medium text-gray-800">{formatAmount(advance.amount)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -318,9 +318,9 @@ export default function WorkerDetail() {
 
       {selectedDay && (
         <ModalShell onClose={() => setSelectedDay(null)} className="w-full sm:w-100">
-          <div className="mb-4 flex items-center justify-between border-b border-farm-primary pb-2">
-            <h3 className="text-lg font-bold text-farm-primary">{t('wkd.dayTitle', { date: formatDateLong(selectedDay) })}</h3>
-            <button type="button" onClick={() => setSelectedDay(null)} className="text-gray-400 hover:text-gray-600">
+          <div className="mb-4 flex items-center justify-between border-b border-[#E6F0D6] pb-3">
+            <h3 className="text-xl font-extrabold tracking-tight text-farm-primary">{t('wkd.dayTitle', { date: formatDateLong(selectedDay) })}</h3>
+            <button type="button" onClick={() => setSelectedDay(null)} className="rounded-full p-1.5 text-[#8A8F85] transition hover:bg-[#E6F0D6]/70 hover:text-[#2E4A1F]">
               <X className="h-5 w-5" />
             </button>
           </div>
