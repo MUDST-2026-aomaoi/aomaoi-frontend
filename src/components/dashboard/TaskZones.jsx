@@ -14,6 +14,7 @@ const GAP = 22;
 const STEP = TILE + GAP;
 const THICK = 10;
 const ROOM = 44;
+const CHIP_ROOM = 34; // space under the field for the front plots' labels
 
 const pts = (list) => list.map((p) => p.join(',')).join(' ');
 const up = ([x, y], dy) => [x, y - dy];
@@ -180,8 +181,16 @@ export function TaskZones({ zones, activeId, onActive, className = '', showChips
       const gy = Math.floor(i / 2);
       const a0 = gx * STEP - off - TILE / 2;
       const b0 = gy * STEP - off - TILE / 2;
-      const [cx, cy] = proj(a0 + TILE / 2, b0 + TILE / 2);
-      return { ...z, a0, b0, cx, cy, order: (a0 + TILE / 2) * SIN + (b0 + TILE / 2) * COS };
+      const P = (u, v) => proj(a0 + u, b0 + v);
+      // Labels go in the empty space just outside each plot's outer edge, so they never cover the drawing:
+      // back plot above its cane, right plot above its back edge, left plot below its front edge, front plot below it.
+      const chip = [
+        { at: up(P(12, 12), 30), below: false },
+        { at: up(P(55, 0), 16), below: false },
+        { at: up(P(45, TILE), -(THICK + 16)), below: true },
+        { at: up(P(TILE - 12, TILE - 12), -(THICK + 14)), below: true },
+      ][gy * 2 + gx];
+      return { ...z, a0, b0, chip, order: (a0 + TILE / 2) * SIN + (b0 + TILE / 2) * COS };
     });
     let minX = Infinity;
     let maxX = -Infinity;
@@ -193,12 +202,13 @@ export function TaskZones({ zones, activeId, onActive, className = '', showChips
         minX = Math.min(minX, x);
         maxX = Math.max(maxX, x);
         minY = Math.min(minY, y - ROOM);
-        maxY = Math.max(maxY, y + THICK);
+        maxY = Math.max(maxY, y + THICK + (showChips ? CHIP_ROOM : 0));
       });
     });
     const pad = 12;
-    return { tiles, vb: { x: minX - pad, y: minY - pad, w: maxX - minX + pad * 2, h: maxY - minY + pad * 2 } };
-  }, [zones]);
+    const padX = showChips ? 30 : pad; // side labels reach a little past the field
+    return { tiles, vb: { x: minX - padX, y: minY - pad, w: maxX - minX + padX * 2, h: maxY - minY + pad * 2 } };
+  }, [zones, showChips]);
 
   const { tiles, vb } = layout;
   const drawOrder = [...tiles].sort((a, b) => a.order - b.order);
@@ -219,9 +229,9 @@ export function TaskZones({ zones, activeId, onActive, className = '', showChips
         ))}
       </svg>
 
-      {/* Each label sits on the middle of its own plot (not floating above it), with the task's icon. */}
       {showChips && tiles.map((t) => {
         const Icon = t.icon;
+        const [ax, ay] = t.chip.at;
         return (
           <button
             key={`chip-${t.id}`}
@@ -230,13 +240,13 @@ export function TaskZones({ zones, activeId, onActive, className = '', showChips
             onMouseEnter={() => onActive(t.id)}
             onMouseLeave={() => onActive(null)}
             onClick={() => onActive(activeId === t.id ? null : t.id)}
-            className={`absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-white/95 py-0.5 pl-0.5 pr-2 text-[10px] font-semibold text-[#1A1A1A] shadow-[0_3px_10px_rgba(46,74,31,0.22)] transition duration-200 sm:gap-1.5 sm:text-[11px] ${
+            className={`absolute flex -translate-x-1/2 ${t.chip.below ? '' : '-translate-y-full'} items-center gap-1 whitespace-nowrap rounded-full bg-white/95 py-0.5 pl-0.5 pr-2 text-[10px] font-semibold text-[#1A1A1A] shadow-[0_3px_10px_rgba(46,74,31,0.22)] transition duration-200 sm:gap-1.5 sm:text-[11px] ${
               activeId === t.id ? 'ring-2 ring-[#A8D04A]' : activeId ? 'opacity-40' : ''
             }`}
-            style={{ left: `${((t.cx - vb.x) / vb.w) * 100}%`, top: `${((t.cy - vb.y) / vb.h) * 100}%` }}
+            style={{ left: `${((ax - vb.x) / vb.w) * 100}%`, top: `${((ay - vb.y) / vb.h) * 100}%` }}
           >
             <span
-              className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full sm:h-5 sm:w-5"
+              className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full sm:h-5 sm:w-5"
               style={{ backgroundColor: t.color, color: isLight(t.color) ? '#1F3C14' : '#FFFFFF' }}
             >
               {Icon ? <Icon className="h-2.5 w-2.5 sm:h-3 sm:w-3" strokeWidth={2.6} /> : null}
