@@ -55,7 +55,7 @@ export function useFitRows({ min = 4, max = 50, mobile = 5, fallbackRow = 60, fo
       return;
     }
     const main = el.closest('main');
-    const rows = [...el.querySelectorAll('tbody tr:not([data-skeleton])')].filter((r) => !r.querySelector('td[colspan]'));
+    const rows = [...el.querySelectorAll('tbody tr')].filter((r) => !r.querySelector('td[colspan]'));
     rows.forEach((r) => { maxRow.current = Math.max(maxRow.current, r.offsetHeight); });
     const rowH = maxRow.current || fallbackRow;
     const headH = el.querySelector('thead')?.offsetHeight ?? 48;

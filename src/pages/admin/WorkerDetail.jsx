@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Avatar } from '../../components/ui/Avatar';
 import { ModalShell } from '../../components/ui/ModalShell';
-import { ListSkeleton, LoadingBlock } from '../../components/ui/Skeleton';
+import { LoadingBlock } from '../../components/ui/Loader';
 import { AttendanceButtons } from '../../components/attendance/AttendanceButtons';
 import { LeaveNoteModal } from '../../components/attendance/LeaveNoteModal';
 import { PageHeader } from '../../layouts/admin/PageHeader';
@@ -258,7 +258,7 @@ export default function WorkerDetail() {
 
       <Section title={t('wkd.workHistory')} testId="worker-detail-work">
         {!entriesLoaded ? (
-          <ListSkeleton />
+          <LoadingBlock size={40} className="py-6" />
         ) : myEntries.length === 0 ? (
           <p className="py-4 text-center text-gray-400">{t('wkd.noWork')}</p>
         ) : (
@@ -296,7 +296,7 @@ export default function WorkerDetail() {
 
       <Section title={t('wkd.advanceHistory')} testId="worker-detail-advances-list">
         {!advancesLoaded ? (
-          <ListSkeleton />
+          <LoadingBlock size={40} className="py-6" />
         ) : myAdvances.length === 0 ? (
           <p className="py-4 text-center text-gray-400">{t('wkd.noAdvance')}</p>
         ) : (

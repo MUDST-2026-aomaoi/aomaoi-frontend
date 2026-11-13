@@ -124,59 +124,52 @@ body {
   transition: background-color 9999s ease-out 0s;
 }
 
-/* ---- Loading states (TopLoader, Spinner, Skeleton) ----
-   In the components layer so Tailwind utilities (h-*, w-*, rounded-*) can size each instance. */
+/* ---- Loading states (Loader.jsx, Spinner.jsx, NetworkStatus.jsx) ----
+   Indeterminate only: nothing here claims a percentage it doesn't know. */
 :root {
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-sine: cubic-bezier(0.45, 0, 0.55, 1); /* easeInOutQuad: organic back-and-forth */
 }
 
 @layer components {
-  /* Top progress bar. Resting state is off-screen and transparent; TopLoader.jsx animates it with WAAPI. */
-  .top-loader {
-    position: fixed;
-    inset: 0 0 auto 0;
-    z-index: 100;
-    height: 3px;
-    pointer-events: none;
+  /* Ring + seedling. The ring is its own <svg> so its rotation stays on the compositor. */
+  .sprout-loader {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
-  .top-loader-bar {
+  .sprout-loader-ring {
     position: absolute;
     inset: 0;
-    transform: translateX(-100%);
-    opacity: 0;
-    will-change: transform, opacity;
-  }
-  .top-loader-fill {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    border-radius: 0 9999px 9999px 0;
-    background: linear-gradient(90deg, #2E4A1F 0%, #4F7A2B 45%, #A8D04A 100%);
-  }
-  /* Light sweeping along the bar; only runs while the bar is active. */
-  .top-loader-fill::before {
-    content: '';
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 30%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-    transform: translateX(-100%);
-    animation: top-loader-sheen 1.4s linear infinite paused;
-  }
-  .top-loader[data-active] .top-loader-fill::before { animation-play-state: running; }
-  /* Soft glow at the leading edge. */
-  .top-loader-peg {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 96px;
+    width: 100%;
     height: 100%;
-    border-radius: 9999px;
-    box-shadow: 0 0 12px #A8D04A, 0 0 4px #A8D04A;
-    opacity: 0.9;
+    animation: loader-spin 2s linear infinite;
   }
+  .sprout-loader-arc {
+    stroke-dasharray: 1 140;
+    stroke-dashoffset: 0;
+    animation: sprout-arc 1.5s var(--ease-sine) infinite;
+  }
+  .sprout-loader-plant {
+    position: relative;
+    width: 72%;
+    height: 72%;
+  }
+  .sprout-sway {
+    transform-box: view-box;
+    transform-origin: 12px 19px;
+    animation: sprout-sway 2.4s var(--ease-sine) infinite alternate;
+  }
+  .sprout-leaf {
+    transform-box: view-box;
+    animation: sprout-leaf 1.2s var(--ease-sine) infinite alternate;
+  }
+  .sprout-leaf-l { transform-origin: 12px 14.5px; }
+  .sprout-leaf-r { transform-origin: 12px 11.5px; animation-delay: -0.6s; }
 
-  /* "Taking a while" note under the bar. Transitions (not keyframes) so a flicker of slow/fast can't stack. */
+  /* "Waiting for the server" note. Transitions (not keyframes) so a flicker of slow/fast can't stack. */
   .loader-pill {
     position: fixed;
     top: 14px;
@@ -213,32 +206,33 @@ body {
     animation: loader-spin 0.7s linear infinite, loader-fade-in 150ms var(--ease-out);
   }
 
+  /* Waits 150ms before fading in, so a fast response never flashes the loader. */
   .loader-block { animation: loader-fade-in 240ms var(--ease-out) 150ms both; }
-
-  .skeleton {
-    position: relative;
-    overflow: hidden;
-    background: #EDF1E6;
-    animation: loader-fade-in 240ms var(--ease-out) calc(150ms + var(--sk-delay, 0ms)) both;
-  }
-  .skeleton::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
-    transform: translateX(-100%);
-    animation: skeleton-sheen 1.6s linear var(--sk-delay, 0ms) infinite;
-  }
 }
 
-@keyframes top-loader-sheen { to { transform: translateX(340%); } }
 @keyframes loader-spin { to { transform: rotate(360deg); } }
 @keyframes loader-fade-in { from { opacity: 0; } }
-@keyframes skeleton-sheen { to { transform: translateX(100%); } }
+/* Arc grows to ~2/3 of the ring, then its tail catches up (circumference ≈ 132). */
+@keyframes sprout-arc {
+  0% { stroke-dasharray: 1 140; stroke-dashoffset: 0; }
+  50% { stroke-dasharray: 88 140; stroke-dashoffset: -28; }
+  100% { stroke-dasharray: 88 140; stroke-dashoffset: -131; }
+}
+@keyframes sprout-sway {
+  from { transform: rotate(-6deg); }
+  to { transform: rotate(6deg); }
+}
+@keyframes sprout-leaf {
+  from { transform: scale(0.82); }
+  to { transform: scale(1); }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .top-loader-fill::before,
-  .skeleton::after { display: none; }
+  /* Keep a slow turn so it still reads as "working"; drop the sway and the stretching arc. */
+  .sprout-sway,
+  .sprout-leaf { animation: none; }
+  .sprout-loader-arc { animation: none; stroke-dasharray: 44 140; }
+  .sprout-loader-ring { animation-duration: 3s; }
   .loader-spin { animation-duration: 1.6s, 150ms; }
   .loader-pill,
   .loader-pill[data-show='true'] { transform: translate(-50%, 0); }

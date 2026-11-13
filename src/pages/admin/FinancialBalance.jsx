@@ -3,7 +3,7 @@ import { Avatar } from '../../components/ui/Avatar';
 import { STATUS_STYLE } from '../../config/status';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { Pagination } from '../../components/ui/Pagination';
-import { TableSkeletonRows } from '../../components/ui/Skeleton';
+import { TableLoadingRow } from '../../components/ui/Loader';
 import { useFitRows, usePagedList } from '../../hooks/usePageSize';
 import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
@@ -168,7 +168,7 @@ export default function FinancialBalance() {
                 </td>
               </tr>
             ))}
-            {!loaded && <TableSkeletonRows cols={6} cellClassName="px-3 py-3.5 sm:px-4 sm:py-4" />}
+            {!loaded && <TableLoadingRow cols={6} />}
             {loaded && filtered.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-8 text-gray-400">

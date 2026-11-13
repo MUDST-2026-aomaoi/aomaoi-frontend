@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { useWorkLogStore } from '../../store/useWorkLogStore';
 import { useAuthStore } from '../../controller/authController';
+import { LoadingBlock } from '../../components/ui/Loader';
 import { WORK_LOG_TYPES, WORK_LOG_ORDER } from '../../config/workLogTypes';
 import { formatDate, formatBaht, formatAmount } from '../../lib/format';
 import { useT, periodOptions } from '../../i18n';
@@ -46,6 +47,7 @@ export default function WorkerDashboard() {
   
   const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
   const fetchMyBalance = useWorkLogStore((s) => s.fetchMyBalance);
+  const entriesLoaded = useWorkLogStore((s) => s.loaded);
   useEffect(() => {
     fetchEntries();
     fetchMyBalance();
@@ -115,8 +117,10 @@ export default function WorkerDashboard() {
     });
   }, [filteredTaskEntries, taskPeriodTotal, t]);
 
-  const zones = useMemo(() => statsBoxes.map((s) => ({ id: s.id, label: s.title, pct: s.pct, color: s.color })), [statsBoxes]);
+  const zones = useMemo(() => statsBoxes.map((s) => ({ id: s.id, label: s.title, pct: s.pct, color: s.color, icon: s.icon })), [statsBoxes]);
   const activeStat = statsBoxes.find((s) => s.id === activeTask);
+
+  if (!entriesLoaded) return <LoadingBlock className="py-24" />;
 
   return (
     <div className="flex flex-col gap-4 w-full pb-2">
@@ -208,7 +212,7 @@ export default function WorkerDashboard() {
           <div className="flex-1 flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-6">
             {/* Isometric work zones: tap a zone or card to see that task's pay */}
             <div className="flex-1 min-w-0 flex flex-col items-center justify-center gap-2 w-full">
-              <TaskZones zones={zones} activeId={activeTask} onActive={setActiveTask} className="max-w-[320px]" />
+              <TaskZones zones={zones} activeId={activeTask} onActive={setActiveTask} className="max-w-[360px]" />
               <div className="text-center leading-tight">
                 <p className="text-xs text-[#8A8F85]">{activeStat ? activeStat.title : t('common.total')}</p>
                 <p className="text-2xl font-extrabold text-[#1A1A1A]">
@@ -225,7 +229,7 @@ export default function WorkerDashboard() {
                   <div className="w-[10px] sm:w-[13px] self-stretch shrink-0" style={{ backgroundColor: stat.color }}></div>
                   <div className="flex-1 flex items-center justify-between pl-2 sm:pl-2.5 pr-2.5 sm:pr-3 py-1 min-w-0">
                     <div className="flex flex-col justify-center text-left leading-tight min-w-0">
-                      <span className="text-[11px] sm:text-[12px] font-medium text-black leading-tight truncate">{stat.title}</span>
+                      <span className="flex items-center gap-1 text-[11px] sm:text-[12px] font-medium text-black leading-tight min-w-0"><stat.icon className="h-3 w-3 shrink-0 text-[#4F7A2B]" strokeWidth={2.4} /><span className="truncate">{stat.title}</span></span>
                       <span className="text-[10px] text-[#989898] font-normal leading-tight mt-0.5 truncate">{stat.amountNum} {stat.unit}</span>
                       <span className="text-[10px] text-[#989898] font-normal leading-tight truncate">{stat.thbStr} {t('common.baht')}</span>
                     </div>

@@ -7,7 +7,7 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { SuccessModal } from '../../components/ui/SuccessModal';
-import { FarmCardSkeleton } from '../../components/ui/Skeleton';
+import { LoadingBlock } from '../../components/ui/Loader';
 import { TableToolbar, TOOLBAR_FILTER_CLASS } from '../../components/ui/TableToolbar';
 import { PageHeader } from '../../layouts/admin/PageHeader';
 import { CURRENT_SUPER_ADMIN } from '../../config/currentUser';
@@ -272,7 +272,7 @@ export default function AllFarms() {
             </div>
           </div>
         ))}
-        {!farmsLoaded && Array.from({ length: 3 }, (_, i) => <FarmCardSkeleton key={i} index={i} />)}
+        {!farmsLoaded && <LoadingBlock className="col-span-full py-16" />}
         {farmsLoaded && filtered.length === 0 && <p className="col-span-full py-8 text-center text-gray-400">{t('farm.empty')}</p>}
       </div>
 

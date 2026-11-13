@@ -20,7 +20,7 @@ import { formatDateLong } from '../../lib/format';
 import { STATUS_STYLE, STATUS_LABEL } from '../../config/status';
 import { useT } from '../../i18n';
 import { Pagination } from '../../components/ui/Pagination';
-import { TableSkeletonRows } from '../../components/ui/Skeleton';
+import { TableLoadingRow } from '../../components/ui/Loader';
 import { useFitRows, usePagedList } from '../../hooks/usePageSize';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -414,7 +414,7 @@ export default function AdminsManagement() {
                 </td>
               </tr>
             ))}
-            {!adminsLoaded && <TableSkeletonRows cols={8} />}
+            {!adminsLoaded && <TableLoadingRow cols={8} />}
             {adminsLoaded && filtered.length === 0 && (
               <tr>
                 <td colSpan={8} className="py-8 text-gray-400">

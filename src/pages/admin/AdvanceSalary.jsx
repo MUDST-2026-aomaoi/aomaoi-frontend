@@ -8,7 +8,7 @@ import { Card } from '../../components/ui/Card';
 import { DateInput } from '../../components/ui/DateInput';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { Pagination } from '../../components/ui/Pagination';
-import { TableSkeletonRows } from '../../components/ui/Skeleton';
+import { TableLoadingRow } from '../../components/ui/Loader';
 import { usePageSize, usePagedList } from '../../hooks/usePageSize';
 import { Input } from '../../components/ui/Input';
 import { SuccessModal } from '../../components/ui/SuccessModal';
@@ -249,7 +249,7 @@ export default function AdvanceSalary() {
                     </tr>
                   );
                 })}
-                {!advancesLoaded && <TableSkeletonRows rows={5} cols={5} cellClassName="px-3 py-3.5 sm:px-4" />}
+                {!advancesLoaded && <TableLoadingRow cols={5} />}
                 {advancesLoaded && sorted.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-8 text-gray-400">

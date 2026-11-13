@@ -5,6 +5,7 @@ import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Avatar } from '../../components/ui/Avatar';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
+import { LoadingBlock } from '../../components/ui/Loader';
 import { FarmIsometric, FARM_VIEWS } from '../../components/dashboard/FarmIsometric';
 import { TaskChip } from '../../components/dashboard/TaskChip';
 import { useWorkerStore } from '../../store/useWorkerStore';
@@ -73,6 +74,8 @@ export default function Dashboard() {
   const getWorkerName = useWorkerStore((s) => s.getWorkerName);
   const entries = useWorkLogStore((s) => s.entries);
   const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
+  const workersLoaded = useWorkerStore((s) => s.loaded);
+  const entriesLoaded = useWorkLogStore((s) => s.loaded);
 
   useEffect(() => {
     fetchWorkers();
@@ -136,6 +139,15 @@ export default function Dashboard() {
         .slice(0, 4),
     [entries, hovered]
   );
+
+  if (!workersLoaded || !entriesLoaded) {
+    return (
+      <div className="dash-theme">
+        <PageHeader title={t('nav.dashboard')} />
+        <LoadingBlock className="py-24" />
+      </div>
+    );
+  }
 
   return (
     <div className="dash-theme">

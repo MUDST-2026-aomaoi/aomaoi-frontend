@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { PageHeader } from '../../layouts/admin/PageHeader';
+import { LoadingBlock } from '../../components/ui/Loader';
 import { FarmArchipelago } from '../../components/dashboard/FarmArchipelago';
 import { useFarmStore } from '../../store/useFarmStore';
 import { useAdminStore } from '../../store/useAdminStore';
@@ -45,6 +46,11 @@ export default function SuperAdminDashboard() {
   const fetchAdmins = useAdminStore((s) => s.fetchAdmins);
   const fetchEntries = useWorkLogStore((s) => s.fetchEntries);
   const fetchWorkers = useWorkerStore((s) => s.fetchWorkers);
+  const farmsLoaded = useFarmStore((s) => s.loaded);
+  const adminsLoaded = useAdminStore((s) => s.loaded);
+  const entriesLoaded = useWorkLogStore((s) => s.loaded);
+  const workersLoaded = useWorkerStore((s) => s.loaded);
+  const dataLoaded = farmsLoaded && adminsLoaded && entriesLoaded && workersLoaded;
 
   useEffect(() => {
     fetchFarms();
@@ -155,6 +161,15 @@ export default function SuperAdminDashboard() {
   const focusEntry = active ? [...donutData, ...breakdown].find((e) => e.key === active) : null;
 
   const currentUser = useAuthStore((s) => s.currentUser);
+
+  if (!dataLoaded) {
+    return (
+      <div>
+        <PageHeader title={t('nav.dashboard')} />
+        <LoadingBlock className="py-24" />
+      </div>
+    );
+  }
 
   return (
     <div>

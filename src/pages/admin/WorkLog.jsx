@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { ModalShell } from '../../components/ui/ModalShell';
 import { Dropdown } from '../../components/ui/Dropdown';
 import { Pagination } from '../../components/ui/Pagination';
-import { TableSkeletonRows } from '../../components/ui/Skeleton';
+import { TableLoadingRow } from '../../components/ui/Loader';
 import { useFitRows, usePagedList } from '../../hooks/usePageSize';
 import { DateInput } from '../../components/ui/DateInput';
 import { Avatar } from '../../components/ui/Avatar';
@@ -286,7 +286,7 @@ export default function WorkLog() {
                 </tr>
               );
             })}
-            {!entriesLoaded && <TableSkeletonRows cols={6} cellClassName="px-3 py-3.5 sm:px-4 sm:py-4" />}
+            {!entriesLoaded && <TableLoadingRow cols={6} />}
             {entriesLoaded && filtered.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-8 text-gray-400">
